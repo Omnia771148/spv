@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Button, Carousel } from 'react-bootstrap';
+import { Button, Carousel, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './restorentList.css';
 import { restList } from './restorentDtata';
@@ -15,18 +15,26 @@ export default function RestorentList() {
   // ===== LOCATION CODE =====
   const [savedLink, setSavedLink] = useState(null);
   const [error, setError] = useState(null);
+  const [showPopup, setShowPopup] = useState(true);
+
+  // ✅ FIX: Add this small check to stop the Red Error
+  const [mounted, setMounted] = useState(false);
 
   const minLat = 15.77;
   const maxLat = 16.20;
   const minLon = 78.00;
   const maxLon = 78.12;
 
+  // ✅ FIX: Set mounted to true only after the page loads in the browser
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const requestLocation = async () => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           const { latitude, longitude } = pos.coords;
-          // Fixed the template literal syntax here
           const mapLink = `https://www.google.com/maps?q=$${latitude},${longitude}`;
 
           const inside =
@@ -38,6 +46,9 @@ export default function RestorentList() {
           if (inside) {
             setSavedLink(mapLink);
             setError(null);
+            
+            // Logic: Close popup if inside
+            setShowPopup(false);
 
             try {
               const res = await fetch("/api/save-location", {
@@ -45,100 +56,103 @@ export default function RestorentList() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ url: mapLink }),
               });
-
               const data = await res.json();
-              if (data.success) console.log("✅ Location saved to MongoDB!");
+              if (data.success) console.log("✅ Location saved!");
             } catch (err) {
               console.error("API error:", err);
             }
           } else {
+            // Logic: Keep popup open if outside
             setError("❌ You are outside Kurnool City premises");
             setSavedLink(null);
+            setShowPopup(true);
           }
         },
         (err) => {
-           // Improved error messages for Safari/Chrome users
            if(err.code === 1) {
-             setError("⚠️ Please allow location access in your Browser & Phone Settings.");
+             setError("⚠️ Please allow location access.");
            } else {
-             setError("⚠️ Unable to retrieve location. Please try again.");
+             setError("⚠️ Unable to retrieve location.");
            }
+           setShowPopup(true);
         },
-        {
-          enableHighAccuracy: true, // Forces OS/GPS to wake up
-          maximumAge: 0,            // Forces a fresh check (no cache)
-          timeout: 15000,
-        }
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
       );
     } else {
-      setError("⚠️ Geolocation is not supported on this device.");
+      setError("⚠️ Geolocation is not supported.");
+      setShowPopup(true);
     }
   };
 
-  // 🔥 AUTO LOCATION ON PAGE LOAD
+  // 🔥 YOUR LOGIC: Polling every 3 seconds
   useEffect(() => {
-    requestLocation();
-  }, []);
+    if (mounted) { // Only run if browser is ready
+        requestLocation(); 
+        const interval = setInterval(() => {
+           requestLocation();
+        }, 3000); 
+        return () => clearInterval(interval); 
+    }
+  }, [mounted]); 
   // ===== LOCATION CODE END =====
 
   const router = useRouter();
 
   const handleClick = (name) => {
-    if (name === "KNL") {
-      window.location.href = './knlrest';
-    } else if (name === "Snow Field") {
-      window.location.href = './snowfield';
-    } else if (name === "Kushas") {
-      window.location.href = './kushas';
-    } else {
-      alert(`${name} is clicked`);
-    }
+    if (name === "KNL") window.location.href = './knlrest';
+    else if (name === "Snow Field") window.location.href = './snowfield';
+    else if (name === "Kushas") window.location.href = './kushas';
+    else alert(`${name} is clicked`);
   };
+
+  // ✅ FIX: If the page isn't ready in the browser, don't render yet. 
+  // This prevents the "Text content does not match" error.
+  if (!mounted) return null;
 
   return (
     <div>
-      <br />
+      {/* 🛑 POPUP MODAL */}
+      <Modal 
+        show={showPopup} 
+        backdrop="static" 
+        keyboard={false}  
+        centered
+      >
+        <Modal.Header>
+          <Modal.Title>📍 Location Check</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ textAlign: 'center' }}>
+          <h5>Checking your location...</h5>
+          <p>You must be within Kurnool City premises to view restaurants.</p>
+          
+          {error ? (
+             <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>
+          ) : (
+             <p style={{ color: "blue" }}>⌛ Waiting for location...</p>
+          )}
+        </Modal.Body>
+      </Modal>
 
+      <br />
       <Carousel interval={3000} pause={false} className='coroselmain'>
         <Carousel.Item className='coroselmain2'>
-          <img
-            className="d"
-            src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg"
-            alt="First slide"
-          />
+          <img className="d" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="First slide" />
         </Carousel.Item>
         <Carousel.Item className='coroselmain2'>
-          <img
-            className="d"
-            src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg"
-            alt="Second slide"
-          />
+          <img className="d" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="Second slide" />
         </Carousel.Item>
         <Carousel.Item className='coroselmain2'>
-          <img
-            className="d"
-            src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg"
-            alt="Third slide"
-          />
+          <img className="d" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="Third slide" />
         </Carousel.Item>
       </Carousel>
 
       <br />
       <h1>Search</h1>
-      <input
-        type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} />
 
       <br /><br /><br />
       <h2>Search Type</h2>
-      <select
-        id="restaurant"
-        name="restaurant"
-        onChange={(e) => setTypeFilter(e.target.value)}
-        value={typeFilter}
-      >
+      <select onChange={(e) => setTypeFilter(e.target.value)} value={typeFilter}>
         <option value="">All</option>
         <option value="veg">Veg</option>
         <option value="non-veg">Non-Veg</option>
@@ -152,25 +166,13 @@ export default function RestorentList() {
         })
         .map(item => (
           <div key={item.name}>
-            <button
-              onClick={() => handleClick(item.name)}
-              style={{
-                margin: '10px 0',
-                padding: '10px 20px',
-                backgroundColor: '#f8f8f8',
-                border: '1px solid #ccc',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              <RestorentDisplay name={item.name} place={item.place} rating= {item.rating}  image={item.image}/>
+            <button onClick={() => handleClick(item.name)} style={{ margin: '10px 0', padding: '10px 20px', backgroundColor: '#f8f8f8', border: '1px solid #ccc', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+              <RestorentDisplay name={item.name} place={item.place} rating={item.rating} image={item.image}/>
             </button>
           </div>
         ))
       }
 
-      {/* LOCATION STATUS */}
       {savedLink && <p>✅ Location Verified</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {!savedLink && !error && <p>⌛ Checking location...</p>}
