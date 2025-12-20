@@ -1,0 +1,2 @@
+
+export { LoginInfoPage } from './loginInfoPage';
