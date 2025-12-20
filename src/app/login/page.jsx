@@ -6,15 +6,32 @@ export default function Home({ handleFPClick, handleSignUp }) {
     const [users, setUsers] = useState([]);
     const [inputName, setInputName] = useState('');
     const [inputEmail, setInputEmail] = useState('');
+    const [loading, setLoading] = useState(true); // Added loading state
 
-    // Fetch users from backend when component loads
+    // 1. Check for existing session on load
     useEffect(() => {
+        const loggedInUser = localStorage.getItem("userId");
+        const loginTime = localStorage.getItem("loginTimestamp");
+
+        if (loggedInUser && loginTime) {
+            const currentTime = new Date().getTime();
+            const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+
+            if (currentTime - loginTime < sevenDaysInMs) {
+                window.location.href = "/mainRestorentList";
+                return; 
+            }
+        }
+
+        // If no user found or time expired, fetch users and show login page
         const fetchUsers = async () => {
             try {
                 const res = await axios.get('/api/users');
                 setUsers(res.data);
             } catch (err) {
                 console.error("Error fetching users:", err);
+            } finally {
+                setLoading(false); // Stop loading to show the login form
             }
         };
         fetchUsers();
@@ -22,14 +39,14 @@ export default function Home({ handleFPClick, handleSignUp }) {
 
     // Check user credentials
     const handleCheck = () => {
-        // Find matching user
         const matchedUser = users.find(
             (user) => user.phone === inputName && user.email === inputEmail
         );
 
         if (matchedUser) {
-            // Store user ID in localStorage
-            localStorage.setItem("userId", matchedUser._id); // or user.id depending on your DB
+            localStorage.setItem("userId", matchedUser._id);
+            localStorage.setItem("loginTimestamp", new Date().getTime().toString());
+
             alert("Login successful!");
             window.location.href = "/mainRestorentList";
         } else if (inputName === "" && inputEmail === "") {
@@ -39,6 +56,24 @@ export default function Home({ handleFPClick, handleSignUp }) {
         }
     };
 
+    // 2. Show a loading screen while checking status
+    if (loading) {
+        return (
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100vh', 
+                fontSize: '20px' 
+            }}>
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        );
+    }
+
+    // 3. Only if loading is false, show the Login Page
     return (
         <div style={{ padding: '20px' }}>
             <h2>Login</h2>
