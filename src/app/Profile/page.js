@@ -11,7 +11,7 @@ export default function Profile(){
             <div className="container" style={{ backgroundColor: "brown" }}>
                 <br></br>
                 <div className="row">
-                    <button onClick={() => window.location.href = "/cart"} style={{ backgroundColor: "green" }}>Edit Profile</button>
+                    <button onClick={() => window.location.href = "/userdetails"} style={{ backgroundColor: "green" }}>Edit Profile</button>
                 </div>
 
 
