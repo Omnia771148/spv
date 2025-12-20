@@ -111,6 +111,9 @@ export default function Cart() {
   };
 
   const totalPrice = Object.values(itemTotals).reduce((acc, val) => acc + val, 0);
+  const gstAmount = totalPrice * 0.05;   // 5% GST
+  const grandTotal = totalPrice + gstAmount;
+
 
   if (loading) return <p>Checking authentication...</p>;
 
@@ -166,6 +169,37 @@ export default function Cart() {
           ORDERS
         </button>
       </div>
+      <div> 
+        <div className="card shadow-sm mt-4">
+  <div className="card-body">
+
+    <h5 className="card-title mb-3">Bill Details</h5>
+
+    <div className="d-flex justify-content-between">
+      <span>Item Total</span>
+      <span>₹{totalPrice.toFixed(2)}</span>
+    </div>
+
+    <div className="d-flex justify-content-between">
+      <span>GST (5%)</span>
+      <span>₹{gstAmount.toFixed(2)}</span>
+    </div>
+
+    <hr />
+
+    <div className="d-flex justify-content-between fw-bold">
+      <span>Grand Total</span>
+      <span>₹{grandTotal.toFixed(2)}</span>
+    </div>
+
+    <small className="text-muted d-block mt-2">
+      Inclusive of all charges
+    </small>
+
+  </div>
+</div>
+
+    </div>
     </div>
   );
 }

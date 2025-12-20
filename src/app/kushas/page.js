@@ -100,6 +100,7 @@ export default function KushasMenuList() {
             <ProductCard
               key={item.id}
               name={item.name}
+              symbol={item.symbol}
               price={item.price}
               button={item.button}
               item={item}
