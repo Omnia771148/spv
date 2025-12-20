@@ -106,12 +106,11 @@ export default function RestorentList() {
   };
 
   // ✅ FIX: If the page isn't ready in the browser, don't render yet. 
-  // This prevents the "Text content does not match" error.
   if (!mounted) return null;
 
   return (
     <div>
-      {/* 🛑 POPUP MODAL */}
+      {/* 🛑 POPUP MODAL COMMENTED OUT
       <Modal 
         show={showPopup} 
         backdrop="static" 
@@ -126,14 +125,14 @@ export default function RestorentList() {
           <p>You must be within Kurnool City premises to view restaurants.</p>
           
           {error ? (
-             <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>
+              <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>
           ) : (
-             <p style={{ color: "blue" }}>⌛ Waiting for location...</p>
+              <p style={{ color: "blue" }}>⌛ Waiting for location...</p>
           )}
         </Modal.Body>
       </Modal>
+      */}
 
-      <br />
       <Carousel interval={3000} pause={false} className='coroselmain'>
         <Carousel.Item className='coroselmain2'>
           <img className="d" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="First slide" />
@@ -173,9 +172,11 @@ export default function RestorentList() {
         ))
       }
 
+      {/* Debugging Text at bottom to see if logic works without Modal */}
       {savedLink && <p>✅ Location Verified</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {!savedLink && !error && <p>⌛ Checking location...</p>}
+      
       <Navbar />
 
     </div>
