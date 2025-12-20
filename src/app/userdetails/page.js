@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({ name: "", email: "" });
+  const [isEditing, setIsEditing] = useState(false); // ✅ new state
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -20,7 +21,8 @@ export default function UsersPage() {
 
   const handleEditClick = (user) => {
     setFormData({ name: user.name, email: user.email });
-    localStorage.setItem("userId", user._id); // store id
+    localStorage.setItem("userId", user._id);
+    setIsEditing(true); // ✅ show form
   };
 
   const handleSave = async () => {
@@ -44,8 +46,8 @@ export default function UsersPage() {
       );
       setFormData({ name: "", email: "" });
       localStorage.removeItem("userId");
+      setIsEditing(false); // ✅ hide form after save
 
-      // ✅ show alert
       alert("User updated successfully!");
     } catch (err) {
       console.error("Error updating user:", err);
@@ -69,7 +71,7 @@ export default function UsersPage() {
         </ul>
       )}
 
-      {formData.name && (
+      {isEditing && ( // ✅ use isEditing instead of formData.name
         <div style={{ marginTop: "20px" }}>
           <h2>Edit User</h2>
           <input
