@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
 import connectionToDatabase from "../../../../lib/mongoose";
 import Order from "../../../../models/Order";
-import {generateOrderId} from "../../../../lib/generateOrderId";  // ✅ FIXED
+import { generateOrderId } from "../../../../lib/generateOrderId";
 
 export async function POST(request) {
   try {
     await connectionToDatabase();
 
-    const { userId, items, restaurantId, aa } = await request.json();
+    const {
+      userId,
+      items,
+      restaurantId,
+      aa,
+      gst,              // ✅ NEW
+      deliveryCharge,   // ✅ NEW
+      grandTotal        // ✅ NEW
+    } = await request.json();
 
     if (!userId || !items || !restaurantId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -16,13 +24,16 @@ export async function POST(request) {
     const totalCount = items.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    const orderId = await generateOrderId(); // ✅ call async function
+    const orderId = await generateOrderId();
 
     const newOrder = new Order({
       userId,
       items,
       totalCount,
       totalPrice,
+      gst,              // ✅ NEW
+      deliveryCharge,   // ✅ NEW
+      grandTotal,       // ✅ NEW
       restaurantId,
       aa,
       orderId,
@@ -50,10 +61,8 @@ export async function GET(request) {
     }
 
     const userOrders = await Order.find({ userId }).sort({ orderDate: -1 });
-
     return NextResponse.json(userOrders, { status: 200 });
   } catch (err) {
-    console.error("Fetch order error:", err);
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }

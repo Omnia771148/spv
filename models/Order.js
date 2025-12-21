@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
   items: [
     {
       itemId: { type: String, required: true },
@@ -10,19 +11,24 @@ const orderSchema = new mongoose.Schema({
       quantity: { type: Number, required: true },
     }
   ],
+
   totalCount: { type: Number, required: true },
   totalPrice: { type: Number, required: true },
+
+  gst: { type: Number, required: true },              // ✅ NEW
+  deliveryCharge: { type: Number, required: true },   // ✅ NEW
+  grandTotal: { type: Number, required: true },       // ✅ NEW
+
   restaurantId: { type: String, required: true },
   orderDate: { type: Date, default: Date.now },
-  aa : { type: String, require: true },
-  orderId: { 
-    type: String,   
-    required: true, 
-    unique: true 
-  },
+  aa: { type: String, require: true },
 
+  orderId: {
+    type: String,
+    required: true,
+    unique: true
+  },
 });
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
-
 export default Order;
