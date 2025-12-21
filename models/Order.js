@@ -17,17 +17,14 @@ const orderSchema = new mongoose.Schema({
 
   gst: { type: Number, required: true },              // ✅ NEW
   deliveryCharge: { type: Number, required: true },   // ✅ NEW
-  grandTotal: { type: Number, required: true },       // ✅ NEW
+  grandTotal: { type: Number, required: true },   
+  orderId: { type: String, required: true, unique: true }, // Your custom Order ID    // ✅ NEW
 
   restaurantId: { type: String, required: true },
   orderDate: { type: Date, default: Date.now },
   aa: { type: String, require: true },
 
-  orderId: {
-    type: String,
-    required: true,
-    unique: true
-  },
+ 
 });
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
