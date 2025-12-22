@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
   items: [
     {
       itemId: { type: String, required: true },
@@ -11,20 +10,21 @@ const orderSchema = new mongoose.Schema({
       quantity: { type: Number, required: true },
     }
   ],
-
   totalCount: { type: Number, required: true },
   totalPrice: { type: Number, required: true },
+  gst: { type: Number, required: true },
+  deliveryCharge: { type: Number, required: true },
+  grandTotal: { type: Number, required: true }, 
+  orderId: { type: String, required: true, unique: true },
 
-  gst: { type: Number, required: true },              // ✅ NEW
-  deliveryCharge: { type: Number, required: true },   // ✅ NEW
-  grandTotal: { type: Number, required: true },   
-  orderId: { type: String, required: true, unique: true }, // Your custom Order ID    // ✅ NEW
+  // ✅ ADD THESE FIELDS SO MONGOOSE SAVES THEM
+  razorpayOrderId: { type: String }, 
+  razorpayPaymentId: { type: String },
+  paymentStatus: { type: String, default: "Pending" },
 
   restaurantId: { type: String, required: true },
   orderDate: { type: Date, default: Date.now },
-  aa: { type: String, require: true },
-
- 
+  aa: { type: String, required: true }, 
 });
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
