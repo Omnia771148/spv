@@ -1,31 +1,19 @@
-import connectToDatabase from "../../../../lib/mongoose";
+import connectToDatabase from "../../../lib/mongoose"; // relative path to lib/mongodb.js
 
 export async function POST(req) {
   try {
     const { url } = await req.json();
-    
-    // 1. Establish connection
-    const dbConnection = await connectToDatabase();
-    
-    // 2. Access the database and target the 'locations' collection directly
-    // This bypasses the Order schema entirely
-    const collection = dbConnection.connection.db.collection("locations");
+    console.log("Received URL:", url); // debug
 
-    const result = await collection.insertOne({ 
-      url, 
-      createdAt: new Date() 
-    });
+    const db = await connectToDatabase();
+    const collection = db.connection.db.collection("locations"); // collection name
 
-    return new Response(JSON.stringify({ 
-      success: true, 
-      id: result.insertedId 
-    }), { status: 200 });
+    const result = await collection.insertOne({ url, createdAt: new Date() });
+    console.log("Inserted ID:", result.insertedId);
 
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
   } catch (err) {
-    console.error("Database error:", err);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: err.message 
-    }), { status: 500 });
+    console.error("MongoDB error:", err);
+    return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500 });
   }
 }
