@@ -1,36 +1,31 @@
+import { NextResponse } from "next/server";
+import Razorpay from "razorpay";
+import connectionToDatabase from "../../../../lib/mongoose";
+import Order from "../../../../models/Order";
+import { generateOrderId } from "../../../../lib/generateOrderId"; // ✅ Adjust path to your file
+
+const razorpay = new Razorpay({
+  key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+}); 
+
 export async function POST(req) {
   try {
     await connectionToDatabase();
     const body = await req.json();
     const { userId, items, restaurantId, grandTotal, location, aa, totalPrice, gst, deliveryCharge, totalCount } = body;
 
-    // 1. Get/Create the Sequence Number
-    let counter = await Counter.findOneAndUpdate(
-      { id: "orderId" },
-      { $inc: { seq: 1 } }, 
-      { new: true, upsert: true }
-    );
+    // ✅ 1. Use your custom function to get "ORD-001001"
+    const formattedOrderId = await generateOrderId();
 
-    // ✅ FIX: If the counter just started at 1 (new collection), reset it to 1001
-    if (counter.seq === 1) {
-      counter = await Counter.findOneAndUpdate(
-        { id: "orderId" },
-        { $set: { seq: 1001 } }, 
-        { new: true }
-      );
-    }
-
-    // 2. Format the custom ID as ORD-1001
-    const formattedOrderId = `ORD-${counter.seq}`; 
-
-    // 3. Create Razorpay Order
+    // 2. Create Razorpay Order
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(Number(grandTotal) * 100),
       currency: "INR",
-      receipt: formattedOrderId, // Now "ORD-1001"
+      receipt: formattedOrderId, 
     });
 
-    // 4. Save to MongoDB
+    // 3. Save to MongoDB
     const newOrder = await Order.create({
       userId, 
       items, 
@@ -41,7 +36,7 @@ export async function POST(req) {
       deliveryCharge, 
       grandTotal, 
       aa,
-      orderId: formattedOrderId, // Now "ORD-1001"
+      orderId: formattedOrderId, // ✅ Saves as "ORD-001001"
       razorpayOrderId: razorpayOrder.id,
       paymentStatus: "Pending",
       location, 
