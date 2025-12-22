@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
-import Script from 'next/script';
+import Script from 'next/script'; // ✅ Import Script to load Razorpay
 
 export default function Cart() {
   const router = useRouter();
@@ -72,15 +72,12 @@ export default function Cart() {
     });
   };
 
-  // ✅ UPDATED: Now retrieves location URL and sends it to the backend
+  // ✅ UPDATED: Place order now triggers Razorpay with verification
   const placeOrder = async () => {
     if (cartItems.length === 0) return alert("Cart is empty");
 
-    // 1. Retrieve the Location URL saved during the Kurnool verification check
-    const savedMapUrl = localStorage.getItem("customerLocationUrl");
-
     try {
-      // 2. Create the Order in DB and Razorpay including location data
+      // 1. Create the Order in DB and Razorpay
       const { data } = await axios.post('/api/create-order', {
         userId: localStorage.getItem('userId'),
         items: cartItems.map(item => ({
@@ -96,9 +93,10 @@ export default function Cart() {
         deliveryCharge,
         grandTotal,
         aa,
-        // ✅ This sends the map URL to your Order schema
         location: {
-          mapUrl: savedMapUrl 
+          lat: localStorage.getItem("customerLat"),
+          lng: localStorage.getItem("customerLng"),
+          mapUrl: localStorage.getItem("customerLocationUrl")
         }
       });
 
@@ -107,17 +105,17 @@ export default function Cart() {
         return;
       }
 
-      // 3. Configure and open Razorpay modal
+      // 2. Configure and open Razorpay modal
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: Math.round(grandTotal * 100), 
+        amount: Math.round(grandTotal * 100), // amount in paise
         currency: "INR",
         name: "My Delivery App",
         description: "Payment for food order",
         order_id: data.razorpayOrderId,
         handler: async function (response) {
           try {
-            // 4. Verify Payment after user pays
+            // 3. Verify Payment after user pays
             const verifyRes = await axios.post('/api/verify-payment', {
               ...response,
               dbOrderId: data.dbOrderId
