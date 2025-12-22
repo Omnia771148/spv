@@ -1,4 +1,4 @@
-import connectToDatabase from "../../../../lib/mongoose";
+import connectionToDatabase from "../../../../lib/mongoose";
 import Location from "../../../../models/location";
 
 export async function POST(req) {
