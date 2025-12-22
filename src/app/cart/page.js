@@ -93,11 +93,6 @@ export default function Cart() {
         deliveryCharge,
         grandTotal,
         aa,
-        location: {
-          lat: localStorage.getItem("customerLat"),
-          lng: localStorage.getItem("customerLng"),
-          mapUrl: localStorage.getItem("customerLocationUrl")
-        }
       });
 
       if (!data.success) {
