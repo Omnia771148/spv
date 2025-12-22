@@ -57,13 +57,13 @@ export default function RestorentList() {
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
 
-                // 1. Generate Google Maps URL
+                // ✅ 1. Generate Precise Google Maps URL
                 const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
 
-                // 2. Save URL to localStorage
+                // ✅ 2. Save URL to localStorage immediately
                 localStorage.setItem("customerLocationUrl", mapLink);
 
-                // ✅ Check if inside the polygon
+                // Check if inside the polygon
                 const inside = isPointInPolygon(
                     { latitude, longitude },
                     kurnoolPolygon
@@ -74,7 +74,7 @@ export default function RestorentList() {
                     setError(null);
                     setShowPopup(false); 
 
-                    // 3. Send URL to MongoDB API
+                    // ✅ 3. Send coordinates AND URL to MongoDB API
                     try {
                         await fetch("/api/save-location", {
                             method: "POST",
@@ -82,7 +82,7 @@ export default function RestorentList() {
                             body: JSON.stringify({ 
                                 lat: latitude, 
                                 lng: longitude,
-                                url: mapLink // Sending the generated URL
+                                url: mapLink // Use the key your backend expects
                             }),
                         });
                     } catch (err) {
