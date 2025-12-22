@@ -1,19 +1,22 @@
-import connectToDatabase from "../../../lib/mongoose"; // relative path to lib/mongodb.js
+import { NextResponse } from "next/server";
+import connectionToDatabase from "../../../../lib/mongoose";
+
 
 export async function POST(req) {
   try {
-    const { url } = await req.json();
-    console.log("Received URL:", url); // debug
+    await connectionToDatabase();
+    const body = await req.json();
+    const { lat, lng, locationUrl } = body;
 
-    const db = await connectToDatabase();
-    const collection = db.connection.db.collection("locations"); // collection name
+    await Location.create({
+      latitude: lat,
+      longitude: lng,
+      mapUrl: locationUrl, // Saving the generated link
+      createdAt: new Date(),
+    });
 
-    const result = await collection.insertOne({ url, createdAt: new Date() });
-    console.log("Inserted ID:", result.insertedId);
-
-    return new Response(JSON.stringify({ success: true }), { status: 200 });
-  } catch (err) {
-    console.error("MongoDB error:", err);
-    return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500 });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

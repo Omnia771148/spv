@@ -7,7 +7,7 @@ import { restList } from './restorentDtata';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
-import { isPointInPolygon } from "geolib"; // ✅ Make sure to install: npm install geolib
+import { isPointInPolygon } from "geolib"; 
 
 export default function RestorentList() {
     const [search, setSearch] = useState('');
@@ -19,7 +19,6 @@ export default function RestorentList() {
     const [showPopup, setShowPopup] = useState(true);
     const [locationVerified, setLocationVerified] = useState(false);
 
-    // ✅ YOUR PRECISE POLYGON
     const kurnoolPolygon = [
         { latitude: 15.845928, longitude: 78.012744 },
         { latitude: 15.846311, longitude: 78.019729 },
@@ -58,7 +57,13 @@ export default function RestorentList() {
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
 
-                // ✅ Use geolib to check if inside the polygon
+                // 1. Generate Google Maps URL
+                const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+                // 2. Save URL to localStorage
+                localStorage.setItem("customerLocationUrl", mapLink);
+
+                // ✅ Check if inside the polygon
                 const inside = isPointInPolygon(
                     { latitude, longitude },
                     kurnoolPolygon
@@ -67,14 +72,18 @@ export default function RestorentList() {
                 if (inside) {
                     setLocationVerified(true);
                     setError(null);
-                    setShowPopup(false); // Close popup if inside
+                    setShowPopup(false); 
 
-                    // Optional: Save location to your API
+                    // 3. Send URL to MongoDB API
                     try {
                         await fetch("/api/save-location", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ lat: latitude, lng: longitude }),
+                            body: JSON.stringify({ 
+                                lat: latitude, 
+                                lng: longitude,
+                                url: mapLink // Sending the generated URL
+                            }),
                         });
                     } catch (err) {
                         console.error("API error:", err);
@@ -97,7 +106,6 @@ export default function RestorentList() {
         );
     };
 
-    // Polling logic
     useEffect(() => {
         if (mounted) {
             requestLocation();
@@ -119,30 +127,19 @@ export default function RestorentList() {
 
     return (
         <div>
-            {/* 📍 POPUP MODAL: Forces user to stay on this screen until location is verified */}
-            <Modal 
-                show={showPopup} 
-                backdrop="static" 
-                keyboard={false}  
-                centered
-            >
+            <Modal show={showPopup} backdrop="static" keyboard={false} centered>
                 <Modal.Header>
                     <Modal.Title>📍 Location Check</Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ textAlign: 'center' }}>
                     <h5>Checking your location...</h5>
                     <p>This service is only available within Kurnool City boundaries.</p>
-                    
                     {error ? (
                         <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>
                     ) : (
                         <p style={{ color: "blue" }}>⌛ Detecting your current location...</p>
                     )}
-                    
-                    <button 
-                        onClick={requestLocation} 
-                        className="btn btn-primary btn-sm mt-2"
-                    >
+                    <button onClick={requestLocation} className="btn btn-primary btn-sm mt-2">
                         Retry Location Check
                     </button>
                 </Modal.Body>
