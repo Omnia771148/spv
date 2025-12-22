@@ -16,7 +16,8 @@ export default function RestorentList() {
     
     // ===== LOCATION STATE =====
     const [error, setError] = useState(null);
-    const [showPopup, setShowPopup] = useState(true);
+    // ✅ CHANGED: Set showPopup to false by default
+    const [showPopup, setShowPopup] = useState(false); 
     const [locationVerified, setLocationVerified] = useState(false);
 
     const kurnoolPolygon = [
@@ -49,7 +50,6 @@ export default function RestorentList() {
     const requestLocation = () => {
         if (!navigator.geolocation) {
             setError("⚠️ Geolocation is not supported.");
-            setShowPopup(true);
             return;
         }
 
@@ -57,13 +57,12 @@ export default function RestorentList() {
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
 
-                // ✅ 1. Generate Precise Google Maps URL
                 const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-                // ✅ 2. Save URL to localStorage immediately
                 localStorage.setItem("customerLocationUrl", mapLink);
+                // Also save raw coordinates for your Cart page logic
+                localStorage.setItem("customerLat", latitude);
+                localStorage.setItem("customerLng", longitude);
 
-                // Check if inside the polygon
                 const inside = isPointInPolygon(
                     { latitude, longitude },
                     kurnoolPolygon
@@ -74,7 +73,6 @@ export default function RestorentList() {
                     setError(null);
                     setShowPopup(false); 
 
-                    // ✅ 3. Send coordinates AND URL to MongoDB API
                     try {
                         await fetch("/api/save-location", {
                             method: "POST",
@@ -82,25 +80,22 @@ export default function RestorentList() {
                             body: JSON.stringify({ 
                                 lat: latitude, 
                                 lng: longitude,
-                                url: mapLink // Use the key your backend expects
+                                url: mapLink 
                             }),
                         });
                     } catch (err) {
                         console.error("API error:", err);
                     }
                 } else {
-                    setError("❌ You are outside Kurnool City premises");
+                    setError("❌ Outside Kurnool");
                     setLocationVerified(false);
-                    setShowPopup(true);
+                    // ✅ REMOVED: setShowPopup(true) so users aren't blocked
                 }
             },
             (err) => {
-                if (err.code === 1) {
-                    setError("⚠️ Please allow location access in browser settings.");
-                } else {
-                    setError("⚠️ Unable to retrieve location.");
-                }
-                setShowPopup(true);
+                console.error("Location Error:", err);
+                setError("⚠️ Location error.");
+                // ✅ REMOVED: setShowPopup(true)
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -109,7 +104,7 @@ export default function RestorentList() {
     useEffect(() => {
         if (mounted) {
             requestLocation();
-            const interval = setInterval(requestLocation, 3000);
+            const interval = setInterval(requestLocation, 10000); // Increased to 10s to save battery
             return () => clearInterval(interval);
         }
     }, [mounted]);
@@ -127,20 +122,15 @@ export default function RestorentList() {
 
     return (
         <div>
+            {/* 📍 POPUP MODAL is still here but will not show unless showPopup is manually set to true */}
             <Modal show={showPopup} backdrop="static" keyboard={false} centered>
                 <Modal.Header>
                     <Modal.Title>📍 Location Check</Modal.Title>
                 </Modal.Header>
                 <Modal.Body style={{ textAlign: 'center' }}>
-                    <h5>Checking your location...</h5>
-                    <p>This service is only available within Kurnool City boundaries.</p>
-                    {error ? (
-                        <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>
-                    ) : (
-                        <p style={{ color: "blue" }}>⌛ Detecting your current location...</p>
-                    )}
+                    <p>{error || "Detecting your location..."}</p>
                     <button onClick={requestLocation} className="btn btn-primary btn-sm mt-2">
-                        Retry Location Check
+                        Retry
                     </button>
                 </Modal.Body>
             </Modal>
@@ -189,9 +179,10 @@ export default function RestorentList() {
                 </div>
             </div>
 
+            {/* Small subtle indicator that location is verified */}
             {locationVerified && (
-                <div style={{ position: 'fixed', bottom: '80px', right: '20px', backgroundColor: 'green', color: 'white', padding: '5px 10px', borderRadius: '20px', fontSize: '12px' }}>
-                    Verified in Kurnool
+                <div style={{ position: 'fixed', bottom: '80px', right: '20px', backgroundColor: 'rgba(0,128,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: '20px', fontSize: '12px', zIndex: 1000 }}>
+                    📍 Serviceable Area
                 </div>
             )}
             

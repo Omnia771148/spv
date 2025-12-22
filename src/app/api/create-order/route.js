@@ -1,47 +1,38 @@
-// src/app/api/create-order/route.js
+import { NextResponse } from "next/server";
+import Razorpay from "razorpay";
+import connectionToDatabase from "../../../../lib/mongoose";
+import Order from "../../../../models/Order";
+
+const razorpay = new Razorpay({
+  key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+}); 
+
 export async function POST(req) {
   try {
     await connectionToDatabase();
     const body = await req.json();
+    const { userId, items, restaurantId, grandTotal, location, aa, totalPrice, gst, deliveryCharge, totalCount } = body;
 
-    const {
-      userId, items, restaurantId, totalCount,
-      totalPrice, gst, deliveryCharge, grandTotal, aa,
-      location // ✅ Catch the location from the body
-    } = body;
-
-    const customOrderId = `ORD-${Date.now().toString().slice(-8)}`;
-
+    // 1. Create Razorpay Order
     const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(Number(grandTotal) * 100),
       currency: "INR",
-      receipt: customOrderId,
+      receipt: `ORD-${Date.now()}`,
     });
 
-    // Save to MongoDB including the location object
+    // 2. Save to MongoDB
     const newOrder = await Order.create({
-      userId,
-      items,
-      totalCount,
-      totalPrice,
-      gst,
-      deliveryCharge,
-      grandTotal,
-      restaurantId,
-      orderId: customOrderId,
+      userId, items, restaurantId, totalCount, totalPrice, gst, deliveryCharge, grandTotal, aa,
+      orderId: razorpayOrder.receipt,
       razorpayOrderId: razorpayOrder.id,
       paymentStatus: "Pending",
-      aa,
-      location, // ✅ This will now save mapUrl to the Order document
+      location, // ✅ MUST BE PASSED HERE
     });
 
-    return NextResponse.json({
-      success: true,
-      dbOrderId: newOrder._id,
-      razorpayOrderId: razorpayOrder.id,
-    });
+    return NextResponse.json({ success: true, razorpayOrderId: razorpayOrder.id, dbOrderId: newOrder._id });
   } catch (error) {
-    console.error("SERVER ERROR:", error);
+    console.error("CRITICAL BACKEND ERROR:", error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
