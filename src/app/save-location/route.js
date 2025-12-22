@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import connectionToDatabase from "../../../../lib/mongoose";
-
+import Location from "../../../../models/Location"; 
 
 export async function POST(req) {
   try {
