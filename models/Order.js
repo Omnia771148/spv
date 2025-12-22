@@ -17,10 +17,16 @@ const orderSchema = new mongoose.Schema({
   grandTotal: { type: Number, required: true }, 
   orderId: { type: String, required: true, unique: true },
 
-  // ✅ ADD THESE FIELDS SO MONGOOSE SAVES THEM
   razorpayOrderId: { type: String }, 
   razorpayPaymentId: { type: String },
   paymentStatus: { type: String, default: "Pending" },
+
+  // ✅ ADD LOCATION FIELDS HERE
+  location: {
+    lat: { type: Number },
+    lng: { type: Number },
+    mapUrl: { type: String }, // Stores the http://googleusercontent.com/maps.google.com/... link
+  },
 
   restaurantId: { type: String, required: true },
   orderDate: { type: Date, default: Date.now },
