@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
   deliveryCharge: { type: Number, required: true },
   grandTotal: { type: Number, required: true }, 
  
-  orderId: { type: Number, required: true, unique: true },
+  orderId: { type: String, required: true, unique: true },
 
   razorpayOrderId: { type: String }, 
   razorpayPaymentId: { type: String },
