@@ -72,44 +72,48 @@ export default function Cart() {
     });
   };
 
-  // ✅ FIXED: Comprehensive Place Order Logic
+  // ✅ UPDATED Place Order Logic
   const placeOrder = async () => {
     if (cartItems.length === 0) return alert("Cart is empty");
 
     try {
-      // 1. Get location from localStorage and convert types properly
+      // 1. Prepare Order Data Payload
       const latStr = localStorage.getItem("customerLat");
       const lngStr = localStorage.getItem("customerLng");
       const mapUrl = localStorage.getItem("customerLocationUrl");
 
-      // 2. Create the Order in DB and Razorpay
-      const { data } = await axios.post('/api/create-order', {
+      const orderPayload = {
         userId: localStorage.getItem('userId'),
         items: cartItems.map(item => ({
           itemId: item.id,
           name: item.name,
-          price: Number(item.price), // Ensure Number
-          quantity: Number(quantities[item.id] || 1) // Ensure Number
+          price: Number(item.price),
+          quantity: Number(quantities[item.id] || 1)
         })),
         restaurantId: String(cartItems[0].restid),
         totalCount: cartItems.length,
         totalPrice: Number(totalPrice),
         gst: Number(gstAmount),
         deliveryCharge: Number(deliveryCharge),
-        grandTotal: Number(grandTotal), // Crucial for Razorpay
+        grandTotal: Number(grandTotal),
         aa,
         location: {
           lat: latStr ? Number(latStr) : 0,
           lng: lngStr ? Number(lngStr) : 0,
           mapUrl: mapUrl || ""
         }
+      };
+
+      // 2. Call Create Order to get Razorpay ID ONLY
+      const { data } = await axios.post('/api/create-order', {
+        grandTotal: orderPayload.grandTotal 
       });
 
       if (!data.success) {
         throw new Error(data.message || "Order creation failed");
       }
 
-      // 3. Configure and open Razorpay modal
+      // 3. Configure Razorpay options
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
         amount: Math.round(Number(grandTotal) * 100), 
@@ -117,11 +121,15 @@ export default function Cart() {
         name: "My Delivery App",
         description: "Payment for food order",
         order_id: data.razorpayOrderId,
+        
+        // Success Handler
         handler: async function (response) {
           try {
             const verifyRes = await axios.post('/api/verify-payment', {
-              ...response,
-              dbOrderId: data.dbOrderId
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderData: orderPayload 
             });
 
             if (verifyRes.data.success) {
@@ -129,7 +137,7 @@ export default function Cart() {
               clear();
               router.push("/accepted-orders");
             } else {
-              alert('Payment verification failed.');
+              alert('Payment verification failed. Order not saved.');
             }
           } catch (verifyErr) {
             console.error('Verification error:', verifyErr);
@@ -144,10 +152,36 @@ export default function Cart() {
       };
 
       const rzp = new window.Razorpay(options);
+
+      // ✅ ADDED & FIXED: Safe Listener for Payment Failures
+      rzp.on('payment.failed', async function (response) {
+        // 1. Log the full error clearly so you can see it in console
+        console.error("Payment Failed Details:", JSON.stringify(response.error));
+        
+        // 2. Safe access to description (handles "undefined" if popup is just closed)
+        const errDesc = response.error?.description || "Payment cancelled or failed";
+        alert(`Payment Failed: ${errDesc}`);
+
+        try {
+            // 3. Send failure details to your new API
+            await axios.post('/api/log-failed-payment', {
+                error_code: response.error?.code || "UNKNOWN",
+                error_description: errDesc,
+                // Safe access to metadata
+                razorpay_order_id: response.error?.metadata?.order_id || data.razorpayOrderId, 
+                razorpay_payment_id: response.error?.metadata?.payment_id || "N/A",
+                orderData: orderPayload
+            });
+            console.log("Failed order logged to DB");
+        } catch (logErr) {
+            console.error("Could not log failed order", logErr);
+        }
+      });
+
       rzp.open();
+
     } catch (err) {
       console.error('Payment initialization error:', err);
-      // ✅ Improved error alerting to see what actually failed
       const errorMsg = err.response?.data?.message || err.message;
       alert(`Payment Error: ${errorMsg}`);
     }
