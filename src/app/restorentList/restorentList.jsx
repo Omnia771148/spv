@@ -93,8 +93,8 @@ export default function RestorentList() {
                 }
             },
             (err) => {
-                console.error("Location Error:", err);
-                setError("⚠️ Location error.");
+              
+    
                 // ✅ REMOVED: setShowPopup(true)
             },
             { enableHighAccuracy: true, timeout: 10000 }
