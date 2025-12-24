@@ -15,11 +15,12 @@ export default function RestorentList() {
     const [typeFilter, setTypeFilter] = useState(''); 
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
-    
-    // ✅ NO MORE initial loading states for location
     const [isRouting, setIsRouting] = useState(false); 
-    const [roadDistances, setRoadDistances] = useState({}); 
+    const [isCalculating, setIsCalculating] = useState(false);
     
+    const [roadDistances, setRoadDistances] = useState({}); 
+    const distRef = useRef({});
+
     const router = useRouter();
     const hasRequestedThisMount = useRef(false);
 
@@ -46,7 +47,21 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
+    // ✅ OPTIMIZED: Checks LocalStorage first to prevent repeat API hits
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
+        // 1. Check LocalStorage
+        const savedDistances = localStorage.getItem("allRestaurantDistances");
+        
+        if (savedDistances) {
+            const parsed = JSON.parse(savedDistances);
+            console.log("📦 Using Cached Distances from LocalStorage");
+            setRoadDistances(parsed);
+            distRef.current = parsed;
+            return; // 🛑 EXIT: Do not hit the API
+        }
+
+        // 2. If nothing in LocalStorage, hit the API
+        console.log("🌐 LocalStorage empty. Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -54,18 +69,15 @@ export default function RestorentList() {
                     { lat: parseFloat(uLat), lng: parseFloat(uLng) },
                     { lat: item.lat, lng: item.lng }
                 );
-                
                 if (data && data.km) {
                     results[item.name] = data.km;
-                } else if (typeof data === 'number' || typeof data === 'string') {
-                    results[item.name] = data; 
                 }
-            } catch (err) { 
-                console.error(`Error for ${item.name}:`, err); 
-            }
+            } catch (err) { console.error(err); }
         }));
-
+        
         setRoadDistances(results);
+        distRef.current = results;
+        // 3. Save to LocalStorage for future route changes/visits
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
     }, []);
 
@@ -76,18 +88,18 @@ export default function RestorentList() {
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
+                
+                // Save current location
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
 
                 if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
                     fetchAllDistances(latitude, longitude);
                 } else {
-                    setError("❌ Outside Kurnool City");
+                    setError("❌ Outside Service Area");
                 }
             },
-            () => {
-                setError("⚠️ Location access denied. Using default distance math.");
-            },
+            () => { setError("⚠️ GPS access required."); },
             { enableHighAccuracy: true, timeout: 10000 }
         );
     }, [fetchAllDistances]);
@@ -97,11 +109,27 @@ export default function RestorentList() {
         requestLocation();
     }, [requestLocation]);
 
-    const handleClick = async (name) => {
-        setIsRouting(true);
-        const dist = roadDistances[name] || "4.5";
-        localStorage.setItem("deliveryDistanceKm", dist.toString());
+    const handleClick = (name) => {
+        const currentDistance = distRef.current[name];
 
+        if (!currentDistance) {
+            setIsCalculating(true);
+            const timer = setInterval(() => {
+                const updatedDistance = distRef.current[name];
+                if (updatedDistance) {
+                    clearInterval(timer);
+                    setIsCalculating(false);
+                    proceedToRoute(name, updatedDistance);
+                }
+            }, 500);
+            return;
+        }
+        proceedToRoute(name, currentDistance);
+    };
+
+    const proceedToRoute = (name, distance) => {
+        setIsRouting(true);
+        localStorage.setItem("deliveryDistanceKm", distance.toString());
         const path = (name === "KNL") ? "/knlrest" : `/${name.toLowerCase().replace(/\s+/g, '')}`;
         router.push(path);
     };
@@ -110,11 +138,17 @@ export default function RestorentList() {
 
     return (
         <div style={{ paddingBottom: '80px' }}>
-            {/* ⏳ Transition Spinner (Only shows after clicking a restaurant) */}
+            <Modal show={isCalculating} centered backdrop="static" size="sm">
+                <Modal.Body className="text-center py-4">
+                    <Spinner animation="border" variant="primary" size="sm" />
+                    <div className="mt-3 fw-bold">Calculating Distance...</div>
+                </Modal.Body>
+            </Modal>
+
             <Modal show={isRouting} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
-                    <Spinner animation="grow" variant="warning" size="sm" />
-                    <div className="mt-2 fw-bold text-muted small">Opening Restaurant...</div>
+                    <Spinner animation="grow" variant="success" size="sm" />
+                    <div className="mt-2 fw-bold text-muted small">Entering Restaurant...</div>
                 </Modal.Body>
             </Modal>
 
@@ -126,8 +160,6 @@ export default function RestorentList() {
 
             <div style={{ padding: '20px' }}>
                 <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
-                
-                {/* Search & Filter */}
                 <input type="text" className="form-control mb-3 shadow-sm border-0" placeholder="Search..." onChange={(e) => setSearch(e.target.value)} />
                 
                 <select className="form-select mb-4 shadow-sm border-0" onChange={(e) => setTypeFilter(e.target.value)}>
@@ -136,8 +168,6 @@ export default function RestorentList() {
                     <option value="non-veg">Non-Veg Only</option>
                 </select>
 
-                {error && <div className="alert alert-warning py-2 small border-0 shadow-sm">{error}</div>}
-
                 <div className="mt-4">
                     {restList
                         .filter(item => {
@@ -145,21 +175,18 @@ export default function RestorentList() {
                             const matchesType = typeFilter === '' || item.type === typeFilter;
                             return matchesSearch && matchesType;
                         })
-                        .map(item => {
-                            const distanceVal = roadDistances[item.name];
-                            return (
-                                <div key={item.name} className="mb-3">
-                                    <button onClick={() => handleClick(item.name)} className="w-100 border-0 bg-transparent p-0">
-                                        <RestorentDisplay 
-                                            name={item.name} 
-                                            place={item.place} 
-                                            image={item.image}
-                                            distance={distanceVal ? `${distanceVal} km` : "..."}
-                                        />
-                                    </button>
-                                </div>
-                            );
-                        })
+                        .map(item => (
+                            <div key={item.name} className="mb-3">
+                                <button onClick={() => handleClick(item.name)} className="w-100 border-0 bg-transparent p-0">
+                                    <RestorentDisplay 
+                                        name={item.name} 
+                                        place={item.place} 
+                                        image={item.image}
+                                        distance={roadDistances[item.name] ? `${roadDistances[item.name]} km` : "..."}
+                                    />
+                                </button>
+                            </div>
+                        ))
                     }
                 </div>
             </div>
