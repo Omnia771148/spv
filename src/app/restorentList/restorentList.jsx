@@ -16,13 +16,11 @@ export default function RestorentList() {
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
     
-    // UI State for Location and Navigation
     const [showPopup, setShowPopup] = useState(true); 
     const [loadingLocation, setLoadingLocation] = useState(true);
-    const [isRouting, setIsRouting] = useState(false); // ✅ Wait state for restaurant click
+    const [isRouting, setIsRouting] = useState(false); 
 
-    const [locationVerified, setLocationVerified] = useState(false);
-    const [roadDistances, setRoadDistances] = useState({});
+    const [roadDistances, setRoadDistances] = useState({}); 
     const router = useRouter();
     const hasRequestedThisMount = useRef(false);
 
@@ -49,12 +47,17 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
+    // ✅ FIXED: Uses LocalStorage only
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        const cached = sessionStorage.getItem("sessionRoadDistances");
+        // Check LocalStorage first
+        const cached = localStorage.getItem("allRestaurantDistances");
         if (cached) {
             setRoadDistances(JSON.parse(cached));
+            // Even if cached, we don't return here if you want to refresh distances 
+            // but for performance, we'll use the cache.
             return;
         }
+
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -62,21 +65,30 @@ export default function RestorentList() {
                     { lat: parseFloat(uLat), lng: parseFloat(uLng) },
                     { lat: item.lat, lng: item.lng }
                 );
-                if (data) results[item.name] = data; 
-            } catch (err) { console.error(err); }
+                
+                if (data && data.km) {
+                    results[item.name] = data.km;
+                } else if (typeof data === 'number' || typeof data === 'string') {
+                    results[item.name] = data; 
+                }
+            } catch (err) { 
+                console.error(`Error for ${item.name}:`, err); 
+            }
         }));
+
         setRoadDistances(results);
-        sessionStorage.setItem("sessionRoadDistances", JSON.stringify(results));
+        // ✅ Store in LocalStorage permanently
+        localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
     }, []);
 
     const requestLocation = useCallback(() => {
         setLoadingLocation(true);
         const storedLat = localStorage.getItem("customerLat");
         const storedLng = localStorage.getItem("customerLng");
-        const isSessionVerified = sessionStorage.getItem("isLocationChecked");
+        const isVerified = localStorage.getItem("isLocationVerified");
 
-        if (isSessionVerified === "true" && storedLat && storedLng) {
-            setLocationVerified(true);
+        // ✅ If already verified in LocalStorage, just load
+        if (isVerified === "true" && storedLat && storedLng) {
             setLoadingLocation(false);
             setShowPopup(false);
             fetchAllDistances(storedLat, storedLng);
@@ -93,8 +105,7 @@ export default function RestorentList() {
                 localStorage.setItem("customerLng", longitude);
 
                 if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
-                    sessionStorage.setItem("isLocationChecked", "true");
-                    setLocationVerified(true);
+                    localStorage.setItem("isLocationVerified", "true"); // ✅ Use LocalStorage
                     setLoadingLocation(false);
                     setShowPopup(false); 
                     fetchAllDistances(latitude, longitude);
@@ -117,16 +128,11 @@ export default function RestorentList() {
     }, [requestLocation]);
 
     const handleClick = async (name) => {
-        // ✅ 1. Show 'wait' spinner before routing
         setIsRouting(true);
-
-        const info = roadDistances[name];
-        const pureDistance = (info && info.km) ? info.km : "4.5";
-        localStorage.setItem("deliveryDistanceKm", pureDistance.toString());
+        const dist = roadDistances[name] || "4.5";
+        localStorage.setItem("deliveryDistanceKm", dist.toString());
 
         const path = (name === "KNL") ? "/knlrest" : `/${name.toLowerCase().replace(/\s+/g, '')}`;
-        
-        // Use a slight timeout if the redirect feels too fast to see the loader
         router.push(path);
     };
 
@@ -134,19 +140,20 @@ export default function RestorentList() {
 
     return (
         <div style={{ paddingBottom: '80px' }}>
-            {/* 📍 Initial Location Detection Modal */}
+            {/* 📍 Location Modal */}
             <Modal show={showPopup} centered backdrop="static">
                 <Modal.Body className="text-center py-5">
                     {loadingLocation ? (
                         <>
                             <Spinner animation="border" variant="primary" className="mb-3" />
-                            <h5 className="fw-bold">Detecting Location...</h5>
+                            <h5 className="fw-bold">Checking Location...</h5>
                         </>
                     ) : (
                         <>
                             <p className="fw-bold text-danger mb-3">{error}</p>
                             <button className="btn btn-primary btn-sm" onClick={() => {
                                 hasRequestedThisMount.current = false;
+                                localStorage.removeItem("isLocationVerified"); // Reset to try again
                                 requestLocation();
                             }}>Retry</button>
                         </>
@@ -154,7 +161,7 @@ export default function RestorentList() {
                 </Modal.Body>
             </Modal>
 
-            {/* ⏳ Restaurant Navigation Wait Modal */}
+            {/* ⏳ Wait Spinner */}
             <Modal show={isRouting} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="grow" variant="warning" size="sm" />
@@ -185,18 +192,21 @@ export default function RestorentList() {
                             const matchesType = typeFilter === '' || item.type === typeFilter;
                             return matchesSearch && matchesType;
                         })
-                        .map(item => (
-                            <div key={item.name} className="mb-3">
-                                <button onClick={() => handleClick(item.name)} className="w-100 border-0 bg-transparent p-0">
-                                    <RestorentDisplay 
-                                        name={item.name} 
-                                        place={item.place} 
-                                        image={item.image}
-                                        distance={roadDistances[item.name] ? `${roadDistances[item.name].km} km` : "..."}
-                                    />
-                                </button>
-                            </div>
-                        ))
+                        .map(item => {
+                            const distanceVal = roadDistances[item.name];
+                            return (
+                                <div key={item.name} className="mb-3">
+                                    <button onClick={() => handleClick(item.name)} className="w-100 border-0 bg-transparent p-0">
+                                        <RestorentDisplay 
+                                            name={item.name} 
+                                            place={item.place} 
+                                            image={item.image}
+                                            distance={distanceVal ? `${distanceVal} km` : "..."}
+                                        />
+                                    </button>
+                                </div>
+                            );
+                        })
                     }
                 </div>
             </div>
