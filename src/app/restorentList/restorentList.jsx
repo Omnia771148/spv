@@ -15,10 +15,14 @@ export default function RestorentList() {
     const [typeFilter, setTypeFilter] = useState(''); 
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
-    const [showPopup, setShowPopup] = useState(false); 
+    
+    // UI State for Location and Navigation
+    const [showPopup, setShowPopup] = useState(true); 
+    const [loadingLocation, setLoadingLocation] = useState(true);
+    const [isRouting, setIsRouting] = useState(false); // ✅ Wait state for restaurant click
+
     const [locationVerified, setLocationVerified] = useState(false);
     const [roadDistances, setRoadDistances] = useState({});
-    const [isRouting, setIsRouting] = useState(false); 
     const router = useRouter();
     const hasRequestedThisMount = useRef(false);
 
@@ -45,17 +49,12 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
-    // ✅ MODIFIED: Hits Google API only if not in SessionStorage
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        // 1. Check if we already have the distances for THIS session
-        const cachedDistances = sessionStorage.getItem("sessionRoadDistances");
-        if (cachedDistances) {
-            console.log("🚀 Loading distances from Cache (No API Hit)");
-            setRoadDistances(JSON.parse(cachedDistances));
+        const cached = sessionStorage.getItem("sessionRoadDistances");
+        if (cached) {
+            setRoadDistances(JSON.parse(cached));
             return;
         }
-
-        console.log("🌐 Hitting Google API for distances...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -64,24 +63,22 @@ export default function RestorentList() {
                     { lat: item.lat, lng: item.lng }
                 );
                 if (data) results[item.name] = data; 
-            } catch (err) {
-                console.error(`Distance error for ${item.name}:`, err);
-            }
+            } catch (err) { console.error(err); }
         }));
-
-        // 2. Save results to SessionStorage for this session
         setRoadDistances(results);
         sessionStorage.setItem("sessionRoadDistances", JSON.stringify(results));
     }, []);
 
     const requestLocation = useCallback(() => {
-        const isSessionVerified = sessionStorage.getItem("isLocationChecked");
+        setLoadingLocation(true);
         const storedLat = localStorage.getItem("customerLat");
         const storedLng = localStorage.getItem("customerLng");
+        const isSessionVerified = sessionStorage.getItem("isLocationChecked");
 
-        // If verified this session, request distances (which will now check cache first)
         if (isSessionVerified === "true" && storedLat && storedLng) {
             setLocationVerified(true);
+            setLoadingLocation(false);
+            setShowPopup(false);
             fetchAllDistances(storedLat, storedLng);
             return;
         }
@@ -98,18 +95,17 @@ export default function RestorentList() {
                 if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
                     sessionStorage.setItem("isLocationChecked", "true");
                     setLocationVerified(true);
-                    setError(null);
+                    setLoadingLocation(false);
                     setShowPopup(false); 
                     fetchAllDistances(latitude, longitude);
                 } else {
-                    setError("❌ Outside Kurnool City");
-                    setLocationVerified(false);
-                    setShowPopup(true);
+                    setError("❌ Outside Serviceable Area");
+                    setLoadingLocation(false);
                 }
             },
-            (err) => {
-                setError("⚠️ Please enable GPS to calculate delivery charges.");
-                setShowPopup(true);
+            () => {
+                setError("⚠️ Please enable GPS.");
+                setLoadingLocation(false);
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -120,88 +116,87 @@ export default function RestorentList() {
         requestLocation();
     }, [requestLocation]);
 
-    const handleClick = async (name, itemCoords) => {
-        let info = roadDistances[name];
-        
-        // Save distance for Cart math
+    const handleClick = async (name) => {
+        // ✅ 1. Show 'wait' spinner before routing
+        setIsRouting(true);
+
+        const info = roadDistances[name];
         const pureDistance = (info && info.km) ? info.km : "4.5";
         localStorage.setItem("deliveryDistanceKm", pureDistance.toString());
 
-        const dynamicPath = `/${name.toLowerCase().replace(/\s+/g, '')}`;
-        const finalPath = (name === "KNL") ? "/knlrest" : dynamicPath;
-
-        router.push(finalPath);
+        const path = (name === "KNL") ? "/knlrest" : `/${name.toLowerCase().replace(/\s+/g, '')}`;
+        
+        // Use a slight timeout if the redirect feels too fast to see the loader
+        router.push(path);
     };
 
     if (!mounted) return null;
 
     return (
         <div style={{ paddingBottom: '80px' }}>
-            {/* Modal for Location Errors */}
+            {/* 📍 Initial Location Detection Modal */}
             <Modal show={showPopup} centered backdrop="static">
-                <Modal.Body className="text-center py-4">
-                    <p className="fw-bold">{error || "Detecting your location..."}</p>
-                    {error && (
-                        <button 
-                            className="btn btn-sm btn-primary" 
-                            onClick={() => {
+                <Modal.Body className="text-center py-5">
+                    {loadingLocation ? (
+                        <>
+                            <Spinner animation="border" variant="primary" className="mb-3" />
+                            <h5 className="fw-bold">Detecting Location...</h5>
+                        </>
+                    ) : (
+                        <>
+                            <p className="fw-bold text-danger mb-3">{error}</p>
+                            <button className="btn btn-primary btn-sm" onClick={() => {
                                 hasRequestedThisMount.current = false;
                                 requestLocation();
-                            }}
-                        >
-                            Retry
-                        </button>
+                            }}>Retry</button>
+                        </>
                     )}
                 </Modal.Body>
             </Modal>
 
-            {/* Wait Spinner */}
+            {/* ⏳ Restaurant Navigation Wait Modal */}
             <Modal show={isRouting} centered backdrop="static" size="sm">
-                <Modal.Body className="text-center py-3">
-                    <Spinner animation="border" variant="primary" size="sm" />
-                    <div className="mt-2 small fw-bold text-muted">wait</div>
+                <Modal.Body className="text-center py-4">
+                    <Spinner animation="grow" variant="warning" size="sm" />
+                    <div className="mt-2 fw-bold text-muted small">Opening Restaurant...</div>
                 </Modal.Body>
             </Modal>
 
-            {/* Content Rendering */}
-            <Carousel interval={3000} pause={false} className='coroselmain'>
+            <Carousel interval={3000} className='coroselmain'>
                 <Carousel.Item className='coroselmain2'>
                     <img className="d-block w-100" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="Slide" />
                 </Carousel.Item>
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-                <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
-                <input 
-                    type="text" 
-                    className="form-control mb-3 shadow-sm border-0" 
-                    placeholder="Search..." 
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)} 
-                />
+                <h1 className="h3 fw-bold mb-4">Restaurants</h1>
+                <input type="text" className="form-control mb-3" placeholder="Search..." onChange={(e) => setSearch(e.target.value)} />
+
+                <select className="form-select mb-4" onChange={(e) => setTypeFilter(e.target.value)}>
+                    <option value="">All Types</option>
+                    <option value="veg">Veg Only</option>
+                    <option value="non-veg">Non-Veg Only</option>
+                </select>
 
                 <div className="mt-4">
                     {restList
-                        .filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
-                        .map(item => {
-                            const info = roadDistances[item.name];
-                            return (
-                                <div key={item.name} className="mb-3">
-                                    <button 
-                                        onClick={() => handleClick(item.name, { lat: item.lat, lng: item.lng })} 
-                                        style={{ width: '100%', border: 'none', background: 'none', padding: 0 }}
-                                    >
-                                        <RestorentDisplay 
-                                            name={item.name} 
-                                            place={item.place} 
-                                            rating={item.rating} 
-                                            image={item.image}
-                                            distance={info ? `${info.km} km` : "..."}
-                                        />
-                                    </button>
-                                </div>
-                            );
+                        .filter(item => {
+                            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+                            const matchesType = typeFilter === '' || item.type === typeFilter;
+                            return matchesSearch && matchesType;
                         })
+                        .map(item => (
+                            <div key={item.name} className="mb-3">
+                                <button onClick={() => handleClick(item.name)} className="w-100 border-0 bg-transparent p-0">
+                                    <RestorentDisplay 
+                                        name={item.name} 
+                                        place={item.place} 
+                                        image={item.image}
+                                        distance={roadDistances[item.name] ? `${roadDistances[item.name].km} km` : "..."}
+                                    />
+                                </button>
+                            </div>
+                        ))
                     }
                 </div>
             </div>
