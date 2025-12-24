@@ -1,4 +1,9 @@
-{/* 1. Item List */}
+'use client';
+import React from 'react';
+// 1. ADD THIS IMPORT (Adjust the path to where your item display component is)
+import DisCart from './DisCart';
+{
+  /* 1. Item List */}
 {cartItems.length === 0 ? (
   <p className="text-center mt-5 text-muted">No items in the cart.</p>
 ) : (
