@@ -16,12 +16,20 @@ export default function KushasMenuLite() {
   const [typeFilter, setTypeFilter] = useState(''); 
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // ✅ NEW: State to hold the distance
+  const [distance, setDistance] = useState(null);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
       router.push("/login");
     } else {
+      // ✅ Pull the distance saved in RestaurantList
+      const savedDistance = localStorage.getItem("deliveryDistanceKm");
+      if (savedDistance) {
+        setDistance(`${savedDistance} km`);
+      }
       setLoading(false);
     }
   }, [router]);
@@ -31,10 +39,11 @@ export default function KushasMenuLite() {
     const isItemAlreadyInCart = existingCart.some(cartItem => cartItem.id === item.id);
 
     if (isItemAlreadyInCart) {
-     showToast("Item already exists in the cart.", "danger");
+      showToast("Item already exists in the cart.", "danger");
       return;
     }
 
+    // Logic to ensure items from only one restaurant are selected
     if (
       existingCart.some(cartItem => cartItem.id >= 1 && cartItem.id <= 4) ||
       existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8)
@@ -55,9 +64,12 @@ export default function KushasMenuLite() {
   return (
     <div className="container mt-4">
 
-      {/* ✅ RESTAURANT CARD AT TOP (ONLY ADDITION) */}
+      {/* ✅ RESTAURANT CARD AT TOP WITH DISTANCE PASSING */}
       <div className="mb-4">
-        <RestorentDisplay data={restuarents[1]} />
+        <RestorentDisplay 
+            data={restuarents[1]} 
+            distance={distance || "Calculating..."} 
+        />
       </div>
 
       <h1 className="search">Search Dishes</h1>
@@ -109,10 +121,9 @@ export default function KushasMenuLite() {
       </div>
 
       <button onClick={() => window.location.href = "/cart"}>
-        GO TO CART
-      </button>
+    GO TO CART
+  </button>
       <Navbar />
-
     </div>
   );
 }

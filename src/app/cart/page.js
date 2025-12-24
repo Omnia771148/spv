@@ -11,6 +11,11 @@ export default function Cart() {
   const [itemTotals, setItemTotals] = useState({});
   const [loading, setLoading] = useState(true);
   const [quantities, setQuantities] = useState({});
+  
+  // ✅ Dynamic Delivery States
+  const [deliveryCharge, setDeliveryCharge] = useState(40); 
+  const [distance, setDistance] = useState(0);
+
   const aa = "gg";
 
   // Authentication check
@@ -23,18 +28,30 @@ export default function Cart() {
     }
   }, [router]);
 
-  // Load cart
+  // Load cart & Calculate Distance-based Delivery Charge
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
       setCartItems(parsedCart);
-
       const initialQuantities = {};
       parsedCart.forEach(item => {
         initialQuantities[item.id] = item.quantity || 1;
       });
       setQuantities(initialQuantities);
+    }
+
+    const savedDistance = localStorage.getItem("deliveryDistanceKm");
+    if (savedDistance) {
+      const dist = parseFloat(savedDistance);
+      setDistance(dist);
+      
+      if (dist <= 3) {
+        setDeliveryCharge(30);
+      } else {
+        const extraKm = Math.ceil(dist - 3);
+        setDeliveryCharge(30 + (extraKm * 10));
+      }
     }
   }, []);
 
@@ -49,15 +66,14 @@ export default function Cart() {
 
   const totalPrice = Object.values(itemTotals).reduce((acc, val) => acc + val, 0);
   const gstAmount = totalPrice * 0.05;
-  const deliveryCharge = 40;
   const grandTotal = totalPrice + gstAmount + deliveryCharge;
 
-  function clear() {
+  const clear = () => {
     localStorage.removeItem('cart');
     setCartItems([]);
     setItemTotals({});
     setQuantities({});
-  }
+  };
 
   const removeItem = (id) => {
     const updatedCart = cartItems.filter(item => item.id !== id);
@@ -72,12 +88,10 @@ export default function Cart() {
     });
   };
 
-  // ✅ UPDATED Place Order Logic
   const placeOrder = async () => {
     if (cartItems.length === 0) return alert("Cart is empty");
 
     try {
-      // 1. Prepare Order Data Payload
       const latStr = localStorage.getItem("customerLat");
       const lngStr = localStorage.getItem("customerLng");
       const mapUrl = localStorage.getItem("customerLocationUrl");
@@ -100,29 +114,24 @@ export default function Cart() {
         location: {
           lat: latStr ? Number(latStr) : 0,
           lng: lngStr ? Number(lngStr) : 0,
-          mapUrl: mapUrl || ""
+          mapUrl: mapUrl || "",
+          distanceText: `${distance} km`
         }
       };
 
-      // 2. Call Create Order to get Razorpay ID ONLY
       const { data } = await axios.post('/api/create-order', {
         grandTotal: orderPayload.grandTotal 
       });
 
-      if (!data.success) {
-        throw new Error(data.message || "Order creation failed");
-      }
+      if (!data.success) throw new Error(data.message || "Order creation failed");
 
-      // 3. Configure Razorpay options
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
         amount: Math.round(Number(grandTotal) * 100), 
         currency: "INR",
         name: "My Delivery App",
-        description: "Payment for food order",
+        description: `Food Order - ${distance} km delivery`,
         order_id: data.razorpayOrderId,
-        
-        // Success Handler
         handler: async function (response) {
           try {
             const verifyRes = await axios.post('/api/verify-payment', {
@@ -133,108 +142,97 @@ export default function Cart() {
             });
 
             if (verifyRes.data.success) {
-              alert('Order Paid & Placed Successfully!');
+              alert('Order Placed Successfully!');
               clear();
               router.push("/accepted-orders");
-            } else {
-              alert('Payment verification failed. Order not saved.');
             }
           } catch (verifyErr) {
             console.error('Verification error:', verifyErr);
-            alert('Error verifying payment.');
           }
         },
-        prefill: {
-          name: "Customer",
-          contact: "9999999999"
-        },
+        prefill: { contact: "9999999999" },
         theme: { color: "#3399cc" },
       };
 
       const rzp = new window.Razorpay(options);
-
-      // ✅ ADDED & FIXED: Safe Listener for Payment Failures
-      rzp.on('payment.failed', async function (response) {
-        // 1. Log the full error clearly so you can see it in console
-        console.error("Payment Failed Details:", JSON.stringify(response.error));
-        
-        // 2. Safe access to description (handles "undefined" if popup is just closed)
-        const errDesc = response.error?.description || "Payment cancelled or failed";
-        alert(`Payment Failed: ${errDesc}`);
-
-        try {
-            // 3. Send failure details to your new API
-            await axios.post('/api/log-failed-payment', {
-                error_code: response.error?.code || "UNKNOWN",
-                error_description: errDesc,
-                // Safe access to metadata
-                razorpay_order_id: response.error?.metadata?.order_id || data.razorpayOrderId, 
-                razorpay_payment_id: response.error?.metadata?.payment_id || "N/A",
-                orderData: orderPayload
-            });
-            console.log("Failed order logged to DB");
-        } catch (logErr) {
-            console.error("Could not log failed order", logErr);
-        }
-      });
-
       rzp.open();
 
     } catch (err) {
       console.error('Payment initialization error:', err);
-      const errorMsg = err.response?.data?.message || err.message;
-      alert(`Payment Error: ${errorMsg}`);
+      alert(`Error: ${err.message}`);
     }
   };
 
-  if (loading) return <p>Checking authentication...</p>;
+  if (loading) return <p className="text-center mt-5">Checking authentication...</p>;
 
   return (
-    <div className="mt-4">
+    <div className="container mt-4 mb-5" style={{ maxWidth: '600px' }}>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
+      <h2 className="fw-bold mb-4">Cart</h2>
 
-      <h2>Cart</h2>
-
+      {/* ✅ ITEM LIST OR EMPTY MESSAGE */}
       {cartItems.length === 0 ? (
-        <p>No items in cart.</p>
-      ) : (
-        <ul className="list-unstyled">
-          {cartItems.map(item => (
-            <li key={item.id} className="mb-2">
-              {item.name} - ₹{item.price} x {quantities[item.id]}
-              <button onClick={() => updateQuantity(item.id, -1)} className="btn btn-sm btn-secondary ms-2">-</button>
-              <button onClick={() => updateQuantity(item.id, 1)} className="btn btn-sm btn-secondary ms-1">+</button>
-              <button onClick={() => removeItem(item.id)} className="btn btn-sm btn-danger ms-2">Remove</button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="card shadow-sm mt-4">
-        <div className="card-body">
-          <h5>Bill Details</h5>
-          <div className="d-flex justify-content-between">
-            <span>Item Total</span>
-            <span>₹{totalPrice.toFixed(2)}</span>
-          </div>
-          <div className="d-flex justify-content-between">
-            <span>GST (5%)</span>
-            <span>₹{gstAmount.toFixed(2)}</span>
-          </div>
-          <div className="d-flex justify-content-between">
-            <span>Delivery Charge</span>
-            <span>₹40.00</span>
-          </div>
-          <hr />
-          <div className="d-flex justify-content-between fw-bold">
-            <span>Grand Total</span>
-            <span>₹{grandTotal.toFixed(2)}</span>
-          </div>
+        <div className="text-center py-5">
+            <p className="text-muted h5">No items in the cart.</p>
+            <button onClick={() => router.push('/')} className="btn btn-primary mt-3 btn-sm">Browse Restaurants</button>
         </div>
-      </div>
+      ) : (
+        <>
+          <ul className="list-group mb-4 shadow-sm">
+            {cartItems.map(item => (
+              <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center py-3">
+                <div>
+                  <strong className="d-block">{item.name}</strong>
+                  <small className="text-muted">₹{item.price} x {quantities[item.id]}</small>
+                </div>
+                <div className="d-flex align-items-center">
+                  <div className="btn-group me-3">
+                    <button onClick={() => updateQuantity(item.id, -1)} className="btn btn-outline-secondary btn-sm px-2">-</button>
+                    <span className="btn btn-sm disabled border-secondary text-dark px-3">{quantities[item.id]}</span>
+                    <button onClick={() => updateQuantity(item.id, 1)} className="btn btn-outline-secondary btn-sm px-2">+</button>
+                  </div>
+                  <button onClick={() => removeItem(item.id)} className="btn btn-link text-danger p-0" title="Remove">
+                    <small>Remove</small>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
 
-      <button onClick={clear} className="btn btn-warning mt-3 me-3">Clear All</button>
-      <button onClick={placeOrder} className="btn btn-primary mt-3">Pay & Place Order</button>
+          {/* ✅ BILL DETAILS (Only shows if cartItems.length > 0) */}
+          <div className="card shadow-sm border-0 bg-light mb-4">
+            <div className="card-body">
+              <h6 className="fw-bold mb-3">Bill Details</h6>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted small">Item Total</span>
+                <span className="small">₹{totalPrice.toFixed(2)}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted small">GST (5%)</span>
+                <span className="small">₹{gstAmount.toFixed(2)}</span>
+              </div>
+              <div className="d-flex justify-content-between mb-2">
+                <span className="text-muted small">Delivery Fee ({distance} km)</span>
+                <span className="small">₹{deliveryCharge.toFixed(2)}</span>
+              </div>
+              <hr />
+              <div className="d-flex justify-content-between fw-bold text-primary">
+                <span>Grand Total</span>
+                <span>₹{grandTotal.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ✅ ACTION BUTTONS (Only shows if cartItems.length > 0) */}
+          <div className="d-flex gap-2">
+            <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button>   
+
+    <br/>    <button onClick={placeOrder} className="btn btn-primary flex-grow-1 py-2 fw-bold">
+                Pay 
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }

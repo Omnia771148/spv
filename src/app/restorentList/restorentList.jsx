@@ -1,24 +1,26 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Carousel, Modal } from 'react-bootstrap';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Carousel, Modal, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './restorentList.css';
-import { restList } from './restorentDtata';
+import { restList } from './restorentDtata'; 
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
 import { isPointInPolygon } from "geolib"; 
+import { getExactDistance } from '../actions/delivery';
 
 export default function RestorentList() {
     const [search, setSearch] = useState('');
-    const [typeFilter, setTypeFilter] = useState('');
+    const [typeFilter, setTypeFilter] = useState(''); // Added filter state
     const [mounted, setMounted] = useState(false);
-    
-    // ===== LOCATION STATE =====
     const [error, setError] = useState(null);
-    // ✅ CHANGED: Set showPopup to false by default
     const [showPopup, setShowPopup] = useState(false); 
     const [locationVerified, setLocationVerified] = useState(false);
+    const [roadDistances, setRoadDistances] = useState({});
+    const [isRouting, setIsRouting] = useState(false); 
+    const router = useRouter();
+    const hasRequestedThisMount = useRef(false);
 
     const kurnoolPolygon = [
         { latitude: 15.845928, longitude: 78.012744 },
@@ -43,116 +45,126 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    const requestLocation = () => {
-        if (!navigator.geolocation) {
-            setError("⚠️ Geolocation is not supported.");
+    const fetchAllDistances = useCallback(async (uLat, uLng) => {
+        const cachedDistances = sessionStorage.getItem("sessionRoadDistances");
+        if (cachedDistances) {
+            setRoadDistances(JSON.parse(cachedDistances));
             return;
         }
+
+        const results = {};
+        await Promise.all(restList.map(async (item) => {
+            try {
+                const data = await getExactDistance(
+                    { lat: parseFloat(uLat), lng: parseFloat(uLng) },
+                    { lat: item.lat, lng: item.lng }
+                );
+                if (data) results[item.name] = data; 
+            } catch (err) {
+                console.error(`Distance error for ${item.name}:`, err);
+            }
+        }));
+
+        setRoadDistances(results);
+        sessionStorage.setItem("sessionRoadDistances", JSON.stringify(results));
+    }, []);
+
+    const requestLocation = useCallback(() => {
+        const isSessionVerified = sessionStorage.getItem("isLocationChecked");
+        const storedLat = localStorage.getItem("customerLat");
+        const storedLng = localStorage.getItem("customerLng");
+
+        if (isSessionVerified === "true" && storedLat && storedLng) {
+            setLocationVerified(true);
+            fetchAllDistances(storedLat, storedLng);
+            return;
+        }
+
+        if (!navigator.geolocation || hasRequestedThisMount.current) return;
+        hasRequestedThisMount.current = true;
 
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
-
-                const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-                localStorage.setItem("customerLocationUrl", mapLink);
-                // Also save raw coordinates for your Cart page logic
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
 
-                const inside = isPointInPolygon(
-                    { latitude, longitude },
-                    kurnoolPolygon
-                );
-
-                if (inside) {
+                if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
+                    sessionStorage.setItem("isLocationChecked", "true");
                     setLocationVerified(true);
                     setError(null);
                     setShowPopup(false); 
-
-                    try {
-                        await fetch("/api/save-location", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ 
-                                lat: latitude, 
-                                lng: longitude,
-                                url: mapLink 
-                            }),
-                        });
-                    } catch (err) {
-                        console.error("API error:", err);
-                    }
+                    fetchAllDistances(latitude, longitude);
                 } else {
-                    setError("❌ Outside Kurnool");
+                    setError("❌ Outside Kurnool City");
                     setLocationVerified(false);
-                    // ✅ REMOVED: setShowPopup(true) so users aren't blocked
+                    setShowPopup(true);
                 }
             },
             (err) => {
-              
-    
-                // ✅ REMOVED: setShowPopup(true)
+                setError("⚠️ Please enable GPS to calculate delivery charges.");
+                setShowPopup(true);
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
-    };
+    }, [fetchAllDistances]);
 
-    useEffect(() => {
-        if (mounted) {
-            requestLocation();
-            const interval = setInterval(requestLocation, 10000); // Increased to 10s to save battery
-            return () => clearInterval(interval);
-        }
-    }, [mounted]);
+    useEffect(() => { 
+        setMounted(true); 
+        requestLocation();
+    }, [requestLocation]);
 
-    const router = useRouter();
+    const handleClick = async (name) => {
+        let info = roadDistances[name];
+        const pureDistance = (info && info.km) ? info.km : "4.5";
+        localStorage.setItem("deliveryDistanceKm", pureDistance.toString());
 
-    const handleClick = (name) => {
-        if (name === "KNL") router.push('/knlrest');
-        else if (name === "Snow Field") router.push('/snowfield');
-        else if (name === "Kushas") router.push('/kushas');
-        else alert(`${name} is clicked`);
+        const dynamicPath = `/${name.toLowerCase().replace(/\s+/g, '')}`;
+        const finalPath = (name === "KNL") ? "/knlrest" : dynamicPath;
+        router.push(finalPath);
     };
 
     if (!mounted) return null;
 
     return (
-        <div>
-            {/* 📍 POPUP MODAL is still here but will not show unless showPopup is manually set to true */}
-            <Modal show={showPopup} backdrop="static" keyboard={false} centered>
-                <Modal.Header>
-                    <Modal.Title>📍 Location Check</Modal.Title>
-                </Modal.Header>
-                <Modal.Body style={{ textAlign: 'center' }}>
-                    <p>{error || "Detecting your location..."}</p>
-                    <button onClick={requestLocation} className="btn btn-primary btn-sm mt-2">
-                        Retry
-                    </button>
+        <div style={{ paddingBottom: '80px' }}>
+            <Modal show={showPopup} centered backdrop="static">
+                <Modal.Body className="text-center py-4">
+                    <p className="fw-bold">{error || "Detecting your location..."}</p>
+                    {error && (
+                        <button className="btn btn-sm btn-primary" onClick={() => {
+                            hasRequestedThisMount.current = false;
+                            requestLocation();
+                        }}>Retry</button>
+                    )}
                 </Modal.Body>
             </Modal>
 
             <Carousel interval={3000} pause={false} className='coroselmain'>
                 <Carousel.Item className='coroselmain2'>
-                    <img className="d" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="Slide" />
+                    <img className="d-block w-100" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="Slide" />
                 </Carousel.Item>
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-                <h1>Search</h1>
+                <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
+                
+                {/* Search Bar */}
                 <input 
                     type="text" 
-                    className="form-control"
-                    placeholder="Search restaurants..."
-                    value={search} 
+                    className="form-control mb-3 shadow-sm border-0" 
+                    placeholder="Search..." 
+                    value={search}
                     onChange={(e) => setSearch(e.target.value)} 
                 />
 
-                <h4 className="mt-4">Category</h4>
-                <select className="form-select" onChange={(e) => setTypeFilter(e.target.value)} value={typeFilter}>
+                {/* Category Filter Dropdown */}
+                <h5 className="mt-3 mb-2">Category</h5>
+                <select 
+                    className="form-select mb-4 shadow-sm border-0" 
+                    onChange={(e) => setTypeFilter(e.target.value)} 
+                    value={typeFilter}
+                >
                     <option value="">All Types</option>
                     <option value="veg">Veg</option>
                     <option value="non-veg">Non-Veg</option>
@@ -165,27 +177,28 @@ export default function RestorentList() {
                             const matchesType = typeFilter === '' || item.type === typeFilter;
                             return matchesSearch && matchesType;
                         })
-                        .map(item => (
-                            <div key={item.name} className="mb-3">
-                                <button 
-                                    onClick={() => handleClick(item.name)} 
-                                    style={{ width: '100%', border: 'none', background: 'none', padding: 0 }}
-                                >
-                                    <RestorentDisplay name={item.name} place={item.place} rating={item.rating} image={item.image}/>
-                                </button>
-                            </div>
-                        ))
+                        .map(item => {
+                            const info = roadDistances[item.name];
+                            return (
+                                <div key={item.name} className="mb-3">
+                                    <button 
+                                        onClick={() => handleClick(item.name)} 
+                                        style={{ width: '100%', border: 'none', background: 'none', padding: 0 }}
+                                    >
+                                        <RestorentDisplay 
+                                            name={item.name} 
+                                            place={item.place} 
+                                            rating={item.rating} 
+                                            image={item.image}
+                                            distance={info ? `${info.km} km` : "..."}
+                                        />
+                                    </button>
+                                </div>
+                            );
+                        })
                     }
                 </div>
             </div>
-
-            {/* Small subtle indicator that location is verified */}
-            {locationVerified && (
-                <div style={{ position: 'fixed', bottom: '80px', right: '20px', backgroundColor: 'rgba(0,128,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: '20px', fontSize: '12px', zIndex: 1000 }}>
-                    📍 Serviceable Area
-                </div>
-            )}
-            
             <Navbar />
         </div>
     );
