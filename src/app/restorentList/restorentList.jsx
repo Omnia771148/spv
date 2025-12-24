@@ -47,23 +47,8 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
-    // ✅ Helper: Checks LocalStorage and syncs state/ref instantly
-    const checkLocalStorageFirst = useCallback(() => {
-        const savedDistances = localStorage.getItem("allRestaurantDistances");
-        if (savedDistances) {
-            const parsed = JSON.parse(savedDistances);
-            setRoadDistances(parsed);
-            distRef.current = parsed;
-            return true; 
-        }
-        return false; 
-    }, []);
-
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        // Double check cache before hitting API
-        if (checkLocalStorageFirst()) return;
-
-        console.log("🌐 Hitting Route API...");
+        console.log("🌐 New Application Instance: Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -80,17 +65,25 @@ export default function RestorentList() {
         setRoadDistances(results);
         distRef.current = results;
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
-        localStorage.setItem("lastCalculatedLat", uLat.toString());
-        localStorage.setItem("lastCalculatedLng", uLng.toString());
-    }, [checkLocalStorageFirst]);
+        // Mark as loaded for this session
+        sessionStorage.setItem("isAppLoaded", "true");
+    }, []);
 
     const requestLocation = useCallback(() => {
-        // ✅ 1. EXIT EARLY if data is in LocalStorage (Prevents API Hit)
-        if (checkLocalStorageFirst()) {
-            console.log("📦 Loaded from LocalStorage. Skipping GPS/API.");
-            return; 
+        // Check if this is a route change or a fresh reload
+        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+        const savedDistances = localStorage.getItem("allRestaurantDistances");
+
+        // ✅ If route change (already loaded this session), use LocalStorage and STOP
+        if (isAppLoaded === "true" && savedDistances) {
+            console.log("📦 Route Change Detected: Using cached data.");
+            const parsed = JSON.parse(savedDistances);
+            setRoadDistances(parsed);
+            distRef.current = parsed;
+            return;
         }
 
+        // ✅ If fresh reload or new app opening, trigger GPS
         if (!navigator.geolocation || hasRequestedThisMount.current) return;
         hasRequestedThisMount.current = true;
 
@@ -100,14 +93,8 @@ export default function RestorentList() {
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
 
-                // ✅ 2. Only fetch if location changed from last calculation
-                const lastLat = localStorage.getItem("lastCalculatedLat");
-                const hasMoved = !lastLat || parseFloat(lastLat).toFixed(4) !== latitude.toFixed(4);
-
                 if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
-                    if (hasMoved) {
-                        fetchAllDistances(latitude, longitude);
-                    }
+                    fetchAllDistances(latitude, longitude);
                 } else {
                     setError("❌ Outside Service Area");
                 }
@@ -115,19 +102,15 @@ export default function RestorentList() {
             () => { setError("⚠️ GPS access required."); },
             { enableHighAccuracy: true, timeout: 10000 }
         );
-    }, [fetchAllDistances, checkLocalStorageFirst]);
+    }, [fetchAllDistances]);
 
     useEffect(() => { 
         setMounted(true); 
-        // ✅ 3. On every route change, check local storage FIRST
-        if (!checkLocalStorageFirst()) {
-            requestLocation();
-        }
-    }, [requestLocation, checkLocalStorageFirst]);
+        requestLocation();
+    }, [requestLocation]);
 
     const handleClick = (name) => {
         const currentDistance = distRef.current[name];
-
         if (!currentDistance) {
             setIsCalculating(true);
             const timer = setInterval(() => {
@@ -177,20 +160,14 @@ export default function RestorentList() {
             <div style={{ padding: '20px' }}>
                 <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
                 <input type="text" className="form-control mb-3 shadow-sm border-0" placeholder="Search..." onChange={(e) => setSearch(e.target.value)} />
-                
                 <select className="form-select mb-4 shadow-sm border-0" onChange={(e) => setTypeFilter(e.target.value)}>
                     <option value="">All Types</option>
                     <option value="veg">Veg Only</option>
                     <option value="non-veg">Non-Veg Only</option>
                 </select>
-
                 <div className="mt-4">
                     {restList
-                        .filter(item => {
-                            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-                            const matchesType = typeFilter === '' || item.type === typeFilter;
-                            return matchesSearch && matchesType;
-                        })
+                        .filter(item => (item.name.toLowerCase().includes(search.toLowerCase()) && (typeFilter === '' || item.type === typeFilter)))
                         .map(item => (
                             <div key={item.name} className="mb-3">
                                 <button onClick={() => handleClick(item.name)} className="w-100 border-0 bg-transparent p-0">
