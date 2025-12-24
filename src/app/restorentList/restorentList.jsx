@@ -47,21 +47,23 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
-    // ✅ OPTIMIZED: Checks LocalStorage first to prevent repeat API hits
-    const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        // 1. Check LocalStorage
+    // ✅ Helper: Checks LocalStorage and syncs state/ref instantly
+    const checkLocalStorageFirst = useCallback(() => {
         const savedDistances = localStorage.getItem("allRestaurantDistances");
-        
         if (savedDistances) {
             const parsed = JSON.parse(savedDistances);
-            console.log("📦 Using Cached Distances from LocalStorage");
             setRoadDistances(parsed);
             distRef.current = parsed;
-            return; // 🛑 EXIT: Do not hit the API
+            return true; 
         }
+        return false; 
+    }, []);
 
-        // 2. If nothing in LocalStorage, hit the API
-        console.log("🌐 LocalStorage empty. Hitting Route API...");
+    const fetchAllDistances = useCallback(async (uLat, uLng) => {
+        // Double check cache before hitting API
+        if (checkLocalStorageFirst()) return;
+
+        console.log("🌐 Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -77,24 +79,35 @@ export default function RestorentList() {
         
         setRoadDistances(results);
         distRef.current = results;
-        // 3. Save to LocalStorage for future route changes/visits
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
-    }, []);
+        localStorage.setItem("lastCalculatedLat", uLat.toString());
+        localStorage.setItem("lastCalculatedLng", uLng.toString());
+    }, [checkLocalStorageFirst]);
 
     const requestLocation = useCallback(() => {
+        // ✅ 1. EXIT EARLY if data is in LocalStorage (Prevents API Hit)
+        if (checkLocalStorageFirst()) {
+            console.log("📦 Loaded from LocalStorage. Skipping GPS/API.");
+            return; 
+        }
+
         if (!navigator.geolocation || hasRequestedThisMount.current) return;
         hasRequestedThisMount.current = true;
 
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
-                
-                // Save current location
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
 
+                // ✅ 2. Only fetch if location changed from last calculation
+                const lastLat = localStorage.getItem("lastCalculatedLat");
+                const hasMoved = !lastLat || parseFloat(lastLat).toFixed(4) !== latitude.toFixed(4);
+
                 if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
-                    fetchAllDistances(latitude, longitude);
+                    if (hasMoved) {
+                        fetchAllDistances(latitude, longitude);
+                    }
                 } else {
                     setError("❌ Outside Service Area");
                 }
@@ -102,12 +115,15 @@ export default function RestorentList() {
             () => { setError("⚠️ GPS access required."); },
             { enableHighAccuracy: true, timeout: 10000 }
         );
-    }, [fetchAllDistances]);
+    }, [fetchAllDistances, checkLocalStorageFirst]);
 
     useEffect(() => { 
         setMounted(true); 
-        requestLocation();
-    }, [requestLocation]);
+        // ✅ 3. On every route change, check local storage FIRST
+        if (!checkLocalStorageFirst()) {
+            requestLocation();
+        }
+    }, [requestLocation, checkLocalStorageFirst]);
 
     const handleClick = (name) => {
         const currentDistance = distRef.current[name];
