@@ -12,7 +12,7 @@ import { getExactDistance } from '../actions/delivery';
 
 export default function RestorentList() {
     const [search, setSearch] = useState('');
-    const [typeFilter, setTypeFilter] = useState(''); // Added filter state
+    const [typeFilter, setTypeFilter] = useState(''); 
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
     const [showPopup, setShowPopup] = useState(false); 
@@ -45,13 +45,17 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
+    // ✅ MODIFIED: Hits Google API only if not in SessionStorage
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
+        // 1. Check if we already have the distances for THIS session
         const cachedDistances = sessionStorage.getItem("sessionRoadDistances");
         if (cachedDistances) {
+            console.log("🚀 Loading distances from Cache (No API Hit)");
             setRoadDistances(JSON.parse(cachedDistances));
             return;
         }
 
+        console.log("🌐 Hitting Google API for distances...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -65,6 +69,7 @@ export default function RestorentList() {
             }
         }));
 
+        // 2. Save results to SessionStorage for this session
         setRoadDistances(results);
         sessionStorage.setItem("sessionRoadDistances", JSON.stringify(results));
     }, []);
@@ -74,6 +79,7 @@ export default function RestorentList() {
         const storedLat = localStorage.getItem("customerLat");
         const storedLng = localStorage.getItem("customerLng");
 
+        // If verified this session, request distances (which will now check cache first)
         if (isSessionVerified === "true" && storedLat && storedLng) {
             setLocationVerified(true);
             fetchAllDistances(storedLat, storedLng);
@@ -114,13 +120,16 @@ export default function RestorentList() {
         requestLocation();
     }, [requestLocation]);
 
-    const handleClick = async (name) => {
+    const handleClick = async (name, itemCoords) => {
         let info = roadDistances[name];
+        
+        // Save distance for Cart math
         const pureDistance = (info && info.km) ? info.km : "4.5";
         localStorage.setItem("deliveryDistanceKm", pureDistance.toString());
 
         const dynamicPath = `/${name.toLowerCase().replace(/\s+/g, '')}`;
         const finalPath = (name === "KNL") ? "/knlrest" : dynamicPath;
+
         router.push(finalPath);
     };
 
@@ -128,18 +137,33 @@ export default function RestorentList() {
 
     return (
         <div style={{ paddingBottom: '80px' }}>
+            {/* Modal for Location Errors */}
             <Modal show={showPopup} centered backdrop="static">
                 <Modal.Body className="text-center py-4">
                     <p className="fw-bold">{error || "Detecting your location..."}</p>
                     {error && (
-                        <button className="btn btn-sm btn-primary" onClick={() => {
-                            hasRequestedThisMount.current = false;
-                            requestLocation();
-                        }}>Retry</button>
+                        <button 
+                            className="btn btn-sm btn-primary" 
+                            onClick={() => {
+                                hasRequestedThisMount.current = false;
+                                requestLocation();
+                            }}
+                        >
+                            Retry
+                        </button>
                     )}
                 </Modal.Body>
             </Modal>
 
+            {/* Wait Spinner */}
+            <Modal show={isRouting} centered backdrop="static" size="sm">
+                <Modal.Body className="text-center py-3">
+                    <Spinner animation="border" variant="primary" size="sm" />
+                    <div className="mt-2 small fw-bold text-muted">wait</div>
+                </Modal.Body>
+            </Modal>
+
+            {/* Content Rendering */}
             <Carousel interval={3000} pause={false} className='coroselmain'>
                 <Carousel.Item className='coroselmain2'>
                     <img className="d-block w-100" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="Slide" />
@@ -148,8 +172,6 @@ export default function RestorentList() {
 
             <div style={{ padding: '20px' }}>
                 <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
-                
-                {/* Search Bar */}
                 <input 
                     type="text" 
                     className="form-control mb-3 shadow-sm border-0" 
@@ -158,31 +180,15 @@ export default function RestorentList() {
                     onChange={(e) => setSearch(e.target.value)} 
                 />
 
-                {/* Category Filter Dropdown */}
-                <h5 className="mt-3 mb-2">Category</h5>
-                <select 
-                    className="form-select mb-4 shadow-sm border-0" 
-                    onChange={(e) => setTypeFilter(e.target.value)} 
-                    value={typeFilter}
-                >
-                    <option value="">All Types</option>
-                    <option value="veg">Veg</option>
-                    <option value="non-veg">Non-Veg</option>
-                </select>
-
                 <div className="mt-4">
                     {restList
-                        .filter(item => {
-                            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-                            const matchesType = typeFilter === '' || item.type === typeFilter;
-                            return matchesSearch && matchesType;
-                        })
+                        .filter(item => item.name.toLowerCase().includes(search.toLowerCase()))
                         .map(item => {
                             const info = roadDistances[item.name];
                             return (
                                 <div key={item.name} className="mb-3">
                                     <button 
-                                        onClick={() => handleClick(item.name)} 
+                                        onClick={() => handleClick(item.name, { lat: item.lat, lng: item.lng })} 
                                         style={{ width: '100%', border: 'none', background: 'none', padding: 0 }}
                                     >
                                         <RestorentDisplay 
