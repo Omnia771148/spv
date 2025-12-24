@@ -16,11 +16,10 @@ export default function RestorentList() {
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
     
-    const [showPopup, setShowPopup] = useState(true); 
-    const [loadingLocation, setLoadingLocation] = useState(true);
+    // ✅ NO MORE initial loading states for location
     const [isRouting, setIsRouting] = useState(false); 
-
     const [roadDistances, setRoadDistances] = useState({}); 
+    
     const router = useRouter();
     const hasRequestedThisMount = useRef(false);
 
@@ -47,17 +46,7 @@ export default function RestorentList() {
         { latitude: 15.847026, longitude: 78.005964 }
     ];
 
-    // ✅ FIXED: Uses LocalStorage only
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        // Check LocalStorage first
-        const cached = localStorage.getItem("allRestaurantDistances");
-        if (cached) {
-            setRoadDistances(JSON.parse(cached));
-            // Even if cached, we don't return here if you want to refresh distances 
-            // but for performance, we'll use the cache.
-            return;
-        }
-
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -77,24 +66,10 @@ export default function RestorentList() {
         }));
 
         setRoadDistances(results);
-        // ✅ Store in LocalStorage permanently
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
     }, []);
 
     const requestLocation = useCallback(() => {
-        setLoadingLocation(true);
-        const storedLat = localStorage.getItem("customerLat");
-        const storedLng = localStorage.getItem("customerLng");
-        const isVerified = localStorage.getItem("isLocationVerified");
-
-        // ✅ If already verified in LocalStorage, just load
-        if (isVerified === "true" && storedLat && storedLng) {
-            setLoadingLocation(false);
-            setShowPopup(false);
-            fetchAllDistances(storedLat, storedLng);
-            return;
-        }
-
         if (!navigator.geolocation || hasRequestedThisMount.current) return;
         hasRequestedThisMount.current = true;
 
@@ -105,18 +80,13 @@ export default function RestorentList() {
                 localStorage.setItem("customerLng", longitude);
 
                 if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
-                    localStorage.setItem("isLocationVerified", "true"); // ✅ Use LocalStorage
-                    setLoadingLocation(false);
-                    setShowPopup(false); 
                     fetchAllDistances(latitude, longitude);
                 } else {
-                    setError("❌ Outside Serviceable Area");
-                    setLoadingLocation(false);
+                    setError("❌ Outside Kurnool City");
                 }
             },
             () => {
-                setError("⚠️ Please enable GPS.");
-                setLoadingLocation(false);
+                setError("⚠️ Location access denied. Using default distance math.");
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -140,28 +110,7 @@ export default function RestorentList() {
 
     return (
         <div style={{ paddingBottom: '80px' }}>
-            {/* 📍 Location Modal */}
-            <Modal show={showPopup} centered backdrop="static">
-                <Modal.Body className="text-center py-5">
-                    {loadingLocation ? (
-                        <>
-                            <Spinner animation="border" variant="primary" className="mb-3" />
-                            <h5 className="fw-bold">Checking Location...</h5>
-                        </>
-                    ) : (
-                        <>
-                            <p className="fw-bold text-danger mb-3">{error}</p>
-                            <button className="btn btn-primary btn-sm" onClick={() => {
-                                hasRequestedThisMount.current = false;
-                                localStorage.removeItem("isLocationVerified"); // Reset to try again
-                                requestLocation();
-                            }}>Retry</button>
-                        </>
-                    )}
-                </Modal.Body>
-            </Modal>
-
-            {/* ⏳ Wait Spinner */}
+            {/* ⏳ Transition Spinner (Only shows after clicking a restaurant) */}
             <Modal show={isRouting} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="grow" variant="warning" size="sm" />
@@ -176,14 +125,18 @@ export default function RestorentList() {
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-                <h1 className="h3 fw-bold mb-4">Restaurants</h1>
-                <input type="text" className="form-control mb-3" placeholder="Search..." onChange={(e) => setSearch(e.target.value)} />
-
-                <select className="form-select mb-4" onChange={(e) => setTypeFilter(e.target.value)}>
+                <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
+                
+                {/* Search & Filter */}
+                <input type="text" className="form-control mb-3 shadow-sm border-0" placeholder="Search..." onChange={(e) => setSearch(e.target.value)} />
+                
+                <select className="form-select mb-4 shadow-sm border-0" onChange={(e) => setTypeFilter(e.target.value)}>
                     <option value="">All Types</option>
                     <option value="veg">Veg Only</option>
                     <option value="non-veg">Non-Veg Only</option>
                 </select>
+
+                {error && <div className="alert alert-warning py-2 small border-0 shadow-sm">{error}</div>}
 
                 <div className="mt-4">
                     {restList
