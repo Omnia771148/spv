@@ -107,7 +107,7 @@ export default function Cart() {
         restaurantId: String(cartItems[0].restid),
         totalCount: cartItems.length,
         totalPrice: Number(totalPrice),
-        gst: Number(gstAmount),
+        gst: Number(gstAmount), 
         deliveryCharge: Number(deliveryCharge),
         grandTotal: Number(grandTotal),
         aa,
@@ -162,6 +162,8 @@ export default function Cart() {
       alert(`Error: ${err.message}`);
     }
   };
+  
+  
 
   if (loading) return <p className="text-center mt-5">Checking authentication...</p>;
 

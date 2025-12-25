@@ -71,12 +71,10 @@ export default function KushasMenuList() {
     }
 
     if (
-      existingCart.some(
-        (cartItem) => cartItem.id >= 9 && cartItem.id <= 12
-      ) ||
-      existingCart.some(
-        (cartItem) => cartItem.id >= 1 && cartItem.id <= 4
-      )
+      existingCart.some((cartItem) => cartItem.id >= 9 && cartItem.id <= 12) ||
+      existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 4) ||
+      existingCart.some((cartItem) => cartItem.id >= 13 && cartItem.id <= 16) ||
+      existingCart.some((cartItem) => cartItem.id >= 17 && cartItem.id <= 20) 
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;

@@ -46,6 +46,8 @@ export default function KushasMenuLite() {
     // Logic to ensure items from only one restaurant are selected
     if (
       existingCart.some(cartItem => cartItem.id >= 1 && cartItem.id <= 4) ||
+      existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
+      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20) ||
       existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8)
     ) {
       showToast("You Can Select From Only One Restuarent", "danger");

@@ -26,4 +26,22 @@ export const restList = [
         rating: "4.5",
         image: "/dominos.png",
     },
+     {
+        name: "lajesh",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8302831,
+        lng: 78.0401789,
+        rating: "4.5",
+        image: "/dominos.png",
+    },
+    {
+        name: "Broes story",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8302831,
+        lng: 78.0401789,
+        rating: "4.5",
+        image: "/dominos.png",
+    },
 ];

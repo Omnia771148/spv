@@ -43,8 +43,8 @@ export default function KushasMenuList() {
     if (
       existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8) ||
       existingCart.some(cartItem => cartItem.id >= 9 && cartItem.id <= 12) ||
-       existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
-        existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20) 
+      existingCart.some(cartItem => cartItem.id >= 1 && cartItem.id <= 4) ||
+      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20) 
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
@@ -64,7 +64,7 @@ export default function KushasMenuList() {
     <div className="container mt-4">
 
       {/* ✅ RESTAURANT CARD */}
-      <RestorentDisplay data={restuarents[2]} />
+      <RestorentDisplay data={restuarents[3]} />
 
       <h1 className="search mt-4">Search Dishes</h1>
 
@@ -95,7 +95,7 @@ export default function KushasMenuList() {
           .filter(item => {
             const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
             const matchesType = typeFilter === '' || item.type === typeFilter;
-            const matchesId = item.id >= 1 && item.id <= 4;
+            const matchesId = item.id >= 13 && item.id <= 16;
             return matchesSearch && matchesType && matchesId;
           })
           .map(item => (

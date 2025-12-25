@@ -22,6 +22,22 @@ const restuarents = [
     rating: 4.3,
     Type: "Home Style Food",
     image: "/dominos.png"
+  },
+  {
+    id: 4,
+    name: "lanjesh",
+    location: "Venkata ",
+    rating: 4.3,
+    Type: "Home Style Food",
+    image: "/dominos.png"
+  },
+  {
+    id: 5,
+    name: "Brows story",
+    location: "Venkata kumar",
+    rating: 4.3,
+    Type: "Home Style Food",
+    image: "/dominos.png"
   }
 ];
 

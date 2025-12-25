@@ -7,8 +7,8 @@ import { restList } from './restorentDtata';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
-import { isPointInPolygon } from "geolib"; 
-import { getExactDistance } from '../actions/delivery';
+// import { isPointInPolygon } from "geolib"; 
+// import { getExactDistance } from '../actions/delivery';
 
 export default function RestorentList() {
     const [search, setSearch] = useState('');
@@ -17,6 +17,11 @@ export default function RestorentList() {
     const [error, setError] = useState(null);
     const [isRouting, setIsRouting] = useState(false); 
     const [isCalculating, setIsCalculating] = useState(false);
+    
+    // NEW: Location permission states - Set to false for testing
+    const [showLocationModal, setShowLocationModal] = useState(false); 
+    const [showFetchingModal, setShowFetchingModal] = useState(false); 
+    const [locationDenied, setLocationDenied] = useState(false);
     
     const [roadDistances, setRoadDistances] = useState({}); 
     const distRef = useRef({});
@@ -48,6 +53,7 @@ export default function RestorentList() {
     ];
 
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
+        /* Commented for testing
         console.log("🌐 New Application Instance: Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
@@ -65,16 +71,15 @@ export default function RestorentList() {
         setRoadDistances(results);
         distRef.current = results;
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
-        // Mark as loaded for this session
         sessionStorage.setItem("isAppLoaded", "true");
+        */
     }, []);
 
     const requestLocation = useCallback(() => {
-        // Check if this is a route change or a fresh reload
+        /* Commented for testing
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
         const savedDistances = localStorage.getItem("allRestaurantDistances");
 
-        // ✅ If route change (already loaded this session), use LocalStorage and STOP
         if (isAppLoaded === "true" && savedDistances) {
             console.log("📦 Route Change Detected: Using cached data.");
             const parsed = JSON.parse(savedDistances);
@@ -83,7 +88,6 @@ export default function RestorentList() {
             return;
         }
 
-        // ✅ If fresh reload or new app opening, trigger GPS
         if (!navigator.geolocation || hasRequestedThisMount.current) return;
         hasRequestedThisMount.current = true;
 
@@ -94,23 +98,39 @@ export default function RestorentList() {
                 localStorage.setItem("customerLng", longitude);
 
                 if (isPointInPolygon({ latitude, longitude }, kurnoolPolygon)) {
-                    fetchAllDistances(latitude, longitude);
+                    await fetchAllDistances(latitude, longitude);
                 } else {
                     setError("❌ Outside Service Area");
                 }
+                setShowFetchingModal(false);
+                setShowLocationModal(false);
             },
-            () => { setError("⚠️ GPS access required."); },
+            (err) => { 
+                console.error("Location error:", err);
+                setLocationDenied(true);
+                setShowFetchingModal(false);
+                setShowLocationModal(false);
+                setError("⚠️ GPS access required."); 
+            },
             { enableHighAccuracy: true, timeout: 10000 }
         );
+        */
     }, [fetchAllDistances]);
+
+    const handleEnableLocation = () => {
+        setShowLocationModal(false);
+        setShowFetchingModal(true);
+        // requestLocation(); // Bypassed for testing
+        setTimeout(() => setShowFetchingModal(false), 500); // Quick close for testing
+    };
 
     useEffect(() => { 
         setMounted(true); 
-        requestLocation();
-    }, [requestLocation]);
+    }, []);
 
     const handleClick = (name) => {
-        const currentDistance = distRef.current[name];
+        const currentDistance = distRef.current[name] || "0.0"; // Fallback for testing
+        /* Bypassing interval check for testing
         if (!currentDistance) {
             setIsCalculating(true);
             const timer = setInterval(() => {
@@ -123,20 +143,78 @@ export default function RestorentList() {
             }, 500);
             return;
         }
+        */
         proceedToRoute(name, currentDistance);
     };
 
-    const proceedToRoute = (name, distance) => {
-        setIsRouting(true);
-        localStorage.setItem("deliveryDistanceKm", distance.toString());
-        const path = (name === "KNL") ? "/knlrest" : `/${name.toLowerCase().replace(/\s+/g, '')}`;
-        router.push(path);
-    };
+    const handleClicke = (name) => {
+    if (name === "KNL") {
+      window.location.href = './knlrest';
+    } else if (name === "Snow Field") {
+      window.location.href = './snowfield';
+    } else if (name === "Kushas") {
+      window.location.href = './kushas';
+    }else if (name === "Broes story") {
+      window.location.href = './Browsstory';
+    } else {
+       window.location.href = './lanjesh';
+    }
+  };
 
     if (!mounted) return null;
 
     return (
         <div style={{ paddingBottom: '80px' }}>
+            {/* Location Permission Modal */}
+            <Modal show={showLocationModal} centered backdrop="static" size="sm">
+                <Modal.Body className="text-center py-4">
+                    <div className="mb-3">
+                        <i className="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                    </div>
+                    <h5 className="fw-bold mb-3">Enable Location Access</h5>
+                    <p className="text-muted small mb-4">
+                        Turn on your location to find nearby restaurants in Kurnool
+                    </p>
+                    <button 
+                        className="btn btn-primary w-100 mb-2" 
+                        onClick={handleEnableLocation}
+                    >
+                        🔐 Turn On Location
+                    </button>
+                    <button 
+                        className="btn btn-outline-secondary w-100" 
+                        onClick={() => {
+                            setShowLocationModal(false);
+                            setLocationDenied(true);
+                        }}
+                    >
+                        Skip for now
+                    </button>
+                </Modal.Body>
+            </Modal>
+
+            {/* Fetching Location Modal */}
+            <Modal show={showFetchingModal} centered backdrop="static" size="sm">
+                <Modal.Body className="text-center py-4">
+                    <Spinner animation="border" variant="primary" />
+                    <div className="mt-3 fw-bold">Fetching Location...</div>
+                    <div className="text-muted small mt-1">Please wait</div>
+                </Modal.Body>
+            </Modal>
+
+            {/* Location Denied Modal */}
+            <Modal show={locationDenied && !roadDistances.KNL} centered backdrop="static" size="sm">
+                <Modal.Body className="text-center py-4">
+                    <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                    <h6 className="fw-bold mb-3">Location Required</h6>
+                    <p className="text-muted small mb-4">Please enable location for best experience</p>
+                    <button className="btn btn-primary w-100" onClick={handleEnableLocation}>
+                        Enable Location
+                    </button>
+                </Modal.Body>
+            </Modal>
+
+            {/* Existing Modals */}
             <Modal show={isCalculating} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" size="sm" />
@@ -170,7 +248,7 @@ export default function RestorentList() {
                         .filter(item => (item.name.toLowerCase().includes(search.toLowerCase()) && (typeFilter === '' || item.type === typeFilter)))
                         .map(item => (
                             <div key={item.name} className="mb-3">
-                                <button onClick={() => handleClick(item.name)} className="w-100 border-0 bg-transparent p-0">
+                                <button onClick={() => handleClicke(item.name)} className="w-100 border-0 bg-transparent p-0">
                                     <RestorentDisplay 
                                         name={item.name} 
                                         place={item.place} 
