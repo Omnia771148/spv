@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from "react";
 import axios from "axios";
+import './login.css'
 
 export default function Home({ handleFPClick, handleSignUp }) {
     const [users, setUsers] = useState([]);
@@ -83,6 +84,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
                 placeholder="Enter Name"
                 value={inputName}
                 onChange={(e) => setInputName(e.target.value)}
+                className="login-username"
             /><br /><br />
             
             <input
@@ -90,6 +92,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
                 placeholder="Enter Password"
                 value={inputEmail}
                 onChange={(e) => setInputEmail(e.target.value)}
+                className="login-userpass"
             /><br /><br />
             
             <button onClick={handleCheck}>Sign In</button><br /><br />

@@ -44,4 +44,4 @@ export const restList = [
         rating: "4.5",
         image: "/dominos.png",
     },
-];
+]

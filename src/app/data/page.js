@@ -20,10 +20,18 @@ export const Data = [
   { id: 12, name: "Garlic Bread", price: 170, restid: 3, button: "Add",type:"non-veg",symbol:"🔺"},
 
 
+<<<<<<< HEAD
   { id: 13, name: "Veg Cheese Pizza", price: 170, restid: 4, button: "Add",type:"veg",symbol:"🟢" },
   { id: 14, name: "Veg Corn Pizza",price: 170,restid: 4, button: "Add",type:"veg",symbol:"🟢" },
   { id: 15, name: "Veg Burger", price: 170, restid: 4 ,button: "Add",type:"non-veg",symbol:"🔺" },
   { id: 16, name: "Garlic Bread", price: 170, restid: 4, button: "Add",type:"non-veg",symbol:"🔺"},
+=======
+  { id: 13, name: "Veg Cheese Pizza", price: 170, restid: 3, button: "Add",type:"veg",symbol:"🟢" },
+  { id: 14, name: "Veg Corn Pizza",price: 170,restid: 3, button: "Add",type:"veg",symbol:"🟢" },
+  { id: 15, name: "Veg Burger", price: 170, restid: 3, button: "Add",type:"non-veg",symbol:"🔺" },
+  { id: 16, name: "Garlic Bread", price: 170, restid: 3, button: "Add",type:"non-veg",symbol:"🔺"},
+
+>>>>>>> f681b0c (My local changes)
   
   
    { id: 17, name: "Veg Cheese Pizza", price: 170, restid: 5, button: "Add",type:"veg",symbol:"🟢" },

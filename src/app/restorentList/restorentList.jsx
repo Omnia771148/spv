@@ -144,8 +144,8 @@ export default function RestorentList() {
     };
 
     const handleClick = (name) => {
-        const currentDistance = distRef.current[name]; 
-    
+        const currentDistance = distRef.current[name] || "0.0"; // Fallback for testing
+        /* Bypassing interval check for testing
         if (!currentDistance) {
             setIsCalculating(true);
             const timer = setInterval(() => {
@@ -158,23 +158,23 @@ export default function RestorentList() {
             }, 500);
             return;
         }
-        
+        */
         proceedToRoute(name, currentDistance);
     };
 
     const handleClicke = (name) => {
-        if (name === "KNL") {
-            window.location.href = './knlrest';
-        } else if (name === "Snow Field") {
-            window.location.href = './snowfield';
-        } else if (name === "Kushas") {
-            window.location.href = './kushas';
-        } else if (name === "Broes story") {
-            window.location.href = './Browsstory';
-        } else {
-            window.location.href = './lanjesh';
-        }
-    };
+    if (name === "KNL") {
+      window.location.href = './knlrest';
+    } else if (name === "Snow Field") {
+      window.location.href = './snowfield';
+    } else if (name === "Kushas") {
+      window.location.href = './kushas';
+    }else if (name === "Broes story") {
+      window.location.href = './Browsstory';
+    } else {
+       window.location.href = './lanjesh';
+    }
+  };
 
     if (!mounted) return null;
 

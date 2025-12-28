@@ -22,7 +22,7 @@ export default function AcceptedOrdersPage() {
           `/api/accepted-orders?userId=${userId}`,
           { cache: "no-store" }
         );
-
+        
         if (!res.ok) {
           throw new Error("Failed to fetch accepted orders");
         }
