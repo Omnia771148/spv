@@ -32,12 +32,20 @@ export default function Cart() {
     }
   }, [router]);
 
-  // Load cart & Distance (Reads from your localStorage)
+  // Load cart & Distance (Updated to read from your allRestaurantDistances)
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
+    let cartRestName = ""; // To track which restaurant distance to pick
+
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
       setCartItems(parsedCart);
+      
+      // ADDED: Capture the restaurant name from the first item in cart
+      if (parsedCart.length > 0) {
+        cartRestName = parsedCart[0].restaurantName || parsedCart[0].restName;
+      }
+
       const initialQuantities = {};
       parsedCart.forEach(item => {
         initialQuantities[item.id] = item.quantity || 1;
@@ -45,16 +53,23 @@ export default function Cart() {
       setQuantities(initialQuantities);
     }
 
-    const savedDistance = localStorage.getItem("deliveryDistanceKm");
-    if (savedDistance) {
-      const dist = parseFloat(savedDistance);
-      setDistance(dist);
+    // ADDED: Logic to pull specific restaurant distance from your list
+    const savedDistances = localStorage.getItem("allRestaurantDistances");
+    if (savedDistances && cartRestName) {
+      const distanceData = JSON.parse(savedDistances);
+      const distValue = distanceData[cartRestName]; // Gets distance for this specific restaurant
       
-      if (dist <= 3) {
-        setDeliveryCharge(30);
-      } else {
-        const extraKm = Math.ceil(dist - 3);
-        setDeliveryCharge(30 + (extraKm * 10));
+      if (distValue) {
+        const dist = parseFloat(distValue);
+        setDistance(dist);
+        
+        // Your existing delivery charge logic applied to the new distance
+        if (dist <= 3) {
+          setDeliveryCharge(30);
+        } else {
+          const extraKm = Math.ceil(dist - 3);
+          setDeliveryCharge(30 + (extraKm * 10));
+        }
       }
     }
   }, []);
@@ -117,7 +132,7 @@ export default function Cart() {
         gst: Number(gstAmount), 
         deliveryCharge: Number(deliveryCharge),
         grandTotal: Number(grandTotal),
-        deliveryAddress, // Included the user's manual address
+        deliveryAddress, 
         aa,
         location: {
           lat: latStr ? Number(latStr) : 0,
@@ -229,7 +244,6 @@ export default function Cart() {
             </div>
           </div>
 
-          {/* Buttons come directly below Grand Total */}
           <div className="d-flex gap-2 mb-3">
             <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button> 
             <button onClick={() => setShowAddressBox(true)} className="btn btn-primary flex-grow-1 py-2 fw-bold">
@@ -237,7 +251,6 @@ export default function Cart() {
             </button>
           </div>
 
-          {/* Address Box appears BELOW the buttons when Place Order is clicked */}
           {showAddressBox && (
             <div className="card p-3 border-0 shadow-sm bg-white mt-3">
               <label className="fw-bold mb-2">Delivery Address</label>
