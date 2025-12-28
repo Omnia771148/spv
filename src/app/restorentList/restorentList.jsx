@@ -129,37 +129,11 @@ export default function RestorentList() {
     }, []);
 
     const handleClick = (name) => {
-        const currentDistance = distRef.current[name] || "0.0"; // Fallback for testing
-        /* Bypassing interval check for testing
-        if (!currentDistance) {
-            setIsCalculating(true);
-            const timer = setInterval(() => {
-                const updatedDistance = distRef.current[name];
-                if (updatedDistance) {
-                    clearInterval(timer);
-                    setIsCalculating(false);
-                    proceedToRoute(name, updatedDistance);
-                }
-            }, 500);
-            return;
-        }
-        */
-        proceedToRoute(name, currentDistance);
+        if (name === "KNL") router.push('/knlrest');
+        else if (name === "Snow Field") router.push('/snowfield');
+        else if (name === "Kushas") router.push('/kushas');
+        else alert(`${name} is clicked`);
     };
-
-    const handleClicke = (name) => {
-    if (name === "KNL") {
-      window.location.href = './knlrest';
-    } else if (name === "Snow Field") {
-      window.location.href = './snowfield';
-    } else if (name === "Kushas") {
-      window.location.href = './kushas';
-    }else if (name === "Broes story") {
-      window.location.href = './Browsstory';
-    } else {
-       window.location.href = './lanjesh';
-    }
-  };
 
     if (!mounted) return null;
 

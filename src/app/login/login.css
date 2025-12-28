@@ -1,0 +1,21 @@
+/* Small devices (phones in portrait mode) */
+
+body{
+    background-color: rgd(230,221,196);
+}
+@media only screen and (max-width: 480px) {
+
+
+}
+
+/* Medium devices (large phones in landscape, small tablets) */
+@media only screen and (max-width: 768px) {
+
+
+}
+
+/* Larger tablets */
+@media only screen and (max-width: 1024px) {
+
+}
+

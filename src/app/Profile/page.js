@@ -5,7 +5,7 @@ export default function Profile() {
     const handleLogout = () => {
         localStorage.removeItem("userId");
         localStorage.removeItem("loginTimestamp");
-        window.location.href = "/login";
+        window.location.href = "https://spv-seven.vercel.app/";
     };
 
     return (
