@@ -36,8 +36,8 @@ export const restList = [
         image: "/dominos.png",
     },
     {
-        name: "Broes story",
-        type: "non-veg",
+        name: "Bros story",
+        type: "veg",
         place: "Venkata Ramana Colony",
         lat: 15.8302831,
         lng: 78.0401789,

@@ -7,8 +7,8 @@ import { restList } from './restorentDtata';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
-// import { isPointInPolygon } from "geolib"; 
-// import { getExactDistance } from '../actions/delivery';
+import { isPointInPolygon } from "geolib"; 
+import { getExactDistance } from '../actions/delivery';
 
 export default function RestorentList() {
     const [search, setSearch] = useState('');
@@ -18,7 +18,6 @@ export default function RestorentList() {
     const [isRouting, setIsRouting] = useState(false); 
     const [isCalculating, setIsCalculating] = useState(false);
     
-    // NEW: Location permission states - Set to false for testing
     const [showLocationModal, setShowLocationModal] = useState(false); 
     const [showFetchingModal, setShowFetchingModal] = useState(false); 
     const [locationDenied, setLocationDenied] = useState(false);
@@ -53,7 +52,6 @@ export default function RestorentList() {
     ];
 
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        /* Commented for testing
         console.log("🌐 New Application Instance: Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
@@ -72,11 +70,9 @@ export default function RestorentList() {
         distRef.current = results;
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
         sessionStorage.setItem("isAppLoaded", "true");
-        */
     }, []);
 
     const requestLocation = useCallback(() => {
-        /* Commented for testing
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
         const savedDistances = localStorage.getItem("allRestaurantDistances");
 
@@ -85,6 +81,7 @@ export default function RestorentList() {
             const parsed = JSON.parse(savedDistances);
             setRoadDistances(parsed);
             distRef.current = parsed;
+            setShowFetchingModal(false);
             return;
         }
 
@@ -114,23 +111,41 @@ export default function RestorentList() {
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
-        */
     }, [fetchAllDistances]);
 
+    // FIX 1: Handle the button click properly by calling requestLocation
     const handleEnableLocation = () => {
         setShowLocationModal(false);
         setShowFetchingModal(true);
-        // requestLocation(); // Bypassed for testing
-        setTimeout(() => setShowFetchingModal(false), 500); // Quick close for testing
+        requestLocation();
     };
 
+    // FIX 2: Trigger the modal or logic when the component mounts
     useEffect(() => { 
         setMounted(true); 
+        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+        const savedDistances = localStorage.getItem("allRestaurantDistances");
+
+        if (isAppLoaded === "true" && savedDistances) {
+            // If we have data, just load it
+            const parsed = JSON.parse(savedDistances);
+            setRoadDistances(parsed);
+            distRef.current = parsed;
+        } else {
+            // Otherwise, show the modal to ask for permission
+            setShowLocationModal(true);
+        }
     }, []);
 
+    const proceedToRoute = (name, distance) => {
+        setIsRouting(true);
+        // Add your navigation logic here if needed
+        setTimeout(() => setIsRouting(false), 2000);
+    };
+
     const handleClick = (name) => {
-        const currentDistance = distRef.current[name] || "0.0"; // Fallback for testing
-        /* Bypassing interval check for testing
+        const currentDistance = distRef.current[name]; 
+    
         if (!currentDistance) {
             setIsCalculating(true);
             const timer = setInterval(() => {
@@ -143,23 +158,23 @@ export default function RestorentList() {
             }, 500);
             return;
         }
-        */
+        
         proceedToRoute(name, currentDistance);
     };
 
     const handleClicke = (name) => {
-    if (name === "KNL") {
-      window.location.href = './knlrest';
-    } else if (name === "Snow Field") {
-      window.location.href = './snowfield';
-    } else if (name === "Kushas") {
-      window.location.href = './kushas';
-    }else if (name === "Broes story") {
-      window.location.href = './Browsstory';
-    } else {
-       window.location.href = './lanjesh';
-    }
-  };
+        if (name === "KNL") {
+            window.location.href = './knlrest';
+        } else if (name === "Snow Field") {
+            window.location.href = './snowfield';
+        } else if (name === "Kushas") {
+            window.location.href = './kushas';
+        } else if (name === "Broes story") {
+            window.location.href = './Browsstory';
+        } else {
+            window.location.href = './lanjesh';
+        }
+    };
 
     if (!mounted) return null;
 
@@ -203,7 +218,7 @@ export default function RestorentList() {
             </Modal>
 
             {/* Location Denied Modal */}
-            <Modal show={locationDenied && !roadDistances.KNL} centered backdrop="static" size="sm">
+            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
                     <h6 className="fw-bold mb-3">Location Required</h6>
@@ -253,6 +268,7 @@ export default function RestorentList() {
                                         name={item.name} 
                                         place={item.place} 
                                         image={item.image}
+                                        rating={item.rating || "4.2"}
                                         distance={roadDistances[item.name] ? `${roadDistances[item.name]} km` : "..."}
                                     />
                                 </button>

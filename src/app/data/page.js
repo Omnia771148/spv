@@ -28,8 +28,8 @@ export const Data = [
   
    { id: 17, name: "Veg Cheese Pizza", price: 170, restid: 5, button: "Add",type:"veg",symbol:"🟢" },
   { id: 18, name: "Veg Corn Pizza",price: 170,restid: 5, button: "Add",type:"veg",symbol:"🟢" },
-  { id: 19, name: "Veg Burger", price: 170, restid: 5 ,button: "Add",type:"non-veg",symbol:"🔺" },
-  { id: 20, name: "Garlic Bread", price: 170, restid: 5, button: "Add",type:"non-veg",symbol:"🔺"},
+  { id: 19, name: "Veg Burger", price: 170, restid: 5 ,button: "Add",type:"veg",symbol:"🔺" },
+  { id: 20, name: "Garlic Bread", price: 170, restid: 5, button: "Add",type:"veg",symbol:"🔺"},
 
 
 ];

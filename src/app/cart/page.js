@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
-import Script from 'next/script'; 
+import Script from 'next/script';
 
 export default function Cart() {
   const router = useRouter();
@@ -12,9 +12,13 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [quantities, setQuantities] = useState({});
   
-  // ✅ Dynamic Delivery States
+  // Kept your delivery states
   const [deliveryCharge, setDeliveryCharge] = useState(40); 
   const [distance, setDistance] = useState(0);
+  
+  // Address States
+  const [deliveryAddress, setDeliveryAddress] = useState(""); 
+  const [showAddressBox, setShowAddressBox] = useState(false);
 
   const aa = "gg";
 
@@ -28,7 +32,7 @@ export default function Cart() {
     }
   }, [router]);
 
-  // Load cart & Calculate Distance-based Delivery Charge
+  // Load cart & Distance (Reads from your localStorage)
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -73,6 +77,8 @@ export default function Cart() {
     setCartItems([]);
     setItemTotals({});
     setQuantities({});
+    setShowAddressBox(false);
+    setDeliveryAddress("");
   };
 
   const removeItem = (id) => {
@@ -90,6 +96,7 @@ export default function Cart() {
 
   const placeOrder = async () => {
     if (cartItems.length === 0) return alert("Cart is empty");
+    if (!deliveryAddress.trim()) return alert("Please enter delivery address");
 
     try {
       const latStr = localStorage.getItem("customerLat");
@@ -110,6 +117,7 @@ export default function Cart() {
         gst: Number(gstAmount), 
         deliveryCharge: Number(deliveryCharge),
         grandTotal: Number(grandTotal),
+        deliveryAddress, // Included the user's manual address
         aa,
         location: {
           lat: latStr ? Number(latStr) : 0,
@@ -162,8 +170,6 @@ export default function Cart() {
       alert(`Error: ${err.message}`);
     }
   };
-  
-  
 
   if (loading) return <p className="text-center mt-5">Checking authentication...</p>;
 
@@ -172,7 +178,6 @@ export default function Cart() {
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <h2 className="fw-bold mb-4">Cart</h2>
 
-      {/* ✅ ITEM LIST OR EMPTY MESSAGE */}
       {cartItems.length === 0 ? (
         <div className="text-center py-5">
             <p className="text-muted h5">No items in the cart.</p>
@@ -201,7 +206,6 @@ export default function Cart() {
             ))}
           </ul>
 
-          {/* ✅ BILL DETAILS (Only shows if cartItems.length > 0) */}
           <div className="card shadow-sm border-0 bg-light mb-4">
             <div className="card-body">
               <h6 className="fw-bold mb-3">Bill Details</h6>
@@ -225,14 +229,31 @@ export default function Cart() {
             </div>
           </div>
 
-          {/* ✅ ACTION BUTTONS (Only shows if cartItems.length > 0) */}
-          <div className="d-flex gap-2">
-            <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button>   
-
-    <br/>    <button onClick={placeOrder} className="btn btn-primary flex-grow-1 py-2 fw-bold">
-                Pay 
+          {/* Buttons come directly below Grand Total */}
+          <div className="d-flex gap-2 mb-3">
+            <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button> 
+            <button onClick={() => setShowAddressBox(true)} className="btn btn-primary flex-grow-1 py-2 fw-bold">
+                Place Order 
             </button>
           </div>
+
+          {/* Address Box appears BELOW the buttons when Place Order is clicked */}
+          {showAddressBox && (
+            <div className="card p-3 border-0 shadow-sm bg-white mt-3">
+              <label className="fw-bold mb-2">Delivery Address</label>
+              <textarea 
+                className="form-control mb-3" 
+                placeholder="Write your Flat No, Landmark, and Street so the rider can find you easily..."
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                rows="3"
+                autoFocus
+              />
+              <button onClick={placeOrder} className="btn btn-success w-100 py-2 fw-bold">
+                Confirm Order & Pay
+              </button>
+            </div>
+          )}
         </>
       )}
     </div>
