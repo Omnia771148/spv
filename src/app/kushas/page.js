@@ -12,6 +12,8 @@ import Link from "next/link";
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
+// ✅ Fixed Import: Capitalized 'Loading' to match component usage
+import Loading from '../loading/page';
 
 export default function KushasMenuList() {
   const router = useRouter();
@@ -43,12 +45,14 @@ export default function KushasMenuList() {
     if (
       existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8) ||
       existingCart.some(cartItem => cartItem.id >= 9 && cartItem.id <= 12) ||
-       existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
-        existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20) 
+      existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
+      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20) 
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
     }
+    
+    item.restaurantName = "Kushas";
 
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
@@ -56,12 +60,13 @@ export default function KushasMenuList() {
     showToast("Added to cart successfully!");
   };
 
+  // ✅ Corrected Loading placement
   if (loading) {
-    return <p>Checking authentication...</p>;
+    return <Loading />;
   }
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4" style={{ paddingBottom: '80px' }}>
 
       {/* ✅ RESTAURANT CARD */}
       <RestorentDisplay data={restuarents[2]} />
@@ -112,10 +117,12 @@ export default function KushasMenuList() {
         }
       </div>
 
-
-<button onClick={() => window.location.href = "/cart"}>
-    GO TO CART
-  </button>
+      <button 
+        className="btn btn-success w-100 py-2 mt-4 fw-bold" 
+        onClick={() => router.push("/cart")}
+      >
+        GO TO CART
+      </button>
 
       <Navbar />
 

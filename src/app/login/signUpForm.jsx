@@ -3,19 +3,21 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { auth } from "../../../lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+// ✅ Import your custom Loading component
+import Loading from '../loading/page'; 
 
 export default function Home({ handleBacktoLogin }) {
   const [name, setName] = useState('');
-  const [password, setPassword] = useState(''); // ✅ Use password, not email
+  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState("+91");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  
-  // ✅ Ref prevents the "null reading style" error by keeping a stable reference
+  // ✅ Added loading state
+  const [loading, setLoading] = useState(false);
+
   const recaptchaVerifierRef = useRef(null);
 
-  // ✅ Initialize reCAPTCHA only once when the page loads
   useEffect(() => {
     if (typeof window !== "undefined" && !recaptchaVerifierRef.current) {
       try {
@@ -41,10 +43,12 @@ export default function Home({ handleBacktoLogin }) {
 
   const sendOtp = async (e) => {
     e.preventDefault();
+    if (!phone) return alert("Please enter a phone number");
+
+    setLoading(true); // ✅ Start loading
     try {
       const formattedPhone = phone.startsWith("+91") ? phone : `+91${phone}`;
       
-      // ✅ Use the ref instead of window variable
       const confirmationResult = await signInWithPhoneNumber(
         auth, 
         formattedPhone, 
@@ -57,55 +61,64 @@ export default function Home({ handleBacktoLogin }) {
     } catch (error) {
       console.error("Error sending OTP:", error);
       alert("Error: Check if phone number is correct or refresh page.");
+    } finally {
+      setLoading(false); // ✅ Stop loading
     }
   };
 
   const verifyOtp = async (e) => {
     e.preventDefault();
+    setLoading(true); // ✅ Start loading
     try {
       const result = await window.confirmationResult.confirm(otp);
       setOtpVerified(true);
-      alert("Phone verified! Saving to database...");
-
-      // ✅ Clean phone for MongoDB (removes +91 for searching)
+      
       const cleanPhone = phone.replace("+91", "").trim();
 
-      // ✅ Send password as 'email' only if your DB model requires that field name
+      // ✅ Database Save
       await axios.post('/api/users', { name, email: password, phone: cleanPhone });
       
+      alert("Account created successfully! ✅");
       window.location.href = "./";
     } catch (error) {
+      console.error("Verification/DB Error:", error);
       alert("Invalid OTP or Database error ❌");
+    } finally {
+      setLoading(false); // ✅ Stop loading
     }
   };
 
+  // ✅ Show Spinning Pizza Loading Screen
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <form onSubmit={(e) => e.preventDefault()}>
         <h1>Name</h1>
-        <input type="text" onChange={(e) => setName(e.target.value)} /><br />
+        <input type="text" onChange={(e) => setName(e.target.value)} className="form-control mb-2" /><br />
 
         <h1>Password</h1>
-        <input type="password" onChange={(e) => setPassword(e.target.value)} /><br />
+        <input type="password" onChange={(e) => setPassword(e.target.value)} className="form-control mb-2" /><br />
 
         <h1>Phone Number</h1>
-        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /><br />
+        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="form-control mb-2" /><br />
 
         {!otpSent ? (
-          <button onClick={sendOtp}>Send OTP</button>
+          <button onClick={sendOtp} className="btn btn-primary w-100">Send OTP</button>
         ) : !otpVerified ? (
           <>
-            <input type="text" placeholder="Enter OTP" onChange={(e) => setOtp(e.target.value)} /><br />
-            <button onClick={verifyOtp}>Verify OTP</button>
+            <input type="text" placeholder="Enter OTP" onChange={(e) => setOtp(e.target.value)} className="form-control mb-2" /><br />
+            <button onClick={verifyOtp} className="btn btn-success w-100">Verify OTP</button>
           </>
         ) : (
-          <p>✅ Verified</p>
+          <p className="text-success fw-bold">✅ Verified</p>
         )}
         <br />
-        <button onClick={handleBacktoLogin}>Back</button>
+        <button onClick={handleBacktoLogin} className="btn btn-link mt-2">Back to Login</button>
       </form>
       
-      {/* ✅ Keep this OUTSIDE any conditional rendering */}
       <div id="recaptcha-container"></div>
     </div>
   );

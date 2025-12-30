@@ -9,6 +9,8 @@ import { showToast } from '../../toaster/page';
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
+import Loading from '../loading/page';
+
 
 export default function KushasMenuLite() {
   const router = useRouter();
@@ -17,7 +19,7 @@ export default function KushasMenuLite() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  // ✅ NEW: State to hold the distance
+  // ✅ State to hold the distance
   const [distance, setDistance] = useState(null);
 
   useEffect(() => {
@@ -26,9 +28,14 @@ export default function KushasMenuLite() {
       router.push("/login");
     } else {
       // ✅ Pull the distance saved in RestaurantList
-      const savedDistance = localStorage.getItem("deliveryDistanceKm");
-      if (savedDistance) {
-        setDistance(`${savedDistance} km`);
+      const savedDistances = localStorage.getItem("allRestaurantDistances");
+      if (savedDistances) {
+        const distanceMap = JSON.parse(savedDistances);
+        // restuarents[1] is "Snow Field" in your data
+        const distValue = distanceMap["Snow Field"]; 
+        if (distValue) {
+          setDistance(`${distValue} km`);
+        }
       }
       setLoading(false);
     }
@@ -43,7 +50,7 @@ export default function KushasMenuLite() {
       return;
     }
 
-    // Logic to ensure items from only one restaurant are selected
+    // ✅ Logic to ensure items from only one restaurant are selected
     if (
       existingCart.some(cartItem => cartItem.id >= 1 && cartItem.id <= 4) ||
       existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
@@ -51,18 +58,20 @@ export default function KushasMenuLite() {
       existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8)
     ) {
       showToast("You Can Select From Only One Restuarent", "danger");
-    } else {
-      const updatedCart = [...existingCart, item];
-      setCart(updatedCart);
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      showToast("Added to cart successfully!", "success");
-    }
+      return; // Added return to prevent adding item if validation fails
+    } 
+    
+    // ✅ Tag the item with the restaurant name for the Cart page
+    item.restaurantName = "Snow Field"; 
+
+    const updatedCart = [...existingCart, item];
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    showToast("Added to cart successfully!", "success");
   };
 
-  if (loading) {
-    return <p>Checking authentication...</p>;
-  }
 
+  if (loading) return <Loading />;
   return (
     <div className="container mt-4">
 
@@ -122,9 +131,13 @@ export default function KushasMenuLite() {
         }
       </div>
 
-      <button onClick={() => window.location.href = "/cart"}>
-    GO TO CART
-  </button>
+      <button 
+        className="btn btn-success w-100 py-2 mt-4 fw-bold" 
+        onClick={() => window.location.href = "/cart"}
+      >
+        GO TO CART
+      </button>
+
       <Navbar />
     </div>
   );

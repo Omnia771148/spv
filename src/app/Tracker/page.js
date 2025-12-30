@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Loading from '../loading/page';
 
 export default function RazorpayItemsPage() {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+const [loading, setLoading] = useState(true);
+if (loading) {
+    return <Loading />;
+  }
   useEffect(() => {
     const fetchOrders = async () => {
       const userId = localStorage.getItem("userId");

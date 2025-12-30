@@ -12,6 +12,7 @@ import Link from "next/link";
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
+import loading from '../loading/page';
 
 export default function KushasMenuList() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function KushasMenuList() {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
     }
-
+item.restaurantName = "Bros story";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
@@ -59,7 +60,7 @@ export default function KushasMenuList() {
   if (loading) {
     return <p>Checking authentication...</p>;
   }
-
+  if (loading) return <Loading />;
   return (
     <div className="container mt-4">
 

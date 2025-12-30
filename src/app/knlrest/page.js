@@ -9,6 +9,8 @@ import { showToast } from "../../toaster/page";
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from "@/navigation/page";
+// ✅ Fixed Import: Capitalized 'Loading'
+import Loading from '../loading/page';
 
 export default function KushasMenuList() {
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function KushasMenuList() {
     }
   }, [router]);
 
-  // ✅ FETCH RESTAURANT STATUS (ONLY ADDITION)
+  // ✅ FETCH RESTAURANT STATUS
   useEffect(() => {
     const fetchRestaurantStatus = async () => {
       try {
@@ -51,15 +53,13 @@ export default function KushasMenuList() {
 
   // ✅ ADD TO CART (UNCHANGED LOGIC)
   const addToCart = (item) => {
-
     // 🔴 BLOCK IF CLOSED
     if (!restaurantActive) {
       showToast("Restaurant is currently not accepting orders", "danger");
       return;
     }
 
-    const existingCart =
-      JSON.parse(localStorage.getItem("cart")) || [];
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
     const isItemAlreadyInCart = existingCart.some(
       (cartItem) => cartItem.id === item.id
@@ -80,20 +80,19 @@ export default function KushasMenuList() {
       return;
     }
 
+    item.restaurantName = "KNL";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     showToast("Added to cart successfully!");
   };
 
-  if (loading) {
-    return <p>Checking authentication...</p>;
-  }
+  // ✅ Corrected Loading placement
+  if (loading) return <Loading />;
 
   return (
-    <div className="container mt-4">
-
-      {/* ✅ RESTAURANT CARD (UNCHANGED) */}
+    <div className="container mt-4" style={{ paddingBottom: '80px' }}>
+      {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
         <RestorentDisplay data={restuarents[0]} />
 
@@ -133,11 +132,8 @@ export default function KushasMenuList() {
 
       <div className="row">
         {Data.filter((item) => {
-          const matchesSearch = item.name
-            .toLowerCase()
-            .includes(search.toLowerCase());
-          const matchesType =
-            typeFilter === "" || item.type === typeFilter;
+          const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+          const matchesType = typeFilter === "" || item.type === typeFilter;
           const matchesId = item.id >= 5 && item.id <= 8;
 
           return matchesSearch && matchesType && matchesId;
@@ -156,7 +152,7 @@ export default function KushasMenuList() {
       </div>
 
       <button
-        className="btn btn-success mt-3"
+        className="btn btn-success mt-4 w-100 py-2 fw-bold"
         onClick={() => (window.location.href = "/cart")}
       >
         GO TO CART

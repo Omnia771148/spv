@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { auth } from "../../../lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+// ✅ Import your custom Loading component
+import Loading from '../loading/page'; 
 
 export default function UpdateEmail() {
   const [phone, setPhone] = useState("+91");
@@ -13,15 +15,12 @@ export default function UpdateEmail() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Use a Ref to store the verifier safely across re-renders
   const verifierRef = useRef(null);
 
-  // Setup reCAPTCHA with safe cleanup logic
   const setupRecaptcha = () => {
     const container = document.getElementById("recaptcha-container");
     if (!container) return;
 
-    // Safe cleanup to avoid "auth/internal-error" on a destroyed verifier
     if (verifierRef.current) {
       try {
         verifierRef.current.clear();
@@ -29,7 +28,7 @@ export default function UpdateEmail() {
         console.warn("reCAPTCHA cleanup suppressed:", e.message);
       }
       verifierRef.current = null;
-      container.innerHTML = ""; // Reset the DOM for a fresh start
+      container.innerHTML = ""; 
     }
 
     try {
@@ -54,14 +53,11 @@ export default function UpdateEmail() {
     setLoading(true);
     try {
       setupRecaptcha();
-      
-      // Clean phone: Remove spaces and ensure +91 prefix
       let formattedPhone = phone.trim().replace(/\s+/g, "");
       if (!formattedPhone.startsWith("+91")) {
         formattedPhone = "+91" + formattedPhone;
       }
 
-      // Render the verifier explicitly
       await verifierRef.current.render();
 
       const confirmationResult = await signInWithPhoneNumber(
@@ -105,7 +101,6 @@ export default function UpdateEmail() {
     if (!phone || !email) return alert("Enter phone and email");
 
     setLoading(true);
-    // Remove all spaces and ensure only one +91 exists
     let formattedPhone = phone.trim().replace(/\s+/g, ''); 
     if (!formattedPhone.startsWith("+91")) {
       formattedPhone = "+91" + formattedPhone;
@@ -133,6 +128,12 @@ export default function UpdateEmail() {
     }
   };
 
+  // ✅ ADDED: Global Loading Return
+  // This will show your spinning pizza when loading is true
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <div style={{ padding: "20px", maxWidth: "500px", margin: "auto" }}>
       <h2>Update Password for Phone</h2>
@@ -147,7 +148,7 @@ export default function UpdateEmail() {
         />
 
         <input
-          type="email"
+          type="password"
           placeholder="Enter new password"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -157,8 +158,8 @@ export default function UpdateEmail() {
 
       <div style={{ marginTop: "15px", marginBottom: "15px" }}>
         {!otpSent ? (
-          <button onClick={sendOtp} disabled={loading}>
-            {loading ? "Sending..." : "Send OTP"}
+          <button onClick={sendOtp} disabled={loading} style={btnStyle}>
+             Send OTP
           </button>
         ) : !otpVerified ? (
           <>
@@ -169,8 +170,8 @@ export default function UpdateEmail() {
               onChange={(e) => setOtp(e.target.value)}
               style={{ padding: "8px", marginRight: "10px" }}
             />
-            <button onClick={verifyOtp} disabled={loading}>
-              {loading ? "Verifying..." : "Verify OTP"}
+            <button onClick={verifyOtp} disabled={loading} style={btnStyle}>
+               Verify OTP
             </button>
           </>
         ) : (
@@ -181,15 +182,31 @@ export default function UpdateEmail() {
       <button 
         onClick={handleUpdateEmail} 
         disabled={!otpVerified || loading}
-        style={{ width: "100%", padding: "10px", backgroundColor: otpVerified ? "#0070f3" : "#ccc", color: "white", border: "none", borderRadius: "5px", cursor: otpVerified ? "pointer" : "not-allowed" }}
+        style={{ 
+            width: "100%", 
+            padding: "10px", 
+            backgroundColor: otpVerified ? "#0070f3" : "#ccc", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "5px", 
+            cursor: otpVerified ? "pointer" : "not-allowed",
+            fontWeight: "bold"
+        }}
       >
-        {loading ? "Processing..." : "Update Password"}
+        Update Password
       </button>
 
       {result && <p style={{ marginTop: "15px", fontWeight: "bold" }}>{result}</p>}
 
-      {/* This container must exist for reCAPTCHA to work */}
       <div id="recaptcha-container"></div>
     </div>
   );
 }
+
+const btnStyle = {
+    padding: "8px 15px",
+    cursor: "pointer",
+    backgroundColor: "#eee",
+    border: "1px solid #ccc",
+    borderRadius: "4px"
+};

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
 import Script from 'next/script';
+import Loading from '../loading/page';
 
 export default function Cart() {
   const router = useRouter();
@@ -12,17 +13,14 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [quantities, setQuantities] = useState({});
   
-  // Kept your delivery states
   const [deliveryCharge, setDeliveryCharge] = useState(40); 
   const [distance, setDistance] = useState(0);
   
-  // Address States
   const [deliveryAddress, setDeliveryAddress] = useState(""); 
   const [showAddressBox, setShowAddressBox] = useState(false);
 
   const aa = "gg";
 
-  // Authentication check
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
@@ -32,16 +30,14 @@ export default function Cart() {
     }
   }, [router]);
 
-  // Load cart & Distance (Updated to read from your allRestaurantDistances)
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
-    let cartRestName = ""; // To track which restaurant distance to pick
+    let cartRestName = ""; 
 
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
       setCartItems(parsedCart);
       
-      // ADDED: Capture the restaurant name from the first item in cart
       if (parsedCart.length > 0) {
         cartRestName = parsedCart[0].restaurantName || parsedCart[0].restName;
       }
@@ -53,17 +49,15 @@ export default function Cart() {
       setQuantities(initialQuantities);
     }
 
-    // ADDED: Logic to pull specific restaurant distance from your list
     const savedDistances = localStorage.getItem("allRestaurantDistances");
     if (savedDistances && cartRestName) {
       const distanceData = JSON.parse(savedDistances);
-      const distValue = distanceData[cartRestName]; // Gets distance for this specific restaurant
+      const distValue = distanceData[cartRestName]; 
       
       if (distValue) {
         const dist = parseFloat(distValue);
         setDistance(dist);
         
-        // Your existing delivery charge logic applied to the new distance
         if (dist <= 3) {
           setDeliveryCharge(30);
         } else {
@@ -74,7 +68,6 @@ export default function Cart() {
     }
   }, []);
 
-  // Calculate totals
   useEffect(() => {
     const totals = {};
     cartItems.forEach(item => {
@@ -126,7 +119,7 @@ export default function Cart() {
           price: Number(item.price),
           quantity: Number(quantities[item.id] || 1)
         })),
-        restaurantId: String(cartItems[0].restid),
+        restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
         totalCount: cartItems.length,
         totalPrice: Number(totalPrice),
         gst: Number(gstAmount), 
@@ -153,7 +146,7 @@ export default function Cart() {
         amount: Math.round(Number(grandTotal) * 100), 
         currency: "INR",
         name: "My Delivery App",
-        description: `Food Order - ${distance} km delivery`,
+        description: `Order from ${cartItems[0].restaurantName || "Restaurant"}`,
         order_id: data.razorpayOrderId,
         handler: async function (response) {
           try {
@@ -173,7 +166,7 @@ export default function Cart() {
             console.error('Verification error:', verifyErr);
           }
         },
-        prefill: { contact: "9999999999" },
+        prefill: { contact: localStorage.getItem("userPhone") || "9999999999" },
         theme: { color: "#3399cc" },
       };
 
@@ -186,7 +179,10 @@ export default function Cart() {
     }
   };
 
-  if (loading) return <p className="text-center mt-5">Checking authentication...</p>;
+  // ✅ Swapped logic to use your Loading component correctly
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="container mt-4 mb-5" style={{ maxWidth: '600px' }}>
@@ -213,7 +209,7 @@ export default function Cart() {
                     <span className="btn btn-sm disabled border-secondary text-dark px-3">{quantities[item.id]}</span>
                     <button onClick={() => updateQuantity(item.id, 1)} className="btn btn-outline-secondary btn-sm px-2">+</button>
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="btn btn-link text-danger p-0" title="Remove">
+                  <button onClick={() => removeItem(item.id)} className="btn btn-link text-danger p-0">
                     <small>Remove</small>
                   </button>
                 </div>
@@ -232,8 +228,8 @@ export default function Cart() {
                 <span className="text-muted small">GST (5%)</span>
                 <span className="small">₹{gstAmount.toFixed(2)}</span>
               </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span className="text-muted small">Delivery Fee ({distance} km)</span>
+              <div className="d-flex justify-content-between mb-2 text-success fw-bold">
+                <span className="small">Delivery Fee ({distance} km)</span>
                 <span className="small">₹{deliveryCharge.toFixed(2)}</span>
               </div>
               <hr />
@@ -256,14 +252,14 @@ export default function Cart() {
               <label className="fw-bold mb-2">Delivery Address</label>
               <textarea 
                 className="form-control mb-3" 
-                placeholder="Write your Flat No, Landmark, and Street so the rider can find you easily..."
+                placeholder="Write your Flat No, Landmark, and Street..."
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
                 rows="3"
                 autoFocus
               />
               <button onClick={placeOrder} className="btn btn-success w-100 py-2 fw-bold">
-                Confirm Order & Pay
+                Confirm Order & Pay ₹{grandTotal.toFixed(2)}
               </button>
             </div>
           )}

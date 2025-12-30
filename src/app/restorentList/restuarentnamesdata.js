@@ -22,7 +22,23 @@ const restuarents = [
     rating: 4.3,
     Type: "Home Style Food",
     image: "/dominos.png"
-  }
+  },
+  {
+        id: 4,
+        name: "lajesh",
+        Type: "out house",
+        place: "Venkata Ramana Colony",
+        rating: 4.5,
+        image: "/dominos.png",
+    },
+    {
+        id: 5,
+        name: "Bros story",
+        Type: "Home",
+        place: "Venkata Ramana Colony",
+        rating: 4.5,
+        image: "/dominos.png",
+    },
 ];
 
 export default restuarents;

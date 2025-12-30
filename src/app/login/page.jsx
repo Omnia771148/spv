@@ -1,13 +1,15 @@
 'use client';
 import { useState, useEffect } from "react";
 import axios from "axios";
-import './login.css'
+import './login.css';
+// ✅ Import your custom Loading component
+import Loading from '../loading/page'; 
 
 export default function Home({ handleFPClick, handleSignUp }) {
     const [users, setUsers] = useState([]);
     const [inputName, setInputName] = useState('');
     const [inputEmail, setInputEmail] = useState('');
-    const [loading, setLoading] = useState(true); // Added loading state
+    const [loading, setLoading] = useState(true);
 
     // 1. Check for existing session on load
     useEffect(() => {
@@ -18,13 +20,13 @@ export default function Home({ handleFPClick, handleSignUp }) {
             const currentTime = new Date().getTime();
             const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
 
-            if (currentTime - loginTime < sevenDaysInMs) {
+            if (currentTime - Number(loginTime) < sevenDaysInMs) {
                 window.location.href = "/mainRestorentList";
                 return; 
             }
         }
 
-        // If no user found or time expired, fetch users and show login page
+        // If no user found or time expired, fetch users
         const fetchUsers = async () => {
             try {
                 const res = await axios.get('/api/users');
@@ -32,7 +34,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
             } catch (err) {
                 console.error("Error fetching users:", err);
             } finally {
-                setLoading(false); // Stop loading to show the login form
+                setLoading(false); // Show the login form
             }
         };
         fetchUsers();
@@ -57,24 +59,11 @@ export default function Home({ handleFPClick, handleSignUp }) {
         }
     };
 
-    // 2. Show a loading screen while checking status
+    // ✅ Use your custom Loading component with the spinning pizza
     if (loading) {
-        return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                height: '100vh', 
-                fontSize: '20px' 
-            }}>
-                <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        );
+        return <Loading />;
     }
 
-    // 3. Only if loading is false, show the Login Page
     return (
         <div style={{ padding: '20px' }}>
             <h2>Login</h2>
