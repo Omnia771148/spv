@@ -12,7 +12,7 @@ import Link from "next/link";
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
-import loading from '../loading/page';
+import Loading from '../loading/page';
 
 export default function KushasMenuList() {
   const router = useRouter();
