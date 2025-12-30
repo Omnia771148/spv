@@ -7,9 +7,7 @@ export default function RazorpayItemsPage() {
   const [orders, setOrders] = useState([]);
 
 const [loading, setLoading] = useState(true);
-if (loading) {
-    return <Loading />;
-  }
+
   useEffect(() => {
     const fetchOrders = async () => {
       const userId = localStorage.getItem("userId");
@@ -38,8 +36,9 @@ if (loading) {
 
     fetchOrders();
   }, []);
-
-  if (loading) return <p className="p-4">Loading...</p>;
+if (loading) {
+    return <Loading />;
+  }
 
   if (orders.length === 0)
     return <p className="p-4">No paid orders found</p>;
