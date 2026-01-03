@@ -26,7 +26,7 @@ const orderSchema = new mongoose.Schema({
   location: {
     lat: { type: Number },
     lng: { type: Number },
-    mapUrl: { type: String }, // Stores the http://googleusercontent.com/maps.google.com/... link
+    mapUrl: { type: String }, 
   },
 
   restaurantId: { type: String, required: true },

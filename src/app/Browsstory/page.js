@@ -51,6 +51,7 @@ export default function KushasMenuList() {
       return;
     }
 item.restaurantName = "Bros story";
+
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));

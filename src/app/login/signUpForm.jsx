@@ -15,6 +15,9 @@ export default function Home({ handleBacktoLogin }) {
   const [otpVerified, setOtpVerified] = useState(false);
   // ✅ Added loading state
   const [loading, setLoading] = useState(false);
+  
+  // NEW STATE FOR TERMS
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const recaptchaVerifierRef = useRef(null);
 
@@ -72,19 +75,32 @@ export default function Home({ handleBacktoLogin }) {
     try {
       const result = await window.confirmationResult.confirm(otp);
       setOtpVerified(true);
-      
-      const cleanPhone = phone.replace("+91", "").trim();
+      alert("OTP Verified! Please accept terms to complete registration.");
+    } catch (error) {
+      console.error("Verification/DB Error:", error);
+      alert("Invalid OTP ❌");
+    } finally {
+      setLoading(false); // ✅ Stop loading
+    }
+  };
 
-      // ✅ Database Save
+  // FINAL STEP: DATABASE SAVE
+  const handleFinalRegister = async (e) => {
+    e.preventDefault();
+    if (!termsAccepted) return alert("You must accept the Terms & Conditions to proceed.");
+    
+    setLoading(true);
+    try {
+      const cleanPhone = phone.replace("+91", "").trim();
       await axios.post('/api/users', { name, email: password, phone: cleanPhone });
       
       alert("Account created successfully! ✅");
       window.location.href = "./";
     } catch (error) {
-      console.error("Verification/DB Error:", error);
-      alert("Invalid OTP or Database error ❌");
+      console.error("Database Error:", error);
+      alert("Database error ❌");
     } finally {
-      setLoading(false); // ✅ Stop loading
+      setLoading(false);
     }
   };
 
@@ -113,7 +129,33 @@ export default function Home({ handleBacktoLogin }) {
             <button onClick={verifyOtp} className="btn btn-success w-100">Verify OTP</button>
           </>
         ) : (
-          <p className="text-success fw-bold">✅ Verified</p>
+          <div className="mt-4 p-3 border rounded bg-light">
+            <p className="text-success fw-bold">✅ Phone Verified</p>
+            <hr />
+            <h5 className="fw-bold">11 . Acceptance of Terms & Conditions</h5>
+            <p style={{ fontSize: '12px', color: '#666' }}>
+              By registering, accessing, or using the platform, the Customer acknowledges that they have read, understood, and agreed to be bound by these Terms & Conditions, including all policies, guidelines, and amendments published on the Platform. Continued use of the Platform constitutes acceptance of any updated or modified Terms & Conditions. The Customer represents and warrants that they are legally capable of entering into a binding agreement and that all information provided during registration is accurate and complete. If the Customer does not agree to these Terms & Conditions, they must discontinue using the Platform immediately.
+            </p>
+            <div className="form-check">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="termsCheck" 
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)} 
+              />
+              <label className="form-check-label fw-bold" htmlFor="termsCheck">
+                I agree to the <a href="https://tandccustomer.vercel.app/" target="_blank" rel="noopener noreferrer">Terms & Conditions</a>
+              </label>              
+            </div>
+            <button 
+              onClick={handleFinalRegister} 
+              className="btn btn-primary w-100 mt-3"
+              disabled={!termsAccepted}
+            >
+              Create Account
+            </button>
+          </div>
         )}
         <br />
         <button onClick={handleBacktoLogin} className="btn btn-link mt-2">Back to Login</button>

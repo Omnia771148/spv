@@ -71,6 +71,7 @@ export default function LajeshMenuList() {
     }
 
     item.restaurantName = "lajesh"; 
+
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));

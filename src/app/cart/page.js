@@ -39,7 +39,7 @@ export default function Cart() {
       setCartItems(parsedCart);
       
       if (parsedCart.length > 0) {
-        cartRestName = parsedCart[0].restaurantName || parsedCart[0].restName;
+        cartRestName = parsedCart[0].restaurantName || parsedCart[0].restName || "";
       }
 
       const initialQuantities = {};
@@ -50,9 +50,15 @@ export default function Cart() {
     }
 
     const savedDistances = localStorage.getItem("allRestaurantDistances");
+    
     if (savedDistances && cartRestName) {
       const distanceData = JSON.parse(savedDistances);
-      const distValue = distanceData[cartRestName]; 
+      
+      const matchingKey = Object.keys(distanceData).find(
+        key => key.toLowerCase().trim() === cartRestName.toLowerCase().trim()
+      );
+      
+      const distValue = matchingKey ? distanceData[matchingKey] : null; 
       
       if (distValue) {
         const dist = parseFloat(distValue);
@@ -64,6 +70,9 @@ export default function Cart() {
           const extraKm = Math.ceil(dist - 3);
           setDeliveryCharge(30 + (extraKm * 10));
         }
+      } else {
+        setDistance(0);
+        setDeliveryCharge(40);
       }
     }
   }, []);
@@ -102,89 +111,88 @@ export default function Cart() {
     });
   };
 
- const placeOrder = async () => {
-  if (cartItems.length === 0) return alert("Cart is empty");
-  if (!deliveryAddress.trim()) return alert("Please enter delivery address");
+  const placeOrder = async () => {
+    if (cartItems.length === 0) return alert("Cart is empty");
+    if (!deliveryAddress.trim()) return alert("Please enter delivery address");
 
-  try {
-    const latStr = localStorage.getItem("customerLat");
-    const lngStr = localStorage.getItem("customerLng");
-    const mapUrl = localStorage.getItem("customerLocationUrl");
+    try {
+      const latStr = localStorage.getItem("customerLat");
+      const lngStr = localStorage.getItem("customerLng");
+      
+      // ✅ Generate dynamic Google Maps link using coordinates
+      const dynamicMapUrl = latStr && lngStr 
+        ? `https://www.google.com/maps/search/?api=1&query=${latStr},${lngStr}` 
+        : "";
 
-    const orderPayload = {
-  userId: localStorage.getItem('userId'),
-  items: cartItems.map(item => ({
-    itemId: item.id,
-    name: item.name,
-    price: Number(item.price),
-    quantity: Number(quantities[item.id] || 1)
-  })),
-  restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
-  totalCount: cartItems.length,
-  totalPrice: Number(totalPrice),
-  gst: Number(gstAmount), 
-  deliveryCharge: Number(deliveryCharge),
-  grandTotal: Number(grandTotal),
-  deliveryAddress: deliveryAddress, // Add this line
-  aa: aa,
-  location: {
-    lat: latStr ? Number(latStr) : 0,
-    lng: lngStr ? Number(lngStr) : 0,
-    mapUrl: mapUrl || "",
-    distanceText: `${distance} km`
-  }
-};
-
-    const { data } = await axios.post('/api/create-order', {
-      grandTotal: orderPayload.grandTotal 
-    });
-
-    if (!data.success) throw new Error(data.message || "Order creation failed");
-
-    const options = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
-      amount: Math.round(Number(grandTotal) * 100), 
-      currency: "INR",
-      name: "My Delivery App",
-      description: `Order from ${cartItems[0].restaurantName || "Restaurant"}`,
-      order_id: data.razorpayOrderId,
-      handler: async function (response) {
-        try {
-          console.log("Payment response:", response);
-          const verifyRes = await axios.post('/api/verify-payment', {
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            orderData: orderPayload 
-          });
-
-          console.log("Verify response:", verifyRes.data);
-
-          if (verifyRes.data.success) {
-            alert('Order Placed Successfully!');
-            clear();
-            router.push("/accepted-orders");
-          } else {
-            alert(`Order verification failed: ${verifyRes.data.message}`);
-          }
-        } catch (verifyErr) {
-          console.error('Verification error details:', verifyErr.response?.data || verifyErr.message);
-          alert(`Payment verification error: ${verifyErr.response?.data?.error || verifyErr.message}`);
+      const orderPayload = {
+        userId: localStorage.getItem('userId'),
+        items: cartItems.map(item => ({
+          itemId: item.id,
+          name: item.name,
+          price: Number(item.price),
+          quantity: Number(quantities[item.id] || 1)
+        })),
+        restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
+        totalCount: cartItems.length,
+        totalPrice: Number(totalPrice),
+        gst: Number(gstAmount), 
+        deliveryCharge: Number(deliveryCharge),
+        grandTotal: Number(grandTotal),
+        deliveryAddress: deliveryAddress,
+        aa: aa,
+        location: {
+          lat: latStr ? Number(latStr) : 0,
+          lng: lngStr ? Number(lngStr) : 0,
+          mapUrl: dynamicMapUrl, // ✅ URL with lat/lng now goes to MongoDB
+          distanceText: `${distance} km`
         }
-      },
-      prefill: { contact: localStorage.getItem("userPhone") || "9999999999" },
-      theme: { color: "#3399cc" },
-    };
+      };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
+      const { data } = await axios.post('/api/create-order', {
+        grandTotal: orderPayload.grandTotal 
+      });
 
-  } catch (err) {
-    console.error('Payment initialization error:', err);
-    alert(`Error: ${err.message}`);
-  }
-};
-  // ✅ Swapped logic to use your Loading component correctly
+      if (!data.success) throw new Error(data.message || "Order creation failed");
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+        amount: Math.round(Number(grandTotal) * 100), 
+        currency: "INR",
+        name: "My Delivery App",
+        description: `Order from ${cartItems[0].restaurantName || "Restaurant"}`,
+        order_id: data.razorpayOrderId,
+        handler: async function (response) {
+          try {
+            const verifyRes = await axios.post('/api/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderData: orderPayload 
+            });
+
+            if (verifyRes.data.success) {
+              alert('Order Placed Successfully!');
+              clear();
+              router.push("/accepted-orders");
+            } else {
+              alert(`Order verification failed: ${verifyRes.data.message}`);
+            }
+          } catch (verifyErr) {
+            alert(`Payment verification error: ${verifyErr.response?.data?.error || verifyErr.message}`);
+          }
+        },
+        prefill: { contact: localStorage.getItem("userPhone") || "9999999999" },
+        theme: { color: "#3399cc" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -247,8 +255,12 @@ export default function Cart() {
 
           <div className="d-flex gap-2 mb-3">
             <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button> 
-            <button onClick={() => setShowAddressBox(true)} className="btn btn-primary flex-grow-1 py-2 fw-bold">
-                Place Order 
+            <button 
+              onClick={() => setShowAddressBox(true)} 
+              className="btn btn-primary flex-grow-1 py-2 fw-bold"
+              disabled={showAddressBox} 
+            >
+              {showAddressBox ? "Address Section Open" : "Place Order"}
             </button>
           </div>
 
