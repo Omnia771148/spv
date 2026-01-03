@@ -102,83 +102,88 @@ export default function Cart() {
     });
   };
 
-  const placeOrder = async () => {
-    if (cartItems.length === 0) return alert("Cart is empty");
-    if (!deliveryAddress.trim()) return alert("Please enter delivery address");
+ const placeOrder = async () => {
+  if (cartItems.length === 0) return alert("Cart is empty");
+  if (!deliveryAddress.trim()) return alert("Please enter delivery address");
 
-    try {
-      const latStr = localStorage.getItem("customerLat");
-      const lngStr = localStorage.getItem("customerLng");
-      const mapUrl = localStorage.getItem("customerLocationUrl");
+  try {
+    const latStr = localStorage.getItem("customerLat");
+    const lngStr = localStorage.getItem("customerLng");
+    const mapUrl = localStorage.getItem("customerLocationUrl");
 
-      const orderPayload = {
-        userId: localStorage.getItem('userId'),
-        items: cartItems.map(item => ({
-          itemId: item.id,
-          name: item.name,
-          price: Number(item.price),
-          quantity: Number(quantities[item.id] || 1)
-        })),
-        restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
-        totalCount: cartItems.length,
-        totalPrice: Number(totalPrice),
-        gst: Number(gstAmount), 
-        deliveryCharge: Number(deliveryCharge),
-        grandTotal: Number(grandTotal),
-        deliveryAddress, 
-        aa,
-        location: {
-          lat: latStr ? Number(latStr) : 0,
-          lng: lngStr ? Number(lngStr) : 0,
-          mapUrl: mapUrl || "",
-          distanceText: `${distance} km`
-        }
-      };
+    const orderPayload = {
+  userId: localStorage.getItem('userId'),
+  items: cartItems.map(item => ({
+    itemId: item.id,
+    name: item.name,
+    price: Number(item.price),
+    quantity: Number(quantities[item.id] || 1)
+  })),
+  restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
+  totalCount: cartItems.length,
+  totalPrice: Number(totalPrice),
+  gst: Number(gstAmount), 
+  deliveryCharge: Number(deliveryCharge),
+  grandTotal: Number(grandTotal),
+  deliveryAddress: deliveryAddress, // Add this line
+  aa: aa,
+  location: {
+    lat: latStr ? Number(latStr) : 0,
+    lng: lngStr ? Number(lngStr) : 0,
+    mapUrl: mapUrl || "",
+    distanceText: `${distance} km`
+  }
+};
 
-      const { data } = await axios.post('/api/create-order', {
-        grandTotal: orderPayload.grandTotal 
-      });
+    const { data } = await axios.post('/api/create-order', {
+      grandTotal: orderPayload.grandTotal 
+    });
 
-      if (!data.success) throw new Error(data.message || "Order creation failed");
+    if (!data.success) throw new Error(data.message || "Order creation failed");
 
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
-        amount: Math.round(Number(grandTotal) * 100), 
-        currency: "INR",
-        name: "My Delivery App",
-        description: `Order from ${cartItems[0].restaurantName || "Restaurant"}`,
-        order_id: data.razorpayOrderId,
-        handler: async function (response) {
-          try {
-            const verifyRes = await axios.post('/api/verify-payment', {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              orderData: orderPayload 
-            });
+    const options = {
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
+      amount: Math.round(Number(grandTotal) * 100), 
+      currency: "INR",
+      name: "My Delivery App",
+      description: `Order from ${cartItems[0].restaurantName || "Restaurant"}`,
+      order_id: data.razorpayOrderId,
+      handler: async function (response) {
+        try {
+          console.log("Payment response:", response);
+          const verifyRes = await axios.post('/api/verify-payment', {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            orderData: orderPayload 
+          });
 
-            if (verifyRes.data.success) {
-              alert('Order Placed Successfully!');
-              clear();
-              router.push("/accepted-orders");
-            }
-          } catch (verifyErr) {
-            console.error('Verification error:', verifyErr);
+          console.log("Verify response:", verifyRes.data);
+
+          if (verifyRes.data.success) {
+            alert('Order Placed Successfully!');
+            clear();
+            router.push("/accepted-orders");
+          } else {
+            alert(`Order verification failed: ${verifyRes.data.message}`);
           }
-        },
-        prefill: { contact: localStorage.getItem("userPhone") || "9999999999" },
-        theme: { color: "#3399cc" },
-      };
+        } catch (verifyErr) {
+          console.error('Verification error details:', verifyErr.response?.data || verifyErr.message);
+          alert(`Payment verification error: ${verifyErr.response?.data?.error || verifyErr.message}`);
+        }
+      },
+      prefill: { contact: localStorage.getItem("userPhone") || "9999999999" },
+      theme: { color: "#3399cc" },
+    };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+    const rzp = new window.Razorpay(options);
+    rzp.open();
 
-    } catch (err) {
-      console.error('Payment initialization error:', err);
-      alert(`Error: ${err.message}`);
-    }
-  };
-
+  } catch (err) {
+    console.error('Payment initialization error:', err);
+    alert(`Error: ${err.message}`);
+  }
+};
   // ✅ Swapped logic to use your Loading component correctly
   if (loading) {
     return <Loading />;
