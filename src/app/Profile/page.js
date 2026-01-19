@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation";
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import './profile.css';
 
 

@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import { useRouter } from "next/navigation";
-import { Data } from '../data/page'; 
-import { ProductCard } from '../universaldisplay/page'; 
-import { showToast } from '../../toaster/page'; 
+import { Data } from '../data/page';
+import { ProductCard } from '../universaldisplay/page';
+import { showToast } from '../../toaster/page';
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
@@ -15,10 +15,10 @@ import Loading from '../loading/page';
 export default function KushasMenuLite() {
   const router = useRouter();
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState(''); 
+  const [typeFilter, setTypeFilter] = useState('');
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // ✅ State to hold the distance
   const [distance, setDistance] = useState(null);
 
@@ -32,7 +32,7 @@ export default function KushasMenuLite() {
       if (savedDistances) {
         const distanceMap = JSON.parse(savedDistances);
         // restuarents[1] is "Snow Field" in your data
-        const distValue = distanceMap["Snow Field"]; 
+        const distValue = distanceMap["Snow Field"];
         if (distValue) {
           setDistance(`${distValue} km`);
         }
@@ -59,10 +59,10 @@ export default function KushasMenuLite() {
     ) {
       showToast("You Can Select From Only One Restuarent", "danger");
       return; // Added return to prevent adding item if validation fails
-    } 
-    
+    }
+
     // ✅ Tag the item with the restaurant name for the Cart page
-    item.restaurantName = "Snow Field"; 
+    item.restaurantName = "Snow Field";
 
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
@@ -77,9 +77,9 @@ export default function KushasMenuLite() {
 
       {/* ✅ RESTAURANT CARD AT TOP WITH DISTANCE PASSING */}
       <div className="mb-4">
-        <RestorentDisplay 
-            data={restuarents[1]} 
-            distance={distance || "Calculating..."} 
+        <RestorentDisplay
+          data={restuarents[1]}
+          distance={distance || "Calculating..."}
         />
       </div>
 
@@ -131,8 +131,8 @@ export default function KushasMenuLite() {
         }
       </div>
 
-      <button 
-        className="btn btn-success w-100 py-2 mt-4 fw-bold" 
+      <button
+        className="btn btn-success w-100 py-2 mt-4 fw-bold"
         onClick={() => window.location.href = "/cart"}
       >
         GO TO CART

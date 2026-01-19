@@ -1,6 +1,6 @@
 'use client'
 import './UniversalDisplay.css';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap import
+
 
 export function ProductCard({ name, price, button, onAddToCart, item, symbol, image, rating }) {
   const handleClick = () => {

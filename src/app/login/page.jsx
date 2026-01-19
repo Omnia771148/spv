@@ -67,12 +67,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
     return (
         <div className="login-container">
             {/* Bootstrap CDN for mobile compatibility/grid if needed elsewhere, though custom CSS handles mostly everything here */}
-            <link
-                rel="stylesheet"
-                href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-                integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
-                crossOrigin="anonymous"
-            />
+
 
             <div className="hello-box">
                 <h1 className="hello-text">Hello</h1>
