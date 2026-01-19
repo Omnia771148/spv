@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import './login.css';
 // ✅ Import your custom Loading component
-import Loading from '../loading/page'; 
+import Loading from '../loading/page';
 
 export default function Home({ handleFPClick, handleSignUp }) {
     const [users, setUsers] = useState([]);
@@ -22,7 +22,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
 
             if (currentTime - Number(loginTime) < sevenDaysInMs) {
                 window.location.href = "/mainRestorentList";
-                return; 
+                return;
             }
         }
 
@@ -65,28 +65,78 @@ export default function Home({ handleFPClick, handleSignUp }) {
     }
 
     return (
-        <div style={{ padding: '20px' }}>
-            <h2>Login</h2>
-            
-            <input
-                type="text"
-                placeholder="Enter Name"
-                value={inputName}
-                onChange={(e) => setInputName(e.target.value)}
-                className="login-username"
-            /><br /><br />
-            
-            <input
-                type="password"
-                placeholder="Enter Password"
-                value={inputEmail}
-                onChange={(e) => setInputEmail(e.target.value)}
-                className="login-userpass"
-            /><br /><br />
-            
-            <button onClick={handleCheck}>Sign In</button><br /><br />
-            <button onClick={handleSignUp}>Sign Up</button><br /><br />
-            <button onClick={handleFPClick}>Forgot Password</button>
+        <div className="login-container">
+            {/* Bootstrap CDN for mobile compatibility/grid if needed elsewhere, though custom CSS handles mostly everything here */}
+            <link
+                rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+                integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+                crossOrigin="anonymous"
+            />
+
+            <div className="hello-box">
+                <h1 className="hello-text">Hello</h1>
+            </div>
+
+            <div className="form-wrapper">
+                {/* Mobile Number Input (mapped to inputName as per logic) */}
+                <div className="input-group-custom">
+                    <div className="input-icon">
+                        {/* Person Icon */}
+                        <svg viewBox="0 0 24 24" className="icon-grey">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Mobile number"
+                        value={inputName}
+                        onChange={(e) => setInputName(e.target.value)}
+                        className="custom-input"
+                    />
+                </div>
+
+                {/* Password Input (mapped to inputEmail as per logic) */}
+                <div className="input-group-custom">
+                    <div className="input-icon">
+                        {/* Lock Icon - Red */}
+                        <svg viewBox="0 0 24 24" className="icon-red">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3 3.1-3 1.71 0 3.1 1.29 3.1 3v2z" />
+                        </svg>
+                    </div>
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={inputEmail}
+                        onChange={(e) => setInputEmail(e.target.value)}
+                        className="custom-input"
+                    />
+                </div>
+
+                <div
+                    className="forgot-text"
+                    onClick={handleFPClick}
+                >
+                    Forget password ?
+                </div>
+
+                <button
+                    className="login-btn-custom"
+                    onClick={handleCheck}
+                >
+                    Login
+                </button>
+            </div>
+
+            <div className="create-account-text">
+                Don’t have account?
+                <span
+                    className="create-link"
+                    onClick={handleSignUp}
+                >
+                    create
+                </span>
+            </div>
         </div>
     );
 }

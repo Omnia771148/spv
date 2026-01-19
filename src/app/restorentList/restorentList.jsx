@@ -3,28 +3,28 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Carousel, Modal, Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './restorentList.css';
-import { restList } from './restorentDtata'; 
+import { restList } from './restorentDtata';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
-import { isPointInPolygon } from "geolib"; 
+import { isPointInPolygon } from "geolib";
 import { getExactDistance } from '../actions/delivery';
 import Loading from "../loading/page"; // Added import
 
 export default function RestorentList() {
     const [loading, setLoading] = useState(true); // Added loading state
     const [search, setSearch] = useState('');
-    const [typeFilter, setTypeFilter] = useState(''); 
+    const [typeFilter, setTypeFilter] = useState('');
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
-    const [isRouting, setIsRouting] = useState(false); 
+    const [isRouting, setIsRouting] = useState(false);
     const [isCalculating, setIsCalculating] = useState(false);
-    
-    const [showLocationModal, setShowLocationModal] = useState(false); 
-    const [showFetchingModal, setShowFetchingModal] = useState(false); 
+
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const [showFetchingModal, setShowFetchingModal] = useState(false);
     const [locationDenied, setLocationDenied] = useState(false);
-    
-    const [roadDistances, setRoadDistances] = useState({}); 
+
+    const [roadDistances, setRoadDistances] = useState({});
     const distRef = useRef({});
 
     const router = useRouter();
@@ -35,20 +35,20 @@ export default function RestorentList() {
         { latitude: 15.846311, longitude: 78.019729 },
         { latitude: 15.839716, longitude: 78.027036 },
         { latitude: 15.846872, longitude: 78.031149 },
-        { latitude: 15.84623,  longitude: 78.034459 },
+        { latitude: 15.84623, longitude: 78.034459 },
         { latitude: 15.838115, longitude: 78.049654 },
-        { latitude: 15.82565,  longitude: 78.056682 },
+        { latitude: 15.82565, longitude: 78.056682 },
         { latitude: 15.818905, longitude: 78.060495 },
         { latitude: 15.815102, longitude: 78.065114 },
         { latitude: 15.801613, longitude: 78.072318 },
         { latitude: 15.798335, longitude: 78.078557 },
-        { latitude: 15.79411,  longitude: 78.078435 },
+        { latitude: 15.79411, longitude: 78.078435 },
         { latitude: 15.786917, longitude: 78.078888 },
         { latitude: 15.776939, longitude: 78.073002 },
         { latitude: 15.772624, longitude: 78.057852 },
         { latitude: 15.768974, longitude: 78.054399 },
         { latitude: 15.765935, longitude: 78.049634 },
-        { latitude: 15.77651,  longitude: 78.02883 },
+        { latitude: 15.77651, longitude: 78.02883 },
         { latitude: 15.813778, longitude: 77.996924 },
         { latitude: 15.847026, longitude: 78.005964 }
     ];
@@ -67,7 +67,7 @@ export default function RestorentList() {
                 }
             } catch (err) { console.error(err); }
         }));
-        
+
         setRoadDistances(results);
         distRef.current = results;
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
@@ -104,12 +104,12 @@ export default function RestorentList() {
                 setShowFetchingModal(false);
                 setShowLocationModal(false);
             },
-            (err) => { 
+            (err) => {
                 console.error("Location error:", err);
                 setLocationDenied(true);
                 setShowFetchingModal(false);
                 setShowLocationModal(false);
-                setError("⚠️ GPS access required."); 
+                setError("⚠️ GPS access required.");
             },
             { enableHighAccuracy: true, timeout: 10000 }
         );
@@ -121,8 +121,9 @@ export default function RestorentList() {
         requestLocation();
     };
 
-    useEffect(() => { 
-        setMounted(true); 
+    useEffect(() => {
+        setMounted(true);
+        /*
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
         const savedDistances = localStorage.getItem("allRestaurantDistances");
 
@@ -136,7 +137,8 @@ export default function RestorentList() {
         } else {
             setShowLocationModal(true);
         }
-        setLoading(false); 
+        */
+        setLoading(false);
     }, []);
 
     const proceedToRoute = (name, distance) => {
@@ -151,15 +153,15 @@ export default function RestorentList() {
 
     const handleClicke = (name) => {
         if (name === "KNL") {
-          window.location.href = './knlrest';
+            window.location.href = './knlrest';
         } else if (name === "Snow Field") {
-          window.location.href = './snowfield';
+            window.location.href = './snowfield';
         } else if (name === "Kushas") {
-          window.location.href = './kushas';
+            window.location.href = './kushas';
         } else if (name === "Bros story") {
-          window.location.href = './Browsstory';
+            window.location.href = './Browsstory';
         } else {
-           window.location.href = './lanjesh';
+            window.location.href = './lanjesh';
         }
     };
 
@@ -167,7 +169,7 @@ export default function RestorentList() {
 
     return (
         <div style={{ paddingBottom: '80px' }}>
-            <Modal show={showLocationModal} centered backdrop="static" size="sm">
+            {/* <Modal show={showLocationModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <div className="mb-3">
                         <i className="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
@@ -193,19 +195,19 @@ export default function RestorentList() {
                         Skip for now
                     </button>
                 </Modal.Body>
-            </Modal>
+            </Modal> */}
 
             {/* Fetching Location Modal */}
-            <Modal show={showFetchingModal} centered backdrop="static" size="sm">
+            {/* <Modal show={showFetchingModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
                     <div className="mt-3 fw-bold">Fetching Location...</div>
                     <div className="text-muted small mt-1">Please wait</div>
                 </Modal.Body>
-            </Modal>
+            </Modal> */}
 
             {/* Location Denied Modal */}
-            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" size="sm">
+            {/* <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
                     <h6 className="fw-bold mb-3">Location Required</h6>
@@ -214,7 +216,7 @@ export default function RestorentList() {
                         Enable Location
                     </button>
                 </Modal.Body>
-            </Modal>
+            </Modal> */}
 
             {/* Existing Modals */}
             <Modal show={isCalculating} centered backdrop="static" size="sm">
@@ -251,9 +253,9 @@ export default function RestorentList() {
                         .map(item => (
                             <div key={item.name} className="mb-3">
                                 <button onClick={() => handleClicke(item.name)} className="w-100 border-0 bg-transparent p-0">
-                                    <RestorentDisplay 
-                                        name={item.name} 
-                                        place={item.place} 
+                                    <RestorentDisplay
+                                        name={item.name}
+                                        place={item.place}
                                         image={item.image}
                                         rating={item.rating || "4.2"}
                                         distance={roadDistances[item.name] ? `${roadDistances[item.name]} km` : "..."}

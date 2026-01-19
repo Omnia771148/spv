@@ -1,21 +1,143 @@
-/* Small devices (phones in portrait mode) */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600&display=swap');
 
-body{
-    background-color: rgd(230,221,196);
-}
-@media only screen and (max-width: 480px) {
-
-
-}
-
-/* Medium devices (large phones in landscape, small tablets) */
-@media only screen and (max-width: 768px) {
-
-
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* Larger tablets */
-@media only screen and (max-width: 1024px) {
-
+.login-container {
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(90deg, #FDFBF7 50%, #DCD4C3 50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px;
+    padding-bottom: 120px;
+    /* Shift visual center upwards */
 }
 
+.hello-box {
+    background-color: #fff;
+    padding: 15px 40px;
+    border-radius: 30px;
+    margin-bottom: 80px;
+    /* Increased separation */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    width: auto;
+    min-width: 200px;
+}
+
+.hello-text {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3rem;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group-custom {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    z-index: 10;
+}
+
+.input-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.custom-input {
+    width: 100%;
+    padding: 15px 20px 15px 55px;
+    border-radius: 50px;
+    border: none;
+    outline: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+    color: #444;
+    background: #fff;
+}
+
+.custom-input::placeholder {
+    color: #aaa;
+}
+
+.forgot-text {
+    text-align: right;
+    width: 100%;
+    font-size: 0.9rem;
+    color: #000;
+    cursor: pointer;
+    margin-top: -5px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.login-btn-custom {
+    background-color: white;
+    color: #000;
+    font-size: 1.5rem;
+    padding: 10px 40px;
+    border-radius: 40px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-self: center;
+    font-weight: 500;
+    margin-bottom: 40px;
+    min-width: 160px;
+    text-align: center;
+}
+
+.create-account-text {
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #000;
+}
+
+.create-link {
+    text-decoration: underline;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+/* Icons Colors */
+.icon-grey {
+    fill: #a0a0a0;
+}
+
+.icon-red {
+    fill: #e74c3c;
+}
+
+/* Ensure bootstrap override if needed */
+.form-wrapper .custom-input:focus {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
