@@ -46,7 +46,7 @@ export default function Profile() {
                 </button>
 
                 {/* My Orders */}
-                <button className="custom-nav-btn" onClick={() => window.location.href = "/accepted-orders"}>
+                <button className="custom-nav-btn" onClick={() => window.location.href = "/finalorders"}>
                     <div className="d-flex align-items-center">
                         <i className="fas fa-box-open btn-icon-left"></i>
                         <span className="btn-text">My Orders</span>
