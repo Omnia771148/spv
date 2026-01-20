@@ -16,96 +16,77 @@ export async function POST(request) {
       orderData
     } = await request.json();
 
-    console.log("🔥 VERIFY PAYMENT RECEIVED ORDER DATA:", orderData); // DEBUG LOG
+    console.log("🔥 VERIFY PAYMENT ORDER DATA:", orderData);
 
-    // 1. Verify Signature
+    // 1️⃣ VERIFY SIGNATURE
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-      .update(body.toString())
+      .update(body)
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return NextResponse.json({
-        success: false,
-        message: "Invalid Signature"
-      }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Invalid signature" },
+        { status: 400 }
+      );
     }
 
-    // 2. Generate Custom ID
+    // 2️⃣ GENERATE CUSTOM ORDER ID
     const formattedOrderId = await generateOrderId();
 
-    // 3. Save to existing Order collection
+    // 3️⃣ SAVE ORDER
     const orderDoc = {
       userId: orderData.userId,
       items: orderData.items,
-      restaurantId: orderData.restaurantId,
+
       totalCount: orderData.totalCount,
       totalPrice: orderData.totalPrice,
       gst: orderData.gst,
       deliveryCharge: orderData.deliveryCharge,
       grandTotal: orderData.grandTotal,
-      aa: orderData.aa,
-      location: orderData.location,
-      flatNo: orderData.flatNo || "",
-      street: orderData.street || "",
-      landmark: orderData.landmark || "",
-      deliveryAddress: orderData.deliveryAddress || "", // Add this
 
-      userName: orderData.userName || "",
-      userEmail: orderData.userEmail || "",
-      userPhone: orderData.userPhone || "",
+      restaurantId: orderData.restaurantId,
+      aa: orderData.aa,
+
+      // ✅ USER INFO
+      userName: orderData.userName,
+      userEmail: orderData.userEmail,
+      userPhone: orderData.userPhone,
+
+      flatNo: orderData.flatNo,
+      street: orderData.street,
+      landmark: orderData.landmark,
+      deliveryAddress: orderData.deliveryAddress,
+
+      location: orderData.location,
 
       orderId: formattedOrderId,
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
-      paymentStatus: "Paid",
+      paymentStatus: "Paid"
     };
 
     const newOrder = await Order.create(orderDoc);
 
-    // 4. Save to OrderStatus collection with same data + status field
-    const orderStatusDoc = {
-      userId: orderData.userId,
-      items: orderData.items,
-      restaurantId: orderData.restaurantId,
-      totalCount: orderData.totalCount,
-      totalPrice: orderData.totalPrice,
-      gst: orderData.gst,
-      deliveryCharge: orderData.deliveryCharge,
-      grandTotal: orderData.grandTotal,
-      aa: orderData.aa,
-      location: orderData.location,
-      flatNo: orderData.flatNo || "",
-      street: orderData.street || "",
-      landmark: orderData.landmark || "",
-      deliveryAddress: orderData.deliveryAddress || "", // Add this
-
-      userName: orderData.userName || "",
-      userEmail: orderData.userEmail || "",
-      userPhone: orderData.userPhone || "",
-
-      orderId: formattedOrderId,
-      razorpayOrderId: razorpay_order_id,
-      razorpayPaymentId: razorpay_payment_id,
-      paymentStatus: "Paid",
-      status: "Pending", // Add status field here
+    // 4️⃣ ORDER STATUS
+    await OrderStatus.create({
+      ...orderDoc,
+      status: "Pending",
       createdAt: new Date()
-    };
-
-    await OrderStatus.create(orderStatusDoc);
+    });
 
     return NextResponse.json({
       success: true,
       orderId: newOrder._id,
-      formattedOrderId: formattedOrderId
+      formattedOrderId
     });
 
   } catch (error) {
-    console.error("VERIFY & SAVE ERROR:", error);
-    return NextResponse.json({
-      success: false,
-      error: error.message
-    }, { status: 500 });
+    console.error("VERIFY PAYMENT ERROR:", error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
   }
 }
