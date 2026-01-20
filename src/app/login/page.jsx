@@ -82,58 +82,72 @@ export default function Home({ handleFPClick, handleSignUp }) {
     }
 
     return (
-        <div className="login-wrapper">
-            <div className="login-card">
-                <div className="header-pill">
-                    <h1 className="hello-text">Hello</h1>
+        <div className="login-container">
+            {/* Bootstrap CDN for mobile compatibility/grid if needed elsewhere, though custom CSS handles mostly everything here */}
+
+
+            <div className="hello-box">
+                <h1 className="hello-text">Hello</h1>
+            </div>
+
+            <div className="form-wrapper">
+                {/* Mobile Number Input (mapped to inputName as per logic) */}
+                <div className="input-group-custom">
+                    <div className="input-icon">
+                        {/* Person Icon */}
+                        <svg viewBox="0 0 24 24" className="icon-grey">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Mobile number"
+                        value={inputName}
+                        onChange={(e) => setInputName(e.target.value)}
+                        className="custom-input"
+                    />
                 </div>
 
-                <div className="inputs-container">
-                    <div className="input-group">
-                        <span className="input-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#a0a0a0">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                            </svg>
-                        </span>
-                        <input
-                            type="text"
-                            placeholder="Mobile number"
-                            value={inputName}
-                            onChange={(e) => setInputName(e.target.value)}
-                            className="custom-input"
-                        />
+                {/* Password Input (mapped to inputEmail as per logic) */}
+                <div className="input-group-custom">
+                    <div className="input-icon">
+                        {/* Lock Icon - Red */}
+                        <svg viewBox="0 0 24 24" className="icon-red">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3 3.1-3 1.71 0 3.1 1.29 3.1 3v2z" />
+                        </svg>
                     </div>
-
-                    <div className="input-group">
-                        <span className="input-icon password-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#e74c3c">
-                                <path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8.9 6c0-1.71 1.39-3 3.1-3s3.1 1.29 3.1 3v2H8.9V6z" />
-                            </svg>
-                        </span>
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={inputEmail}
-                            onChange={(e) => setInputEmail(e.target.value)}
-                            className="custom-input"
-                        />
-                    </div>
-
-                    <button onClick={handleFPClick} className="forgot-password-link">
-                        Forget password ?
-                    </button>
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={inputEmail}
+                        onChange={(e) => setInputEmail(e.target.value)}
+                        className="custom-input"
+                    />
                 </div>
 
-                <button onClick={handleCheck} className="login-btn">
+                <div
+                    className="forgot-text"
+                    onClick={handleFPClick}
+                >
+                    Forget password ?
+                </div>
+
+                <button
+                    className="login-btn-custom"
+                    onClick={handleCheck}
+                >
                     Login
                 </button>
+            </div>
 
-                <div className="signup-text">
-                    Don't have account?
-                    <button onClick={handleSignUp} className="signup-link">
-                        create
-                    </button>
-                </div>
+            <div className="create-account-text">
+                Don’t have account?
+                <span
+                    className="create-link"
+                    onClick={handleSignUp}
+                >
+                    create
+                </span>
             </div>
         </div>
     );

@@ -1,147 +1,143 @@
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600&display=swap');
 
-body {
+body,
+html {
     margin: 0;
     padding: 0;
-    background-color: #ffffff;
-    font-family: 'Poppins', sans-serif;
-    background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-.login-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.login-card {
-    background-color: rgb(228, 219, 194);
-    border-radius: 20px;
-    padding: 40px 30px;
+    height: 100%;
     width: 100%;
-    max-width: 350px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+}
+
+.login-container {
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(90deg, #FDFBF7 50%, #DCD4C3 50%);
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     position: relative;
+    padding: 20px;
+    padding-bottom: 120px;
+    /* Shift visual center upwards */
 }
 
-.header-pill {
+.hello-box {
     background-color: #fff;
-    border-radius: 50px;
-    padding: 10px 60px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 15px 40px;
+    border-radius: 30px;
+    margin-bottom: 80px;
+    /* Increased separation */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    width: auto;
+    min-width: 200px;
 }
 
 .hello-text {
     font-family: 'Great Vibes', cursive;
-    font-size: 48px;
-    color: #333;
+    font-size: 3rem;
+    color: #1a1a1a;
     margin: 0;
-    line-height: 1;
+    line-height: 1.2;
 }
 
-.inputs-container {
-    background-color: #fcfbf9;
-    border-radius: 20px;
-    padding: 25px 20px;
+.form-wrapper {
     width: 100%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 25px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
-.input-group {
+.input-group-custom {
     position: relative;
-    margin-bottom: 20px;
-}
-
-.input-group:last-child {
-    margin-bottom: 10px;
+    width: 100%;
 }
 
 .input-icon {
     position: absolute;
-    left: 15px;
+    left: 20px;
     top: 50%;
     transform: translateY(-50%);
-    color: #999;
-    font-size: 20px;
+    width: 20px;
+    height: 20px;
     z-index: 10;
 }
 
-.input-icon.password-icon {
-    color: #e74c3c;
+.input-icon svg {
+    width: 100%;
+    height: 100%;
 }
 
 .custom-input {
     width: 100%;
-    padding: 12px 15px 12px 45px;
-    /* space for icon */
+    padding: 15px 20px 15px 55px;
     border-radius: 50px;
     border: none;
-    background-color: #fff;
-    font-size: 14px;
-    color: #333;
     outline: none;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    transition: box-shadow 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+    color: #444;
+    background: #fff;
 }
 
-.custom-input:focus {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.custom-input::placeholder {
+    color: #aaa;
 }
 
-.forgot-password-link {
-    display: block;
+.forgot-text {
     text-align: right;
-    font-size: 12px;
-    color: #333;
-    font-weight: 500;
-    text-decoration: none;
-    margin-top: 10px;
-    background: none;
-    border: none;
     width: 100%;
+    font-size: 0.9rem;
+    color: #000;
     cursor: pointer;
-    padding: 0;
+    margin-top: -5px;
+    margin-bottom: 20px;
+    font-weight: 500;
 }
 
-.login-btn {
-    background-color: #fff;
+.login-btn-custom {
+    background-color: white;
     color: #000;
+    font-size: 1.5rem;
+    padding: 10px 40px;
+    border-radius: 40px;
     border: none;
-    border-radius: 50px;
-    padding: 12px 60px;
-    font-size: 20px;
-    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 25px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-self: center;
+    font-weight: 500;
+    margin-bottom: 40px;
+    min-width: 160px;
+    text-align: center;
 }
 
-.login-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-.signup-text {
-    font-size: 13px;
-    color: #000;
+.create-account-text {
+    text-align: center;
+    font-size: 0.95rem;
     font-weight: 600;
+    color: #000;
 }
 
-.signup-link {
+.create-link {
     text-decoration: underline;
     cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    font-weight: 700;
     margin-left: 5px;
+}
+
+/* Icons Colors */
+.icon-grey {
+    fill: #a0a0a0;
+}
+
+.icon-red {
+    fill: #e74c3c;
+}
+
+/* Ensure bootstrap override if needed */
+.form-wrapper .custom-input:focus {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
