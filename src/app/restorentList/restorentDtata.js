@@ -30,7 +30,7 @@ export const restList = [
 
 
 
-    
+
     {
         name: "lajesh",
         type: "non-veg",

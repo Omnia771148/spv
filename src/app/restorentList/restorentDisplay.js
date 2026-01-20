@@ -4,6 +4,7 @@ export default function RestorentDisplay({ name, place, rating, image, distance 
       <div className="rest-card-main2 shadow-sm rounded bg-white p-2">
         {/* Restaurant Image */}
         <div style={{ position: "relative" }}>
+         
           <img 
             src={image} 
             alt={name} 
