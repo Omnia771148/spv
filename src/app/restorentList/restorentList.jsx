@@ -200,10 +200,10 @@ export default function RestorentList() {
             window.location.href = './snowfield';
         } else if (name === "Kushas") {
             window.location.href = './kushas';
-        } else if (name === "Bro Story") {
-            window.location.href = './brostory';
-        } else if (name === "The Mourya Inn") {
-            window.location.href = './mourya';
+        } else if (name === "bros") {
+            window.location.href = './bro';
+        } else if (name === "mayuri") {
+            window.location.href = './maurya';
         }
     };
 

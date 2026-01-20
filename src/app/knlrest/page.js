@@ -38,7 +38,7 @@ export default function KushasMenuList() {
   useEffect(() => {
     const fetchRestaurantStatus = async () => {
       try {
-        const res = await fetch("/api/restaurant/status");
+        const res = await fetch("/api/restaurant/knl");
         const data = await res.json();
         setRestaurantActive(data.isActive);
       } catch (error) {

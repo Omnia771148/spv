@@ -25,7 +25,7 @@ const restuarents = [
   },
   {
     id: 4,
-    name: "lajesh",
+    name: "Bro",
     Type: "out house",
     place: "Venkata Ramana Colony",
     rating: 4.5,
@@ -33,7 +33,7 @@ const restuarents = [
   },
   {
     id: 5,
-    name: "Bros story",
+    name: "Mayuri",
     Type: "Home",
     place: "Venkata Ramana Colony",
     rating: 4.5,

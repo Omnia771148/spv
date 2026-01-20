@@ -3,24 +3,26 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-
 import { Data } from '../data/page';
 import { ProductCard } from '../universaldisplay/page';
 import { showToast } from '../../toaster/page';
-import Link from "next/link";
 
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
-
 import Loading from '../loading/page';
 
 export default function KushasMenuList() {
   const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [cart, setCart] = useState([]);
+
+  // ✅ Restaurant status states
+  const [restaurantActive, setRestaurantActive] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(true);
 
   // ✅ Authentication check
   useEffect(() => {
@@ -32,8 +34,30 @@ export default function KushasMenuList() {
     }
   }, [router]);
 
-  // ✅ Add item to cart
+  // ✅ Fetch restaurant status (KUSHAS)
+  useEffect(() => {
+    const fetchRestaurantStatus = async () => {
+      try {
+        const res = await fetch("/api/restaurant/kushas");
+        const data = await res.json();
+        setRestaurantActive(data.isActive);
+      } catch (err) {
+        console.error("Error fetching restaurant status");
+      } finally {
+        setStatusLoading(false);
+      }
+    };
+
+    fetchRestaurantStatus();
+  }, []);
+
+  // ✅ Add item to cart (WITH STATUS CHECK)
   const addToCart = (item) => {
+    if (!restaurantActive) {
+      showToast("Restaurant is currently not accepting orders", "danger");
+      return;
+    }
+
     const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
 
     if (existingCart.some(cartItem => cartItem.id === item.id)) {
@@ -60,10 +84,7 @@ export default function KushasMenuList() {
     showToast("Added to cart successfully!");
   };
 
-  // ✅ Corrected Loading placement
-  if (loading) {
-    return <Loading />;
-  }
+  if (loading) return <Loading />;
 
   return (
     <div className="container mt-4" style={{ paddingBottom: '80px' }}>
@@ -71,9 +92,20 @@ export default function KushasMenuList() {
       {/* ✅ RESTAURANT CARD */}
       <RestorentDisplay data={restuarents[2]} />
 
+      {statusLoading && (
+        <div className="alert alert-warning mt-3">
+          Checking restaurant status...
+        </div>
+      )}
+
+      {!statusLoading && !restaurantActive && (
+        <div className="alert alert-danger mt-3">
+          Restaurant is currently CLOSED
+        </div>
+      )}
+
       <h1 className="search mt-4">Search Dishes</h1>
 
-      {/* Search Input */}
       <input
         type="text"
         className="search1 form-control mb-4"
@@ -82,7 +114,6 @@ export default function KushasMenuList() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Filter by Type */}
       <h2 className="mt-4">Search Type</h2>
       <select
         className="form-select mb-4"
@@ -94,27 +125,24 @@ export default function KushasMenuList() {
         <option value="non-veg">Non-Veg</option>
       </select>
 
-      {/* Products */}
       <div className="row">
-        {Data
-          .filter(item => {
-            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-            const matchesType = typeFilter === '' || item.type === typeFilter;
-            const matchesId = item.id >= 1 && item.id <= 4;
-            return matchesSearch && matchesType && matchesId;
-          })
-          .map(item => (
-            <ProductCard
-              key={item.id}
-              name={item.name}
-              symbol={item.symbol}
-              price={item.price}
-              button={item.button}
-              item={item}
-              onAddToCart={addToCart}
-            />
-          ))
-        }
+        {Data.filter(item => {
+          const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+          const matchesType = typeFilter === '' || item.type === typeFilter;
+          const matchesId = item.id >= 1 && item.id <= 4;
+          return matchesSearch && matchesType && matchesId;
+        }).map(item => (
+          <ProductCard
+            key={item.id}
+            item={item}
+            name={item.name}
+            symbol={item.symbol}
+            price={item.price}
+            button={item.button}
+            onAddToCart={addToCart}
+            disabled={!restaurantActive}
+          />
+        ))}
       </div>
 
       <button
@@ -125,7 +153,6 @@ export default function KushasMenuList() {
       </button>
 
       <Navbar />
-
     </div>
   );
 }

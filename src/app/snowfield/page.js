@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
 import { useRouter } from "next/navigation";
 import { Data } from '../data/page';
 import { ProductCard } from '../universaldisplay/page';
@@ -11,27 +10,30 @@ import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
 import Loading from '../loading/page';
 
-
 export default function KushasMenuLite() {
   const router = useRouter();
+
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ State to hold the distance
+  // ✅ Distance
   const [distance, setDistance] = useState(null);
 
+  // ✅ Restaurant status (NEW)
+  const [restaurantActive, setRestaurantActive] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(true);
+
+  // ✅ AUTH + DISTANCE
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
       router.push("/login");
     } else {
-      // ✅ Pull the distance saved in RestaurantList
       const savedDistances = localStorage.getItem("allRestaurantDistances");
       if (savedDistances) {
         const distanceMap = JSON.parse(savedDistances);
-        // restuarents[1] is "Snow Field" in your data
         const distValue = distanceMap["Snow Field"];
         if (distValue) {
           setDistance(`${distValue} km`);
@@ -41,51 +43,84 @@ export default function KushasMenuLite() {
     }
   }, [router]);
 
+  // ✅ FETCH RESTAURANT STATUS (NEW)
+  useEffect(() => {
+    const fetchRestaurantStatus = async () => {
+      try {
+        const res = await fetch("/api/restaurant/snow");
+        const data = await res.json();
+        setRestaurantActive(data.isActive);
+      } catch (error) {
+        console.error("Error fetching restaurant status");
+      } finally {
+        setStatusLoading(false);
+      }
+    };
+
+    fetchRestaurantStatus();
+  }, []);
+
+  // ✅ ADD TO CART (WITH STATUS BLOCK)
   const addToCart = (item) => {
+    if (!restaurantActive) {
+      showToast("Restaurant is currently not accepting orders", "danger");
+      return;
+    }
+
     const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
-    const isItemAlreadyInCart = existingCart.some(cartItem => cartItem.id === item.id);
+    const isItemAlreadyInCart = existingCart.some(
+      cartItem => cartItem.id === item.id
+    );
 
     if (isItemAlreadyInCart) {
       showToast("Item already exists in the cart.", "danger");
       return;
     }
 
-    // ✅ Logic to ensure items from only one restaurant are selected
     if (
       existingCart.some(cartItem => cartItem.id >= 1 && cartItem.id <= 4) ||
+      existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8) ||
       existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
-      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20) ||
-      existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8)
+      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20)
     ) {
-      showToast("You Can Select From Only One Restuarent", "danger");
-      return; // Added return to prevent adding item if validation fails
+      showToast("You Can Select From Only One Restaurant", "danger");
+      return;
     }
 
-    // ✅ Tag the item with the restaurant name for the Cart page
     item.restaurantName = "Snow Field";
-
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
     showToast("Added to cart successfully!", "success");
   };
 
-
   if (loading) return <Loading />;
-  return (
-    <div className="container mt-4">
 
-      {/* ✅ RESTAURANT CARD AT TOP WITH DISTANCE PASSING */}
+  return (
+    <div className="container mt-4" style={{ paddingBottom: '80px' }}>
+
+      {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
         <RestorentDisplay
           data={restuarents[1]}
           distance={distance || "Calculating..."}
         />
+
+        {statusLoading && (
+          <div className="alert alert-warning mt-3">
+            Checking restaurant status...
+          </div>
+        )}
+
+        {!statusLoading && !restaurantActive && (
+          <div className="alert alert-danger mt-3">
+            Restaurant is currently CLOSED
+          </div>
+        )}
       </div>
 
       <h1 className="search">Search Dishes</h1>
 
-      {/* Search Input */}
       <input
         type="text"
         className="search1 form-control mb-4"
@@ -94,41 +129,35 @@ export default function KushasMenuLite() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {/* Filter by Type */}
       <h2 className="mt-4">Search Type</h2>
       <select
-        id="restaurant"
-        name="restaurant"
         className="form-select mb-4"
-        onChange={(e) => setTypeFilter(e.target.value)}
         value={typeFilter}
+        onChange={(e) => setTypeFilter(e.target.value)}
       >
         <option value="">All</option>
         <option value="veg">Veg</option>
         <option value="non-veg">Non-Veg</option>
       </select>
 
-      {/* Display Filtered Results */}
       <div className="row">
-        {Data
-          .filter(item => {
-            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-            const matchesType = typeFilter === '' || item.type === typeFilter;
-            const matchesId = item.id >= 9 && item.id <= 12;
-            return matchesSearch && matchesType && matchesId;
-          })
-          .map(item => (
-            <ProductCard
-              key={item.id}
-              name={item.name}
-              symbol={item.symbol}
-              price={item.price}
-              button={item.button}
-              item={item}
-              onAddToCart={addToCart}
-            />
-          ))
-        }
+        {Data.filter(item => {
+          const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+          const matchesType = typeFilter === '' || item.type === typeFilter;
+          const matchesId = item.id >= 9 && item.id <= 12;
+          return matchesSearch && matchesType && matchesId;
+        }).map(item => (
+          <ProductCard
+            key={item.id}
+            item={item}
+            name={item.name}
+            symbol={item.symbol}
+            price={item.price}
+            button={item.button}
+            onAddToCart={addToCart}
+            disabled={!restaurantActive}
+          />
+        ))}
       </div>
 
       <button

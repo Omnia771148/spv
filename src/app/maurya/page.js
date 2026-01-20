@@ -12,7 +12,7 @@ import Navbar from "@/navigation/page";
 // ✅ Fixed Import: Capitalized 'Loading'
 import Loading from '../loading/page';
 
-export default function KushasMenuList() {
+export default function Mayuri() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);

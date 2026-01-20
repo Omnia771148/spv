@@ -32,7 +32,7 @@ export const restList = [
 
 
     {
-        name: "lajesh",
+        name: "mayuri",
         type: "non-veg",
         place: "Venkata Ramana Colony",
         lat: 15.8302831,
@@ -41,7 +41,7 @@ export const restList = [
         image: "/1.png",
     },
     {
-        name: "Bros story",
+        name: "bros",
         type: "veg",
         place: "Venkata Ramana Colony",
         lat: 15.8061586,

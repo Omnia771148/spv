@@ -12,7 +12,7 @@ import Navbar from "@/navigation/page";
 // ✅ Fixed Import: Capitalized 'Loading'
 import Loading from '../loading/page';
 
-export default function KushasMenuList() {
+export default function Bro() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ export default function KushasMenuList() {
   useEffect(() => {
     const fetchRestaurantStatus = async () => {
       try {
-        const res = await fetch("/api/restaurant/status");
+        const res = await fetch("/api/restaurant/brostory");
         const data = await res.json();
         setRestaurantActive(data.isActive);
       } catch (error) {
