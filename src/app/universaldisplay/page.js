@@ -2,7 +2,7 @@
 import './UniversalDisplay.css';
 
 
-export function ProductCard({ name, price, button, onAddToCart, item, symbol, image, rating }) {
+export function ProductCard({ name, price, button, onAddToCart, item, image, rating }) {
   const handleClick = () => {
     if (onAddToCart) {
       onAddToCart(item);

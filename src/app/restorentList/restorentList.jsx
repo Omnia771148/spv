@@ -290,21 +290,59 @@ export default function RestorentList() {
 
             <div style={{ padding: '20px' }}>
                 <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
-                <input type="text" className="form-control mb-3 shadow-sm border-0" placeholder="Search..." onChange={(e) => setSearch(e.target.value)} />
-                <select className="form-select mb-4 shadow-sm border-0" onChange={(e) => setTypeFilter(e.target.value)}>
-                    <option value="">All Types</option>
-                    <option value="veg">Veg Only</option>
-                    <option value="non-veg">Non-Veg Only</option>
-                </select>
+
+                {/* Search and Filter Section */}
+                <div className="filter-section mb-4">
+                    <div className="search-input-group">
+                        <i className="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input
+                            type="text"
+                            className="custom-search-input"
+                            placeholder="Search"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="toggle-group d-flex align-items-center">
+                        {/* All Button */}
+                        <button
+                            className={`toggle-btn ${typeFilter === '' ? 'active-all' : ''}`}
+                            onClick={() => setTypeFilter('')}
+                            title="All"
+                        >
+                            <span style={{ fontSize: '14px', fontWeight: 'bold' }}>All</span>
+                        </button>
+
+                        {/* Veg Button */}
+                        <button
+                            className={`toggle-btn veg-btn ${typeFilter === 'veg' ? 'active-veg' : ''}`}
+                            onClick={() => setTypeFilter('veg')}
+                            title="Veg"
+                        >
+                            <i className="fa-solid fa-leaf"></i>
+                        </button>
+
+                        {/* Non-Veg Button */}
+                        <button
+                            className={`toggle-btn nonveg-btn ${typeFilter === 'non-veg' ? 'active-nonveg' : ''}`}
+                            onClick={() => setTypeFilter('non-veg')}
+                            title="Non-Veg"
+                        >
+                            <i className="fa-solid fa-drumstick-bite"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div className="mt-4">
                     {restList
                         .filter(item => (item.name.toLowerCase().includes(search.toLowerCase()) && (typeFilter === '' || item.type === typeFilter)))
                         .map(item => (
                             <div key={item.name} className="mb-3">
                                 <button onClick={() => handleClicke(item.name)} className="w-100 border-0 bg-transparent p-0">
-                                    <RestorentDisplay
-                                        name={item.name}
-                                        place={item.place}
+<RestorentDisplay 
+                                        name={item.name} 
+                                        place={item.place} 
                                         image={item.image}
                                         rating={item.rating || "4.2"}
                                         // Using static distance since location is disabled - MODIFIED

@@ -5,7 +5,7 @@ const restuarents = [
     location: "Colles College , Kurnool",
     rating: 4.5,
     Type: "Pure Veg",
-    image: "/image_2a64d.PNG"
+    image: "/1.png"
   },
   {
     id: 2,
@@ -13,7 +13,7 @@ const restuarents = [
     location: "Ucon Plaza ,Kurnool",
     rating: 4.2,
     Type: "Fast Delivery",
-    image: "/dominos.png"
+    image: "/1.png"
   },
   {
     id: 3,
@@ -21,24 +21,25 @@ const restuarents = [
     location: "Venkata Ramana Colony, Kurnool",
     rating: 4.3,
     Type: "Home Style Food",
-    image: "/dominos.png"
+    image: "/1.png"
   },
   {
-        id: 4,
-        name: "Bro Story",
-        Type: "out house",
-        place: "Ganesh Nagar",
-        rating: 4.5,
-        image: "/dominos.png",
-    },
-    {
-        id: 5,
-        name: "The Maurya Inn",
-        Type: "Home",
-        place: "Bhagya Nagar",
-        rating: 4.5,
-        image: "/dominos.png",
-    },
+    id: 4,
+    name: "lajesh",
+    Type: "out house",
+    place: "Venkata Ramana Colony",
+    rating: 4.5,
+    image: "/1.png",
+  },
+  {
+    id: 5,
+    name: "Bros story",
+    Type: "Home",
+    place: "Venkata Ramana Colony",
+    rating: 4.5,
+    image: "/1.png",
+  },
+    
 ];
 
 export default restuarents;
