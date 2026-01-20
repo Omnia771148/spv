@@ -11,7 +11,7 @@ export default function RestorentDisplay({ data }) {
           <div>⭐ {data.rating}</div>
 
           <span className="badge bg-success">
-            {data.Type} 
+            {data.Type}
           </span>
         </div>
 
