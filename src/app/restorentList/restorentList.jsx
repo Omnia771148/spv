@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Carousel, Modal, Spinner } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 import './restorentList.css';
 import { restList } from './restorentDtata';
 import RestorentDisplay from './restorentDisplay';

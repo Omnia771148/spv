@@ -3,24 +3,26 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Loading from '../loading/page';
 import './MyOrders.css';
-import Link from 'next/link'; // Import Link for navigation
+import Link from 'next/link';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useRouter } from 'next/navigation';
 
 export default function MyOrders() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [userId, setUserId] = useState("");
+    const router = useRouter();
 
     useEffect(() => {
-        // Get the current user ID from local storage
         const loggedInUserId = localStorage.getItem("userId");
-        
+
         if (!loggedInUserId) {
             setError("No user logged in. Please login first.");
             setLoading(false);
             return;
         }
-        
+
         setUserId(loggedInUserId);
         fetchMyOrders(loggedInUserId);
     }, []);
@@ -37,19 +39,37 @@ export default function MyOrders() {
         }
     };
 
-    // Calculate status color
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
-            case 'completed':
-                return 'green';
-            case 'pending':
-                return 'orange';
-            case 'cancelled':
-                return 'red';
-            case 'processing':
-                return 'blue';
-            default:
-                return 'gray';
+            case 'completed': return '#4caf50'; // Green
+            case 'pending': return '#ff9800';   // Orange
+            case 'cancelled': return '#f44336'; // Red
+            case 'processing': return '#2196f3';// Blue
+            default: return '#9e9e9e';          // Grey
+        }
+    };
+
+    // Helper to format date cleanly
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toLocaleString('en-IN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    };
+
+    const handlePrintInvoice = (orderId) => {
+        // Open invoice in new window and print
+        const printWindow = window.open(`/invoice/${orderId}`, '_blank');
+        if (printWindow) {
+            printWindow.onload = function () {
+                printWindow.print();
+            }
         }
     };
 
@@ -57,9 +77,17 @@ export default function MyOrders() {
 
     return (
         <div className="my-orders-container">
+            {/* Header */}
             <div className="orders-header">
-                <h2>My Orders</h2>
-                <p className="user-id">User ID: {userId}</p>
+                <button className="back-button-svg" onClick={() => router.back()}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+                <div className="orders-header-pill">
+                    <span className="header-icon">📦</span>
+                    <h2>My Orders</h2>
+                </div>
             </div>
 
             {error && (
@@ -72,7 +100,7 @@ export default function MyOrders() {
                 <div className="no-orders">
                     <p>No orders found for your account.</p>
                     <button onClick={() => fetchMyOrders(userId)} className="refresh-btn">
-                        Refresh
+                        Refresh Orders
                     </button>
                 </div>
             ) : (
@@ -82,28 +110,22 @@ export default function MyOrders() {
                             <div className="order-header">
                                 <div className="order-id-section">
                                     <h3>Order #{order.orderId}</h3>
-                                    <span 
+                                    <span
                                         className="status-badge"
-                                        style={{ backgroundColor: getStatusColor(order.status) }}
+                                        style={{ backgroundColor: getStatusColor(order.status), color: 'white' }}
                                     >
                                         {order.status}
                                     </span>
                                 </div>
                                 <p className="order-date">
-                                    Ordered on: {new Date(order.orderDate).toLocaleDateString('en-IN', {
-                                        weekday: 'long',
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
+                                    {formatDate(order.orderDate)}
                                 </p>
                             </div>
 
                             <div className="order-details">
+                                {/* Items Section */}
                                 <div className="order-section">
-                                    <h4>Items Ordered:</h4>
+                                    <h4>Items Ordered</h4>
                                     <div className="items-list">
                                         {order.items.map((item, index) => (
                                             <div key={index} className="item-row">
@@ -115,84 +137,72 @@ export default function MyOrders() {
                                     </div>
                                 </div>
 
+                                {/* Pricing Section */}
                                 <div className="order-section">
-                                    <h4>Pricing Details:</h4>
+                                    <h4>Payment Details</h4>
                                     <div className="pricing-details">
                                         <div className="price-row">
-                                            <span>Subtotal:</span>
+                                            <span>Subtotal</span>
                                             <span>₹{order.totalPrice}</span>
                                         </div>
+                                        {order.gst > 0 && (
+                                            <div className="price-row">
+                                                <span>GST</span>
+                                                <span>₹{order.gst}</span>
+                                            </div>
+                                        )}
                                         <div className="price-row">
-                                            <span>GST ({order.gst ? ((order.gst/order.totalPrice)*100).toFixed(1) : '0'}%):</span>
-                                            <span>₹{order.gst || 0}</span>
-                                        </div>
-                                        <div className="price-row">
-                                            <span>Delivery Charge:</span>
+                                            <span>Delivery</span>
                                             <span>₹{order.deliveryCharge || 0}</span>
                                         </div>
                                         <div className="price-row total">
-                                            <strong>Grand Total:</strong>
+                                            <strong>Total</strong>
                                             <strong>₹{order.grandTotal}</strong>
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Payment Info */}
                                 <div className="order-section">
-                                    <h4>Payment Information:</h4>
                                     <div className="payment-info">
-                                        <p><strong>Status:</strong> 
-                                            <span className={`payment-status ${order.paymentStatus?.toLowerCase()}`}>
-                                                {order.paymentStatus}
-                                            </span>
+                                        <p style={{ margin: 0 }}>
+                                            <strong>Payment:</strong> {order.paymentStatus}
+                                            {order.razorpayPaymentId && (
+                                                <span style={{ display: 'block', fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                                                    TxN: {order.razorpayPaymentId}
+                                                </span>
+                                            )}
                                         </p>
-                                        {order.razorpayPaymentId && (
-                                            <p className="payment-id">
-                                                <strong>Transaction ID:</strong> {order.razorpayPaymentId}
-                                            </p>
-                                        )}
                                     </div>
                                 </div>
 
+                                {/* Address */}
                                 {order.location?.address && (
                                     <div className="order-section">
-                                        <h4>Delivery Address:</h4>
-                                        <p className="delivery-address">{order.location.address}</p>
-                                    </div>
-                                )}
-
-                                {order.restaurantId && (
-                                    <div className="order-section">
-                                        <h4>Restaurant ID:</h4>
-                                        <p>{order.restaurantId}</p>
-                                    </div>
-                                )}
-
-                                {order.deliveryBoyId && (
-                                    <div className="order-section">
-                                        <h4>Delivery Agent ID:</h4>
-                                        <p>{order.deliveryBoyId}</p>
+                                        <div className="delivery-address">
+                                            <strong>Delivering to:</strong> {order.location.address}
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
+                            {/* Footer Buttons */}
                             <div className="order-footer">
                                 <div className="footer-left">
-                                    {order.acceptedAt && (
-                                        <p><strong>Accepted At:</strong> {new Date(order.acceptedAt).toLocaleString()}</p>
-                                    )}
-                                    {order.completedAt && (
-                                        <p><strong>Completed At:</strong> {new Date(order.completedAt).toLocaleString()}</p>
+                                    {/* Timestamp logic if needed, e.g. Accepted At */}
+                                    {(order.completedAt || order.acceptedAt) && (
+                                        <span>Updated: {formatDate(order.completedAt || order.acceptedAt)}</span>
                                     )}
                                 </div>
-                                
-                                {/* INVOICE BUTTON - Opens in new tab */}
+
                                 <div className="footer-right">
-                                    <Link 
-                                        href={`/invoice/${order._id}`} 
+                                    
+                                    <Link
+                                        href={`/invoice/${order._id}`}
                                         className="invoice-btn"
                                         target="_blank"
                                     >
-                                        📄 View Invoice
+                                        📄 Invoice
                                     </Link>
                                 </div>
                             </div>

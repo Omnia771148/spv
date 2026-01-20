@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 import { Data } from '../data/page';
 import { ProductCard } from '../universaldisplay/page';
-import { showToast } from '../../toaster/page'; 
+import { showToast } from '../../toaster/page';
 import Link from "next/link";
 
 import RestorentDisplay from "../restorentList/restnamedisplay";
@@ -46,12 +46,12 @@ export default function KushasMenuList() {
       existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8) ||
       existingCart.some(cartItem => cartItem.id >= 9 && cartItem.id <= 12) ||
       existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
-      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20) 
+      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20)
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
     }
-    
+
     item.restaurantName = "Kushas";
 
     const updatedCart = [...existingCart, item];
@@ -117,8 +117,8 @@ export default function KushasMenuList() {
         }
       </div>
 
-      <button 
-        className="btn btn-success w-100 py-2 mt-4 fw-bold" 
+      <button
+        className="btn btn-success w-100 py-2 mt-4 fw-bold"
         onClick={() => router.push("/cart")}
       >
         GO TO CART

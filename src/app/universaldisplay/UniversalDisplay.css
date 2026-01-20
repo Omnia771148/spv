@@ -1,0 +1,118 @@
+/* UniversalDisplay.css */
+
+/* Ensure the background of the card matches the specific beige tone */
+.product-card-wrapper {
+    position: relative;
+    padding-top: 30px;
+    /* Reduced space */
+    width: calc(50% - 30px);
+    margin: 15px;
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.product-card-body {
+    background-color: #E6DDBF;
+    border-radius: 20px;
+    padding: 12px;
+    padding-top: 65px;
+    /* Adjusted overlap */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-height: 100px;
+    /* Reduced height */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+/* Floating Circular Image */
+.product-floating-image {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    /* Reduced image size */
+    height: 80px;
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    overflow: hidden;
+}
+
+.product-floating-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Title */
+.product-title {
+    font-size: 15px;
+    /* Balanced size */
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+    /* Reduced margin */
+    line-height: 1.2;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 36px;
+}
+
+/* Meta: Price and Rating */
+.product-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    /* Tighter gap */
+    font-size: 13px;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+    /* Reduced margin */
+    font-weight: 500;
+}
+
+.rating-star {
+    color: #66BB6A;
+    /* Green star color */
+    font-size: 16px;
+    margin: 0 2px;
+}
+
+/* Button */
+.product-add-btn {
+    background-color: #F8F5EB;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 0;
+    /* Compact button */
+    width: 100%;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a1a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.product-add-btn:hover {
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.product-add-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
