@@ -14,24 +14,34 @@ const orderSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true },
   gst: { type: Number, required: true },
   deliveryCharge: { type: Number, required: true },
-  grandTotal: { type: Number, required: true }, 
- 
+  grandTotal: { type: Number, required: true },
+
   orderId: { type: String, required: true, unique: true },
 
-  razorpayOrderId: { type: String }, 
+  razorpayOrderId: { type: String },
   razorpayPaymentId: { type: String },
   paymentStatus: { type: String, default: "Pending" },
+
+  userName: { type: String }, // ✅ Saved from localStorage
+  userEmail: { type: String }, // ✅ Saved from localStorage
+  userPhone: { type: String }, // ✅ Saved from localStorage
 
   // ✅ ADD LOCATION FIELDS HERE
   location: {
     lat: { type: Number },
     lng: { type: Number },
-    mapUrl: { type: String }, 
+    mapUrl: { type: String },
+    distanceText: { type: String }
   },
+
+  flatNo: { type: String },
+  street: { type: String },
+  landmark: { type: String },
+  deliveryAddress: { type: String },
 
   restaurantId: { type: String, required: true },
   orderDate: { type: Date, default: Date.now },
-  aa: { type: String, required: true }, 
+  aa: { type: String, required: true },
 });
 
 const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);

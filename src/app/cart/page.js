@@ -12,12 +12,17 @@ export default function Cart() {
   const [itemTotals, setItemTotals] = useState({});
   const [loading, setLoading] = useState(true);
   const [quantities, setQuantities] = useState({});
-  
-  const [deliveryCharge, setDeliveryCharge] = useState(40); 
+
+  const [deliveryCharge, setDeliveryCharge] = useState(40);
   const [distance, setDistance] = useState(0);
-  
-  const [deliveryAddress, setDeliveryAddress] = useState(""); 
+
+  const [flatNo, setFlatNo] = useState("");
+  const [street, setStreet] = useState("");
+  const [landmark, setLandmark] = useState("");
   const [showAddressBox, setShowAddressBox] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPhone, setUserPhone] = useState("");
 
   const aa = "gg";
 
@@ -32,12 +37,12 @@ export default function Cart() {
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
-    let cartRestName = ""; 
+    let cartRestName = "";
 
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
       setCartItems(parsedCart);
-      
+
       if (parsedCart.length > 0) {
         cartRestName = parsedCart[0].restaurantName || parsedCart[0].restName || "";
       }
@@ -50,31 +55,36 @@ export default function Cart() {
     }
 
     const savedDistances = localStorage.getItem("allRestaurantDistances");
-    
+
     if (savedDistances && cartRestName) {
       const distanceData = JSON.parse(savedDistances);
-      
+
       const matchingKey = Object.keys(distanceData).find(
         key => key.toLowerCase().trim() === cartRestName.toLowerCase().trim()
       );
-      
-      const distValue = matchingKey ? distanceData[matchingKey] : null; 
-      
+
+      const distValue = matchingKey ? distanceData[matchingKey] : null;
+
       if (distValue) {
         const dist = parseFloat(distValue);
         setDistance(dist);
-        
+
         if (dist <= 3) {
-          setDeliveryCharge(30);
+          setDeliveryCharge(25);
         } else {
           const extraKm = Math.ceil(dist - 3);
-          setDeliveryCharge(30 + (extraKm * 10));
+          setDeliveryCharge(25 + (extraKm * 5));
         }
       } else {
         setDistance(0);
-        setDeliveryCharge(40);
+        setDeliveryCharge(25);
       }
     }
+
+    // ✅ Load User Details into State
+    setUserName(localStorage.getItem("userName") || "");
+    setUserEmail(localStorage.getItem("userEmail") || "");
+    setUserPhone(localStorage.getItem("userPhone") || "");
   }, []);
 
   useEffect(() => {
@@ -95,7 +105,9 @@ export default function Cart() {
     setItemTotals({});
     setQuantities({});
     setShowAddressBox(false);
-    setDeliveryAddress("");
+    setFlatNo("");
+    setStreet("");
+    setLandmark("");
   };
 
   const removeItem = (id) => {
@@ -113,15 +125,18 @@ export default function Cart() {
 
   const placeOrder = async () => {
     if (cartItems.length === 0) return alert("Cart is empty");
-    if (!deliveryAddress.trim()) return alert("Please enter delivery address");
+    const deliveryAddress = `${flatNo}, ${street} ${landmark ? ', ' + landmark : ''}`;
+    if (!flatNo.trim() || !street.trim()) return alert("Please enter Flat No and Street address.");
+
+    setLoading(true);
 
     try {
       const latStr = localStorage.getItem("customerLat");
       const lngStr = localStorage.getItem("customerLng");
-      
+
       // ✅ Generate dynamic Google Maps link using coordinates
-      const dynamicMapUrl = latStr && lngStr 
-        ? `https://www.google.com/maps/search/?api=1&query=${latStr},${lngStr}` 
+      const dynamicMapUrl = latStr && lngStr
+        ? `https://www.google.com/maps/search/?api=1&query=${latStr},${lngStr}`
         : "";
 
       const orderPayload = {
@@ -135,28 +150,40 @@ export default function Cart() {
         restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
         totalCount: cartItems.length,
         totalPrice: Number(totalPrice),
-        gst: Number(gstAmount), 
+        gst: Number(gstAmount),
         deliveryCharge: Number(deliveryCharge),
         grandTotal: Number(grandTotal),
         deliveryAddress: deliveryAddress,
+        flatNo: flatNo.trim(),
+        street: street.trim(),
+        landmark: landmark.trim(),
+        // ✅ User Details from State
+        userName: userName,
+        userEmail: userEmail,
+        userPhone: userPhone,
         aa: aa,
         location: {
           lat: latStr ? Number(latStr) : 0,
           lng: lngStr ? Number(lngStr) : 0,
-          mapUrl: dynamicMapUrl, // ✅ URL with lat/lng now goes to MongoDB
+          mapUrl: dynamicMapUrl,
           distanceText: `${distance} km`
         }
       };
 
+      console.log("🚀 SENDING ORDER PAYLOAD:", orderPayload); // DEBUG LOG
+
       const { data } = await axios.post('/api/create-order', {
-        grandTotal: orderPayload.grandTotal 
+        grandTotal: orderPayload.grandTotal
       });
 
-      if (!data.success) throw new Error(data.message || "Order creation failed");
+      if (!data.success) {
+        setLoading(false);
+        throw new Error(data.message || "Order creation failed");
+      }
 
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, 
-        amount: Math.round(Number(grandTotal) * 100), 
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: Math.round(Number(grandTotal) * 100),
         currency: "INR",
         name: "My Delivery App",
         description: `Order from ${cartItems[0].restaurantName || "Restaurant"}`,
@@ -167,7 +194,7 @@ export default function Cart() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              orderData: orderPayload 
+              orderData: orderPayload
             });
 
             if (verifyRes.data.success) {
@@ -175,20 +202,32 @@ export default function Cart() {
               clear();
               router.push("/accepted-orders");
             } else {
+              setLoading(false);
               alert(`Order verification failed: ${verifyRes.data.message}`);
             }
           } catch (verifyErr) {
+            setLoading(false);
             alert(`Payment verification error: ${verifyErr.response?.data?.error || verifyErr.message}`);
           }
         },
-        prefill: { contact: localStorage.getItem("userPhone") || "9999999999" },
+        prefill: {
+          name: userName,
+          email: userEmail,
+          contact: userPhone || "9999999999"
+        },
         theme: { color: "#3399cc" },
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          }
+        }
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
 
     } catch (err) {
+      setLoading(false);
       alert(`Error: ${err.message}`);
     }
   };
@@ -204,8 +243,8 @@ export default function Cart() {
 
       {cartItems.length === 0 ? (
         <div className="text-center py-5">
-            <p className="text-muted h5">No items in the cart.</p>
-            <button onClick={() => router.push('/')} className="btn btn-primary mt-3 btn-sm">Browse Restaurants</button>
+          <p className="text-muted h5">No items in the cart.</p>
+          <button onClick={() => router.push('/')} className="btn btn-primary mt-3 btn-sm">Browse Restaurants</button>
         </div>
       ) : (
         <>
@@ -254,11 +293,11 @@ export default function Cart() {
           </div>
 
           <div className="d-flex gap-2 mb-3">
-            <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button> 
-            <button 
-              onClick={() => setShowAddressBox(true)} 
+            <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button>
+            <button
+              onClick={() => setShowAddressBox(true)}
               className="btn btn-primary flex-grow-1 py-2 fw-bold"
-              disabled={showAddressBox} 
+              disabled={showAddressBox}
             >
               {showAddressBox ? "Address Section Open" : "Place Order"}
             </button>
@@ -267,16 +306,32 @@ export default function Cart() {
           {showAddressBox && (
             <div className="card p-3 border-0 shadow-sm bg-white mt-3">
               <label className="fw-bold mb-2">Delivery Address</label>
-              <textarea 
-                className="form-control mb-3" 
-                placeholder="Write your Flat No, Landmark, and Street..."
-                value={deliveryAddress}
-                onChange={(e) => setDeliveryAddress(e.target.value)}
-                rows="3"
-                autoFocus
-              />
-              <button onClick={placeOrder} className="btn btn-success w-100 py-2 fw-bold">
-                Confirm Order & Pay ₹{grandTotal.toFixed(2)}
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Flat No / House No"
+                  value={flatNo}
+                  onChange={(e) => setFlatNo(e.target.value)}
+                  autoFocus
+                />
+                <input
+                  type="text"
+                  className="form-control mb-2"
+                  placeholder="Street / Colony / Area"
+                  value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Landmark"
+                  value={landmark}
+                  onChange={(e) => setLandmark(e.target.value)}
+                />
+              </div>
+              <button onClick={placeOrder} className="btn btn-success w-100 py-2 fw-bold" disabled={loading}>
+                {loading ? <Loading /> : `Confirm Order & Pay ₹${grandTotal.toFixed(2)}`}
               </button>
             </div>
           )}

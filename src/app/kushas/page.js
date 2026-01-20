@@ -12,7 +12,7 @@ import Link from "next/link";
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
-// ✅ Fixed Import: Capitalized 'Loading' to match component usage
+
 import Loading from '../loading/page';
 
 export default function KushasMenuList() {

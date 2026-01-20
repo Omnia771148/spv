@@ -14,7 +14,14 @@ export async function POST(request) {
       aa,
       gst,              // ✅ NEW
       deliveryCharge,   // ✅ NEW
-      grandTotal        // ✅ NEW
+      grandTotal,        // ✅ NEW
+      flatNo,
+      street,
+      landmark,
+      deliveryAddress,
+      userName,
+      userEmail,
+      userPhone
     } = await request.json();
 
     if (!userId || !items || !restaurantId) {
@@ -31,13 +38,22 @@ export async function POST(request) {
       items,
       totalCount,
       totalPrice,
-      gst,              // ✅ NEW
-      deliveryCharge,   // ✅ NEW
-      grandTotal,       // ✅ NEW
+      gst,
+      deliveryCharge,
+      grandTotal,
       restaurantId,
       aa,
       orderId,
-     
+      flatNo: flatNo || "",
+      street: street || "",
+      landmark: landmark || "",
+      deliveryAddress: deliveryAddress || "",
+
+      // ✅ User Details
+      userName: userName || "",
+      userEmail: userEmail || "",
+      userPhone: userPhone || "",
+
       orderDate: new Date(),
     });
 

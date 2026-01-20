@@ -8,13 +8,15 @@ import { generateOrderId } from "../../../../lib/generateOrderId";
 export async function POST(request) {
   try {
     await connectionToDatabase();
-    
-    const { 
-      razorpay_order_id, 
-      razorpay_payment_id, 
-      razorpay_signature, 
+
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
       orderData
     } = await request.json();
+
+    console.log("🔥 VERIFY PAYMENT RECEIVED ORDER DATA:", orderData); // DEBUG LOG
 
     // 1. Verify Signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -24,9 +26,9 @@ export async function POST(request) {
       .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-      return NextResponse.json({ 
-        success: false, 
-        message: "Invalid Signature" 
+      return NextResponse.json({
+        success: false,
+        message: "Invalid Signature"
       }, { status: 400 });
     }
 
@@ -45,7 +47,15 @@ export async function POST(request) {
       grandTotal: orderData.grandTotal,
       aa: orderData.aa,
       location: orderData.location,
+      flatNo: orderData.flatNo || "",
+      street: orderData.street || "",
+      landmark: orderData.landmark || "",
       deliveryAddress: orderData.deliveryAddress || "", // Add this
+
+      userName: orderData.userName || "",
+      userEmail: orderData.userEmail || "",
+      userPhone: orderData.userPhone || "",
+
       orderId: formattedOrderId,
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
@@ -66,7 +76,15 @@ export async function POST(request) {
       grandTotal: orderData.grandTotal,
       aa: orderData.aa,
       location: orderData.location,
+      flatNo: orderData.flatNo || "",
+      street: orderData.street || "",
+      landmark: orderData.landmark || "",
       deliveryAddress: orderData.deliveryAddress || "", // Add this
+
+      userName: orderData.userName || "",
+      userEmail: orderData.userEmail || "",
+      userPhone: orderData.userPhone || "",
+
       orderId: formattedOrderId,
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
@@ -77,17 +95,17 @@ export async function POST(request) {
 
     await OrderStatus.create(orderStatusDoc);
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       orderId: newOrder._id,
-      formattedOrderId: formattedOrderId 
+      formattedOrderId: formattedOrderId
     });
 
   } catch (error) {
     console.error("VERIFY & SAVE ERROR:", error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message 
+    return NextResponse.json({
+      success: false,
+      error: error.message
     }, { status: 500 });
   }
 }

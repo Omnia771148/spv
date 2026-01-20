@@ -21,12 +21,20 @@ const orderStatusSchema = new mongoose.Schema({
   razorpayOrderId: { type: String },
   razorpayPaymentId: { type: String },
   paymentStatus: { type: String, default: "Pending" },
+
+  userName: { type: String }, // ✅ Saved from localStorage
+  userEmail: { type: String }, // ✅ Saved from localStorage
+  userPhone: { type: String }, // ✅ Saved from localStorage
+
   location: {
     lat: { type: Number },
     lng: { type: Number },
     mapUrl: { type: String },
     distanceText: { type: String }
   },
+  flatNo: { type: String },
+  street: { type: String },
+  landmark: { type: String },
   deliveryAddress: { type: String }, // Remove required: true
   aa: { type: String, required: true },
   createdAt: { type: Date, default: Date.now }

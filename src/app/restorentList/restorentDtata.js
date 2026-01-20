@@ -27,21 +27,21 @@ export const restList = [
         image: "/dominos.png",
     },
      {
-        name: "lajesh",
-        type: "non-veg",
-        place: "Venkata Ramana Colony",
-        lat: 15.8302831,
-        lng: 78.0401789,
+        name: "Bro Story",
+        type: "non-veg & Veg",
+        place: "Ganesh Nagar",
+        lat: 15.8060331,
+        lng: 78.0452429,
         rating: "4.5",
         image: "/dominos.png",
     },
-    {
-        name: "Bros story",
-        type: "veg",
-        place: "Venkata Ramana Colony",
-        lat: 15.8061586,
-        lng: 78.0477663,
+     {
+        name: "The Mourya Inn",
+        type: "non-veg & Veg",
+        place: "Bhagya Nagar",
+        lat: 15.8283073,
+        lng: 78.0176757,
         rating: "4.5",
         image: "/dominos.png",
-    },
+    }
 ]

@@ -5,12 +5,13 @@ import User from "../../../../../models/User";
 export async function PUT(req, { params }) {
   try {
     await connectionToDatabase();
-    const { id } = params;
-    const { name, email } = await req.json();
+    // Await params if using Next.js 15+ (good practice generally now)
+    const { id } = await params;
+    const { name, email, phone } = await req.json();
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { name, email },
+      { name, email, phone },
       { new: true }
     );
 
