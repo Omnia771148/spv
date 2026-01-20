@@ -291,13 +291,13 @@ export default function RestorentList() {
                         .map(item => (
                             <div key={item.name} className="mb-3">
                                 <button onClick={() => handleClicke(item.name)} className="w-100 border-0 bg-transparent p-0">
-<RestorentDisplay
-  name={item.name}
-  place={item.place}
-  rating={item.rating}
-  image={item.image}
-  distance={roadDistances[item.name]}
-/>
+<RestorentDisplay 
+                                        name={item.name} 
+                                        place={item.place} 
+                                        image={item.image}
+                                        rating={item.rating || "4.2"}
+                                        distance={roadDistances[item.name] ? `${roadDistances[item.name]} km` : "..."}
+                                    />
                                 </button>
                             </div>
                         ))
