@@ -27,9 +27,10 @@ export function ProductCard({ name, price, button, onAddToCart, item, image, rat
 
         <div className="product-meta">
           {/* Group 1: Rating (Top) */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          {/* Group 1: Rating (Top) */}
+          <div className="product-rating-badge">
             <span className="rating-star">★</span>
-            <span>({rating || '4.2'})</span>
+            <span className="rating-value">{rating || '4.2'}</span>
           </div>
 
           {/* Group 2: Price (Bottom) */}

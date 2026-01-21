@@ -1,0 +1,116 @@
+.restaurant-card {
+    background-color: #E6DDBF;
+    border-radius: 20px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.restaurant-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.restaurant-info {
+    flex: 1;
+    background-color: #F8F5EB;
+    border-radius: 15px;
+    padding: 15px;
+    margin-right: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.restaurant-name {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #000;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+.restaurant-location {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.restaurant-rating {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rating-badge {
+    background-color: #6cce74;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.restaurant-type {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.check-icon {
+    color: #6cce74;
+    font-size: 1.3rem;
+}
+
+.restaurant-image-wrapper {
+    width: 130px;
+    height: 140px;
+    border-radius: 15px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.restaurant-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 576px) {
+    .restaurant-card {
+        padding: 12px;
+    }
+
+    .restaurant-name {
+        font-size: 1.4rem;
+    }
+
+    .restaurant-image-wrapper {
+        width: 110px;
+        height: 120px;
+    }
+
+    .restaurant-location {
+        width: 100%;
+    }
+}

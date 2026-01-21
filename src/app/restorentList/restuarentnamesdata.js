@@ -5,7 +5,7 @@ const restuarents = [
     location: "Colles College , Kurnool",
     rating: 4.5,
     Type: "Pure Veg",
-    image: "/1.png"
+    image: "/2.jpg"
   },
   {
     id: 2,
@@ -13,7 +13,7 @@ const restuarents = [
     location: "Ucon Plaza ,Kurnool",
     rating: 4.2,
     Type: "Fast Delivery",
-    image: "/1.png"
+    image: "/2.jpg"
   },
   {
     id: 3,
@@ -21,7 +21,7 @@ const restuarents = [
     location: "Venkata Ramana Colony, Kurnool",
     rating: 4.3,
     Type: "Home Style Food",
-    image: "/1.png"
+    image: "/2.jpg"
   },
   {
     id: 4,
@@ -29,7 +29,7 @@ const restuarents = [
     Type: "out house",
     place: "Venkata Ramana Colony",
     rating: 4.5,
-    image: "/1.png",
+    image: "/2.jpg",
   },
   {
     id: 5,
@@ -37,7 +37,7 @@ const restuarents = [
     Type: "Home",
     place: "Venkata Ramana Colony",
     rating: 4.5,
-    image: "/1.png",
+    image: "/2.jpg",
   },
     
 ];

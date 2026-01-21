@@ -1,0 +1,103 @@
+/* Page Background */
+.restaurant-page-bg {
+    background-color: #F8F5EB;
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+/* Filter Section Styles */
+.filter-section {
+    background-color: #EBE5D5;
+    /* Beige background to match cards */
+    border-radius: 12px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    margin-right: 15px;
+}
+
+.search-icon {
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    margin-right: 8px;
+}
+
+.custom-search-input {
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: #333;
+    width: 100%;
+}
+
+.custom-search-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Toggle Group Styles */
+.toggle-group {
+    display: flex;
+    background-color: #E0DAC8;
+    /* Slightly darker beige */
+    border-radius: 20px;
+    padding: 4px;
+    position: relative;
+}
+
+.toggle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 4px;
+    font-size: 1.2rem;
+    background-color: transparent;
+    color: #888;
+}
+
+.toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Icon Colors (Inactive) */
+.toggle-btn.veg-btn {
+    color: #6FCF97;
+}
+
+.toggle-btn.nonveg-btn {
+    color: #FF5252;
+}
+
+/* Active States */
+.toggle-btn.active-all {
+    background-color: #ffffff !important;
+    color: #333 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn.active-veg {
+    background-color: #6FCF97 !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn.active-nonveg {
+    background-color: #FF5252 !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

@@ -12,6 +12,8 @@ import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
 import Loading from '../loading/page';
 
+import './kushas.css';
+
 export default function KushasMenuList() {
   const router = useRouter();
 
@@ -87,10 +89,10 @@ export default function KushasMenuList() {
   if (loading) return <Loading />;
 
   return (
-    <div className="container mt-4" style={{ paddingBottom: '80px' }}>
+    <div className="restaurant-page-bg container mt-4">
 
       {/* ✅ RESTAURANT CARD */}
-      <RestorentDisplay data={restuarents[2]} />
+      <RestorentDisplay data={restuarents[2]} className="col-12 mb-4" />
 
       {statusLoading && (
         <div className="alert alert-warning mt-3">
@@ -104,26 +106,47 @@ export default function KushasMenuList() {
         </div>
       )}
 
-      <h1 className="search mt-4">Search Dishes</h1>
+      <div className="filter-section mb-4 mt-4">
+        <div className="search-input-group">
+          <i className="fa-solid fa-magnifying-glass search-icon"></i>
+          <input
+            type="text"
+            className="custom-search-input"
+            placeholder="Search by name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-      <input
-        type="text"
-        className="search1 form-control mb-4"
-        placeholder="Search by name"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+        <div className="toggle-group d-flex align-items-center">
+          {/* All Button */}
+          <button
+            className={`toggle-btn ${typeFilter === '' ? 'active-all' : ''}`}
+            onClick={() => setTypeFilter('')}
+            title="All"
+          >
+            <span style={{ fontSize: '14px', fontWeight: 'bold' }}>All</span>
+          </button>
 
-      <h2 className="mt-4">Search Type</h2>
-      <select
-        className="form-select mb-4"
-        value={typeFilter}
-        onChange={(e) => setTypeFilter(e.target.value)}
-      >
-        <option value="">All</option>
-        <option value="veg">Veg</option>
-        <option value="non-veg">Non-Veg</option>
-      </select>
+          {/* Veg Button */}
+          <button
+            className={`toggle-btn veg-btn ${typeFilter === 'veg' ? 'active-veg' : ''}`}
+            onClick={() => setTypeFilter('veg')}
+            title="Veg"
+          >
+            <i className="fa-solid fa-leaf"></i>
+          </button>
+
+          {/* Non-Veg Button */}
+          <button
+            className={`toggle-btn nonveg-btn ${typeFilter === 'non-veg' ? 'active-nonveg' : ''}`}
+            onClick={() => setTypeFilter('non-veg')}
+            title="Non-Veg"
+          >
+            <i className="fa-solid fa-drumstick-bite"></i>
+          </button>
+        </div>
+      </div>
 
       <div className="row">
         {Data.filter(item => {
@@ -141,16 +164,12 @@ export default function KushasMenuList() {
             button={item.button}
             onAddToCart={addToCart}
             disabled={!restaurantActive}
+            image = {item.image}
           />
         ))}
       </div>
 
-      <button
-        className="btn btn-success w-100 py-2 mt-4 fw-bold"
-        onClick={() => router.push("/cart")}
-      >
-        GO TO CART
-      </button>
+      
 
       <Navbar />
     </div>

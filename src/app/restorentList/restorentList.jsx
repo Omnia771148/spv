@@ -30,7 +30,7 @@ export default function RestorentList() {
     // const distRef = useRef({});
 
     const router = useRouter();
-    
+
     // Location request tracking - COMMENTED
     // const hasRequestedThisMount = useRef(false);
 
@@ -161,7 +161,7 @@ export default function RestorentList() {
 
     useEffect(() => {
         setMounted(true);
-        
+
         // Location initialization logic - COMMENTED
         /*
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
@@ -178,7 +178,7 @@ export default function RestorentList() {
             setShowLocationModal(true);
         }
         */
-        
+
         setLoading(false);
     }, []);
 
@@ -210,8 +210,8 @@ export default function RestorentList() {
     if (!mounted || loading) return <Loading />;
 
     return (
-        <div style={{ paddingBottom: '80px' }}>
-            
+        <div className="restaurant-list-page" style={{ paddingBottom: '80px' }}>
+
             {/* Location Modal - COMMENTED */}
             {/*
             <Modal show={showLocationModal} centered backdrop="static" size="sm">
@@ -340,9 +340,9 @@ export default function RestorentList() {
                         .map(item => (
                             <div key={item.name} className="mb-3">
                                 <button onClick={() => handleClicke(item.name)} className="w-100 border-0 bg-transparent p-0">
-<RestorentDisplay 
-                                        name={item.name} 
-                                        place={item.place} 
+                                    <RestorentDisplay
+                                        name={item.name}
+                                        place={item.place}
                                         image={item.image}
                                         rating={item.rating || "4.2"}
                                         // Using static distance since location is disabled - MODIFIED

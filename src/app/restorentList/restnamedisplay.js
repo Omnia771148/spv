@@ -1,24 +1,62 @@
-export default function RestorentDisplay({ data }) {
+import React from 'react';
+import './restnamedisplay.css';
+
+export default function RestorentDisplay(props) {
+  // Normalize data whether passed as a 'data' object or individual props
+  const item = props.data || props;
+
+  // Handle location/place naming differences
+  const locationText = item.location || item.place || '';
+
+  // Helper to safely get location parts
+  const getLocationParts = (loc) => {
+    if (!loc) return { place1: 'Location', place2: '' };
+    const parts = loc.split(',');
+    return {
+      place1: parts[0]?.trim() || loc,
+      place2: parts[1]?.trim() || '' // If only one part, place2 is empty
+    };
+  };
+
+  const { place1, place2 } = getLocationParts(locationText);
+
+  // Allow overriding the outer column classes via props
+  const containerClass = props.className || "col-12 col-md-6 col-lg-4 mb-3";
 
   return (
-    <div className="food-wrapper">
-      <div className="row food-card align-items-center">
+    <div className={containerClass}>
+      <div className="restaurant-card">
+        <div className="restaurant-content">
+          <div className="restaurant-info">
+            <h2 className="restaurant-name">{item.name}</h2>
 
-        <div className="col-8 content-section">
-          <h6>{data.name}</h6>
-          <small>{data.location}</small>
+            <div className="restaurant-location">
+              <span>{place1}</span>
+              <span>{place2}</span>
+            </div>
 
-          <div>⭐ {data.rating}</div>
+            <div className="restaurant-rating">
+              <span>({item.rating})</span>
+              <div className="rating-badge">
+                <span>★</span>
+              </div>
+            </div>
 
-          <span className="badge bg-success">
-            {data.Type}
-          </span>
+            <div className="restaurant-type">
+              {/* Display type if available, or verified text */}
+              <span>{item.Type || item.type || 'Restaurant'}</span>
+              <span className="check-icon">✔</span>
+            </div>
+          </div>
+
+          <div className="restaurant-image-wrapper">
+            <img
+              src={item.image}
+              alt={item.name}
+              className="restaurant-image"
+            />
+          </div>
         </div>
-
-        <div className="col-4 image-section">
-          <img src={data.image} alt={data.name} />
-        </div>
-
       </div>
     </div>
   );

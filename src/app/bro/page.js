@@ -12,6 +12,8 @@ import Navbar from "@/navigation/page";
 // ✅ Fixed Import: Capitalized 'Loading'
 import Loading from '../loading/page';
 
+import './bro.css';
+
 export default function Bro() {
   const router = useRouter();
 
@@ -74,7 +76,7 @@ export default function Bro() {
       existingCart.some((cartItem) => cartItem.id >= 9 && cartItem.id <= 12) ||
       existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 4) ||
       existingCart.some((cartItem) => cartItem.id >= 5 && cartItem.id <= 8) ||
-      existingCart.some((cartItem) => cartItem.id >= 17 && cartItem.id <= 20) 
+      existingCart.some((cartItem) => cartItem.id >= 17 && cartItem.id <= 20)
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
@@ -91,10 +93,10 @@ export default function Bro() {
   if (loading) return <Loading />;
 
   return (
-    <div className="container mt-4" style={{ paddingBottom: '80px' }}>
+    <div className="restaurant-page-bg container mt-4">
       {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
-        <RestorentDisplay data={restuarents[3]} />
+        <RestorentDisplay data={restuarents[3]} className="col-12 mb-4" />
 
         {statusLoading && (
           <div className="alert alert-warning mt-3">
@@ -109,26 +111,47 @@ export default function Bro() {
         )}
       </div>
 
-      <h1 className="search">Search Dishes</h1>
+      <div className="filter-section mb-4">
+        <div className="search-input-group">
+          <i className="fa-solid fa-magnifying-glass search-icon"></i>
+          <input
+            type="text"
+            className="custom-search-input"
+            placeholder="Search by name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-      <input
-        type="text"
-        className="search1 form-control mb-4"
-        placeholder="Search by name"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+        <div className="toggle-group d-flex align-items-center">
+          {/* All Button */}
+          <button
+            className={`toggle-btn ${typeFilter === '' ? 'active-all' : ''}`}
+            onClick={() => setTypeFilter('')}
+            title="All"
+          >
+            <span style={{ fontSize: '14px', fontWeight: 'bold' }}>All</span>
+          </button>
 
-      <h2 className="mt-4">Search Type</h2>
-      <select
-        className="form-select mb-4"
-        value={typeFilter}
-        onChange={(e) => setTypeFilter(e.target.value)}
-      >
-        <option value="">All</option>
-        <option value="veg">Veg</option>
-        <option value="non-veg">Non-Veg</option>
-      </select>
+          {/* Veg Button */}
+          <button
+            className={`toggle-btn veg-btn ${typeFilter === 'veg' ? 'active-veg' : ''}`}
+            onClick={() => setTypeFilter('veg')}
+            title="Veg"
+          >
+            <i className="fa-solid fa-leaf"></i>
+          </button>
+
+          {/* Non-Veg Button */}
+          <button
+            className={`toggle-btn nonveg-btn ${typeFilter === 'non-veg' ? 'active-nonveg' : ''}`}
+            onClick={() => setTypeFilter('non-veg')}
+            title="Non-Veg"
+          >
+            <i className="fa-solid fa-drumstick-bite"></i>
+          </button>
+        </div>
+      </div>
 
       <div className="row">
         {Data.filter((item) => {
@@ -147,16 +170,12 @@ export default function Bro() {
             button={item.button}
             onAddToCart={addToCart}
             disabled={!restaurantActive}
+            image = {item.image}
           />
         ))}
       </div>
 
-      <button
-        className="btn btn-success mt-4 w-100 py-2 fw-bold"
-        onClick={() => (window.location.href = "/cart")}
-      >
-        GO TO CART
-      </button>
+      
 
       <Navbar />
     </div>
