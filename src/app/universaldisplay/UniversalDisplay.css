@@ -9,17 +9,36 @@ body {
     position: relative;
     padding-top: 30px;
     /* Reduced space */
-    width: calc(50% - 30px);
-    margin: 15px;
+    width: 50%;
+    margin: 0;
     display: inline-block;
     vertical-align: top;
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+@media (max-width: 991px) {
+    .product-card-wrapper:nth-child(odd) {
+        padding: 30px 10.5px 38px 20px;
+    }
+
+    .product-card-wrapper:nth-child(odd) .product-floating-image {
+        left: calc(50% + 4.75px);
+    }
+
+    .product-card-wrapper:nth-child(even) {
+        padding: 30px 20px 38px 10.5px;
+    }
+
+    .product-card-wrapper:nth-child(even) .product-floating-image {
+        left: calc(50% - 4.75px);
+    }
+}
+
 @media (min-width: 992px) {
     .product-card-wrapper {
         width: calc(25% - 30px);
+        margin: 15px;
         /* 4 items per row on desktop */
     }
 }
