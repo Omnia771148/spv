@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from 'axios';
 import Script from 'next/script';
 import Loading from '../loading/page';
+import './cart.css';
 
 export default function Cart() {
   const router = useRouter();
@@ -237,9 +238,17 @@ export default function Cart() {
   }
 
   return (
-    <div className="container mt-4 mb-5" style={{ maxWidth: '600px' }}>
+    <div className="cart-container">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
-      <h2 className="fw-bold mb-4">Cart</h2>
+
+      <div className="cart-header">
+        <div>
+          <i className="fas fa-chevron-left me-2" onClick={() => router.back()} style={{ cursor: 'pointer', fontSize: '1.2rem' }}></i>
+          <span className="restaurant-name">{cartItems[0]?.restaurantName || "Restaurant"}</span>
+        </div>
+        {/* Date placeholder or dynamic if needed, keeping simple for now to match layout */}
+        <span className="cart-date">{new Date().toLocaleDateString('en-GB')}</span>
+      </div>
 
       {cartItems.length === 0 ? (
         <div className="text-center py-5">
@@ -248,90 +257,88 @@ export default function Cart() {
         </div>
       ) : (
         <>
-          <ul className="list-group mb-4 shadow-sm">
+          {/* Items Card */}
+          <div className="beige-card">
             {cartItems.map(item => (
-              <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center py-3">
-                <div>
-                  <strong className="d-block">{item.name}</strong>
-                  <small className="text-muted">₹{item.price} x {quantities[item.id]}</small>
-                </div>
+              <div key={item.id} className="cart-item-row">
+                <span className="item-name">{item.name}</span>
                 <div className="d-flex align-items-center">
-                  <div className="btn-group me-3">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="btn btn-outline-secondary btn-sm px-2">-</button>
-                    <span className="btn btn-sm disabled border-secondary text-dark px-3">{quantities[item.id]}</span>
-                    <button onClick={() => updateQuantity(item.id, 1)} className="btn btn-outline-secondary btn-sm px-2">+</button>
+                  <div className="qty-control">
+                    <button onClick={() => updateQuantity(item.id, 1)} className="qty-btn">+</button>
+                    <span className="qty-val">{quantities[item.id]}</span>
+                    <button onClick={() => updateQuantity(item.id, -1)} className="qty-btn">-</button>
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="btn btn-link text-danger p-0">
-                    <small>Remove</small>
+                  <span className="item-price">₹{item.price} x {quantities[item.id]}</span>
+                  <button onClick={() => removeItem(item.id)} className="trash-btn">
+                    <i className="fas fa-trash-alt"></i>
                   </button>
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
 
-          <div className="card shadow-sm border-0 bg-light mb-4">
-            <div className="card-body">
-              <h6 className="fw-bold mb-3">Bill Details</h6>
-              <div className="d-flex justify-content-between mb-2">
-                <span className="text-muted small">Item Total</span>
-                <span className="small">₹{totalPrice.toFixed(2)}</span>
-              </div>
-              <div className="d-flex justify-content-between mb-2">
-                <span className="text-muted small">GST (5%)</span>
-                <span className="small">₹{gstAmount.toFixed(2)}</span>
-              </div>
-              <div className="d-flex justify-content-between mb-2 text-success fw-bold">
-                <span className="small">Delivery Fee ({distance} km)</span>
-                <span className="small">₹{deliveryCharge.toFixed(2)}</span>
-              </div>
-              <hr />
-              <div className="d-flex justify-content-between fw-bold text-primary">
-                <span>Grand Total</span>
-                <span>₹{grandTotal.toFixed(2)}</span>
-              </div>
+          {/* Totals Card */}
+          <div className="beige-card">
+            <div className="totals-row">
+              <span>Total</span>
+              <span>{totalPrice.toFixed(0)}</span>
+            </div>
+            <div className="totals-row">
+              <span>GST</span>
+              <span>₹{gstAmount.toFixed(0)}</span>
+            </div>
+            <div className="totals-row">
+              <span>Delivery charges</span>
+              <span>{deliveryCharge}</span>
+            </div>
+            <div className="totals-divider"></div>
+            <div className="grand-total-row">
+              <span>Grand total</span>
+              <span>{grandTotal.toFixed(0)}</span>
             </div>
           </div>
 
-          <div className="d-flex gap-2 mb-3">
-            <button onClick={clear} className="btn btn-outline-warning flex-grow-1 py-2">Clear All</button>
+          {/* Action Buttons */}
+          <div className="action-buttons-container">
+            <button onClick={clear} className="beige-btn-outline">Clear all</button>
             <button
               onClick={() => setShowAddressBox(true)}
-              className="btn btn-primary flex-grow-1 py-2 fw-bold"
+              className="beige-btn-filled"
               disabled={showAddressBox}
             >
-              {showAddressBox ? "Address Section Open" : "Place Order"}
+              Place the order
             </button>
           </div>
 
+          {/* Address Section */}
           {showAddressBox && (
-            <div className="card p-3 border-0 shadow-sm bg-white mt-3">
-              <label className="fw-bold mb-2">Delivery Address</label>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  className="form-control mb-2"
-                  placeholder="Flat No / House No"
-                  value={flatNo}
-                  onChange={(e) => setFlatNo(e.target.value)}
-                  autoFocus
-                />
-                <input
-                  type="text"
-                  className="form-control mb-2"
-                  placeholder="Street / Colony / Area"
-                  value={street}
-                  onChange={(e) => setStreet(e.target.value)}
-                />
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Landmark"
-                  value={landmark}
-                  onChange={(e) => setLandmark(e.target.value)}
-                />
-              </div>
-              <button onClick={placeOrder} className="btn btn-success w-100 py-2 fw-bold" disabled={loading}>
-                {loading ? <Loading /> : `Confirm Order & Pay ₹${grandTotal.toFixed(2)}`}
+            <div className="mt-4">
+              <label className="address-label">Delivery address</label>
+
+              <input
+                type="text"
+                className="address-input"
+                placeholder="Flat no / house no"
+                value={flatNo}
+                onChange={(e) => setFlatNo(e.target.value)}
+              />
+              <input
+                type="text"
+                className="address-input"
+                placeholder="Street / Area / Colony"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+              />
+              <input
+                type="text"
+                className="address-input"
+                placeholder="Land Mark"
+                value={landmark}
+                onChange={(e) => setLandmark(e.target.value)}
+              />
+
+              <button onClick={placeOrder} className="confirm-btn" disabled={loading}>
+                {loading ? <Loading /> : `Confirm order and pay ₹${grandTotal.toFixed(0)}`}
               </button>
             </div>
           )}

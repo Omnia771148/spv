@@ -1,0 +1,215 @@
+/* Custom Cart Styles */
+body {
+    background-color: #FDFBF7;
+    font-family: 'Times New Roman', Times, serif;
+    /* Fallback for the headers */
+}
+
+.cart-container {
+    max-width: 400px !important;
+    /* Mobile width constraint as per image aspect */
+    margin: 0 auto;
+    padding: 20px 15px;
+    background-color: #FDFBF7;
+    min-height: 100vh;
+}
+
+/* Header Section */
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 5px;
+}
+
+.restaurant-name {
+    font-family: 'Times New Roman', serif;
+    /* Or a similar script font if available, trying closest standard */
+    font-style: italic;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #000;
+    margin: 0;
+    text-decoration: underline;
+    /* Image has underline implied by the border-bottom of container, but maybe text too? Image shows line under 'Kushal kitchen' specifically? No, it looks like a header border. */
+    text-decoration-thickness: 1px;
+}
+
+.cart-date {
+    font-family: sans-serif;
+    font-size: 0.8rem;
+    color: #000;
+}
+
+/* Item Card & Totals Card shared style */
+.beige-card {
+    background-color: #E6Dfc9;
+    /* Beige color */
+    border-radius: 20px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: none;
+    border: none;
+}
+
+/* Item Row */
+.cart-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-family: sans-serif;
+}
+
+.item-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #000;
+    margin-right: auto;
+}
+
+.qty-control {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 2px 8px;
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+}
+
+.qty-btn {
+    background: none;
+    border: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0 8px;
+    color: #000;
+}
+
+.qty-val {
+    font-weight: bold;
+    margin: 0 5px;
+    font-size: 1rem;
+}
+
+.item-price {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-right: 10px;
+}
+
+.trash-btn {
+    background: none;
+    border: none;
+    color: #000;
+    font-size: 1.2rem;
+    padding: 0;
+}
+
+/* Totals Section */
+.totals-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+    color: #000;
+}
+
+.totals-divider {
+    border-top: 2px solid #000;
+    margin: 10px 0;
+}
+
+.grand-total-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.1rem;
+    font-family: sans-serif;
+    color: #000;
+}
+
+/* Action Buttons */
+.action-buttons-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.beige-btn-outline {
+    flex: 1;
+    background-color: #fdfbf7;
+    /* Light bg similar to page */
+    border: 1px solid #E6Dfc9;
+    /* Matching beige border? Or simply a shadow */
+    border-radius: 25px;
+    padding: 12px;
+    color: #000;
+    font-family: 'Times New Roman', serif;
+    font-size: 1rem;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.beige-btn-filled {
+    flex: 1;
+    background-color: #fdfbf7;
+    /* Looks like light background in image too? Actually both look similar to page bg, maybe "card" style buttons? */
+    border: none;
+    border-radius: 25px;
+    padding: 12px;
+    color: #000;
+    font-family: 'Times New Roman', serif;
+    font-size: 1rem;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Address Section */
+.address-label {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.address-input {
+    background-color: #E6Dfc9;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    width: 100%;
+    margin-bottom: 12px;
+    font-family: sans-serif;
+    color: #555;
+    outline: none;
+}
+
+.address-input::placeholder {
+    color: #999;
+}
+
+.confirm-btn {
+    background-color: #64C464;
+    /* Green */
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: sans-serif;
+    margin-top: 20px;
+    display: block;
+}
+
+/* Adjustments for global overrides if needed */
+.list-group-item {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
