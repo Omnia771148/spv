@@ -7,7 +7,7 @@ import { ProductCard } from '../universaldisplay/page';
 import { showToast } from '../../toaster/page';
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
-import Navbar from '@/navigation/page';
+
 import Loading from '../loading/page';
 
 import './snowfield.css';
@@ -187,7 +187,6 @@ export default function KushasMenuLite() {
 
 
 
-      <Navbar />
     </div>
   );
 }

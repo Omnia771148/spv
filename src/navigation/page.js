@@ -1,30 +1,33 @@
+'use client';
+
 import Link from 'next/link';
-import { Button } from 'react-bootstrap';
-import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import './nav.css';
+
 export default function Navbar() {
-  const router = useRouter();
+  const pathname = usePathname();
+
+  const navItems = [
+    { name: 'Home', href: '/mainRestorentList', icon: 'fa-house' },
+    { name: 'Orders', href: '/finalorderstatuses', icon: 'fa-person-biking' }, // Using bike for delivery status
+    { name: 'Cart', href: '/cart', icon: 'fa-bag-shopping' },
+    { name: 'Profile', href: '/Profile', icon: 'fa-user' },
+  ];
+
   return (
-    <nav style={{ padding: "20px", background: "#eee", display: "flex", gap: "15px" }}>
-  <Link href="/mainRestorentList" className="btn btn-primary">
-    Home
-  </Link>
-
-  <Link href="/cart" className="btn btn-success">
-    Go To Cart
-  </Link>
-
-  <Link href="/Profile" className="btn btn-secondary">
-    Profile
-  </Link>
-
-
-  <Link href="/finalorderstatuses" className="btn btn-secondary">
-    finalorderstatuses
-  </Link>
-
-
-
-</nav>
-
+    <nav className="navbar-container">
+      {navItems.map((item) => {
+        const isActive = pathname === item.href;
+        return (
+          <Link
+            key={item.name}
+            href={item.href}
+            className={`nav-item ${isActive ? 'active' : ''}`}
+          >
+            <i className={`fa-solid ${item.icon} nav-icon`}></i>
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
