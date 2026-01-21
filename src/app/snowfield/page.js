@@ -75,7 +75,7 @@ export default function KushasMenuLite() {
     );
 
     if (isItemAlreadyInCart) {
-      showToast("Item already exists in the cart.", "danger");
+      showToast("Item already exist", "danger");
       return;
     }
 
@@ -93,7 +93,7 @@ export default function KushasMenuLite() {
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
-    showToast("Added to cart successfully!", "success");
+    showToast("ITEM ADDED", "success");
   };
 
   if (loading) return <Loading />;
@@ -180,12 +180,12 @@ export default function KushasMenuLite() {
             button={item.button}
             onAddToCart={addToCart}
             disabled={!restaurantActive}
-            image = {item.image}
+            image={item.image}
           />
         ))}
       </div>
 
-    
+
 
       <Navbar />
     </div>
