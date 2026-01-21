@@ -1,0 +1,90 @@
+/* Error Popup Overlay */
+.error-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(2px);
+}
+
+/* Error Card */
+.error-popup-card {
+    background-color:#F8F5EB;
+    width: 85%;
+    max-width: 300px;
+    padding: 30px 20px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: popupFadeIn 0.3s ease-out;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Red Circle */
+.error-icon-circle {
+    width: 65px;
+    height: 65px;
+    background-color: #ea4335;
+    /* Google-like red, similar to image */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
+}
+
+/* Close Icon inside circle */
+.error-icon-cross {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1;
+    font-family: sans-serif;
+}
+
+/* Error Text */
+.error-text {
+    font-size: 1.1rem;
+    color: #000;
+    margin: 0 0 25px 0;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* Retry Button */
+.error-retry-btn {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 12px 50px;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.error-retry-btn:hover {
+    opacity: 0.8;
+}

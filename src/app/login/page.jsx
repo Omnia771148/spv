@@ -10,6 +10,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
     const [inputName, setInputName] = useState('');
     const [inputEmail, setInputEmail] = useState('');
     const [loading, setLoading] = useState(true);
+    const [showError, setShowError] = useState(false);
 
     // 1. Check for existing session on load
     useEffect(() => {
@@ -72,7 +73,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
         } else if (inputName === "" && inputEmail === "") {
             alert("Please fill in both fields.");
         } else {
-            alert("Incorrect name or email.");
+            setShowError(true);
         }
     };
 
@@ -149,6 +150,23 @@ export default function Home({ handleFPClick, handleSignUp }) {
                     create
                 </span>
             </div>
+
+            {/* Error Popup UI */}
+            {showError && (
+                <div className="error-popup-overlay">
+                    <div className="error-popup-card">
+                        <div className="error-icon-circle">
+                            <span className="error-icon-cross">✕</span>
+                        </div>
+                        <p className="error-text">
+                            Username/Password are<br />incorrect please<br />Retry
+                        </p>
+                        <button className="error-retry-btn" onClick={() => setShowError(false)}>
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

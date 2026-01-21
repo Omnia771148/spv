@@ -289,7 +289,7 @@ export default function RestorentList() {
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-                <h1 className="h3 fw-bold mb-4">Restaurants in Kurnool</h1>
+                
 
                 {/* Search and Filter Section */}
                 <div className="filter-section mb-4">
