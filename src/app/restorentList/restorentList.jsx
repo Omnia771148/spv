@@ -162,25 +162,13 @@ export default function RestorentList() {
     useEffect(() => {
         setMounted(true);
 
-        // Location initialization logic - COMMENTED
-        /*
-        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
-        const savedDistances = localStorage.getItem("allRestaurantDistances");
-
-        if (isAppLoaded === "true") {
-            if (savedDistances) {
-                const parsed = JSON.parse(savedDistances);
-                setRoadDistances(parsed);
-                distRef.current = parsed;
-            }
-            setShowLocationModal(false);
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            router.replace("/login");
         } else {
-            setShowLocationModal(true);
+            setLoading(false);
         }
-        */
-
-        setLoading(false);
-    }, []);
+    }, [router]);
 
     const proceedToRoute = (name, distance) => {
         setIsRouting(true);
@@ -289,7 +277,7 @@ export default function RestorentList() {
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-                
+
 
                 {/* Search and Filter Section */}
                 <div className="filter-section mb-4">

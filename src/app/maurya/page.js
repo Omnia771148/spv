@@ -30,7 +30,7 @@ export default function Mayuri() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      router.push("/login");
+      router.replace("/login");
     } else {
       setLoading(false);
     }
@@ -170,12 +170,12 @@ export default function Mayuri() {
             button={item.button}
             onAddToCart={addToCart}
             disabled={!restaurantActive}
-            image = {item.image}
+            image={item.image}
           />
         ))}
       </div>
 
-      
+
 
       <Navbar />
     </div>

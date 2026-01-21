@@ -14,6 +14,11 @@ export default function Navbar() {
     { name: 'Profile', href: '/Profile', icon: 'fa-user' },
   ];
 
+  // Hide Navbar on specific pages
+  if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/create-account') {
+    return null;
+  }
+
   return (
     <nav className="navbar-container">
       {navItems.map((item) => {

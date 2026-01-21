@@ -10,7 +10,8 @@ export default function Profile() {
     const handleLogout = () => {
         localStorage.removeItem("userId");
         localStorage.removeItem("loginTimestamp");
-        window.location.href = "https://spv-seven.vercel.app/";
+        // We use replace to ensure history is clean and pathname is correct for hiding navbar
+        router.replace("/");
     };
 
     return (

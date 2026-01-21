@@ -31,7 +31,7 @@ export default function KushasMenuLite() {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      router.push("/login");
+      router.replace("/login");
     } else {
       const savedDistances = localStorage.getItem("allRestaurantDistances");
       if (savedDistances) {
