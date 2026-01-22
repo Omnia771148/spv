@@ -302,7 +302,7 @@ export default function UpdateEmail() {
         Update Password
       </button>
 
-      {result && <p style={{ marginTop: "15px", fontWeight: "bold" }}>{result}</p>}
+      {result && <p style={{ marginTop: "20px", fontWeight: "bold" }}>{result}</p>}
 
       {/* Recaptcha container must ALWAYS be present */}
       <div id="recaptcha-container"></div>
