@@ -56,30 +56,42 @@ export default function Cart() {
     }
 
     const savedDistances = localStorage.getItem("allRestaurantDistances");
+    const currentDirectDist = localStorage.getItem("currentRestaurantDistance");
+    const currentDirectName = localStorage.getItem("currentRestaurantName");
 
-    if (savedDistances && cartRestName) {
+    let distToUse = null;
+
+    // 1. Try to use the clicked distance IF it matches the cart restaurant
+    if (currentDirectDist && currentDirectName && cartRestName) {
+      if (currentDirectName.toLowerCase().trim() === cartRestName.toLowerCase().trim()) {
+        distToUse = parseFloat(currentDirectDist);
+      }
+    }
+
+    // 2. If not matched above, look up in allRestaurantDistances
+    if (distToUse === null && savedDistances && cartRestName) {
       const distanceData = JSON.parse(savedDistances);
-
       const matchingKey = Object.keys(distanceData).find(
         key => key.toLowerCase().trim() === cartRestName.toLowerCase().trim()
       );
-
-      const distValue = matchingKey ? distanceData[matchingKey] : null;
-
-      if (distValue) {
-        const dist = parseFloat(distValue);
-        setDistance(dist);
-
-        if (dist <= 3) {
-          setDeliveryCharge(25);
-        } else {
-          const extraKm = Math.ceil(dist - 3);
-          setDeliveryCharge(25 + (extraKm * 5));
-        }
-      } else {
-        setDistance(0);
-        setDeliveryCharge(25);
+      if (matchingKey) {
+        distToUse = parseFloat(distanceData[matchingKey]);
       }
+    }
+
+    // 3. Apply the distance or default
+    if (distToUse !== null) {
+      setDistance(distToUse);
+
+      if (distToUse <= 3) {
+        setDeliveryCharge(25);
+      } else {
+        const extraKm = Math.ceil(distToUse - 3);
+        setDeliveryCharge(25 + (extraKm * 5));
+      }
+    } else {
+      setDistance(0);
+      setDeliveryCharge(25);
     }
 
     // ✅ Load User Details into State
@@ -288,7 +300,7 @@ export default function Cart() {
               <span>₹{gstAmount.toFixed(0)}</span>
             </div>
             <div className="totals-row">
-              <span>Delivery charges</span>
+              <span>Delivery charges ({distance} km)</span>
               <span>{deliveryCharge}</span>
             </div>
             <div className="totals-divider"></div>

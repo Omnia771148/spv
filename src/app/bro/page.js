@@ -82,7 +82,7 @@ export default function Bro() {
       return;
     }
 
-    item.restaurantName = "Bro Story";
+    item.restaurantName = "bros";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -170,12 +170,12 @@ export default function Bro() {
             button={item.button}
             onAddToCart={addToCart}
             disabled={!restaurantActive}
-            image = {item.image}
+            image={item.image}
           />
         ))}
       </div>
 
-      
+
 
       <Navbar />
     </div>

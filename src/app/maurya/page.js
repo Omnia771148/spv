@@ -82,7 +82,7 @@ export default function Mayuri() {
       return;
     }
 
-    item.restaurantName = "The Maurya Inn";
+    item.restaurantName = "mayuri";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
