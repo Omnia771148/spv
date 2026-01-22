@@ -21,29 +21,40 @@ export default function Home({ handleBacktoLogin }) {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [errors, setErrors] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
+  const [configError, setConfigError] = useState(null);
 
   const recaptchaVerifierRef = useRef(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !recaptchaVerifierRef.current) {
+    // Ensure window object exists
+    if (typeof window === "undefined") return;
+
+    // Attach to window to avoid React Strict Mode double-init issues
+    if (!window.recaptchaVerifier) {
       try {
-        recaptchaVerifierRef.current = new RecaptchaVerifier(
+        window.recaptchaVerifier = new RecaptchaVerifier(
           auth,
           "recaptcha-container",
           {
             size: "invisible",
-            callback: () => console.log("reCAPTCHA verified"),
+            callback: (response) => {
+              console.log("reCAPTCHA verified");
+            },
+            "expired-callback": () => {
+              console.log("reCAPTCHA expired");
+            }
           }
         );
+        recaptchaVerifierRef.current = window.recaptchaVerifier;
       } catch (err) {
         console.error("Recaptcha init error:", err);
       }
+    } else {
+      recaptchaVerifierRef.current = window.recaptchaVerifier;
     }
+
     return () => {
-      if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
-        recaptchaVerifierRef.current = null;
-      }
+      // Cleanup handled by window singleton pattern for dev server stability
     };
   }, []);
 
@@ -93,8 +104,20 @@ export default function Home({ handleBacktoLogin }) {
       return;
     }
 
-    setLoading(true); // ✅ Start loading
+    setLoading(true);
     try {
+      // 5. Check if user already exists in DB
+      const res = await axios.get('/api/users');
+      const userExists = res.data.find(u => u.phone === phone);
+
+      if (userExists) {
+        setLoading(false);
+        setValidationErrors(prev => ({ ...prev, phone: "User already exists with this mobile number." }));
+        setErrors(prev => ({ ...prev, phone: true }));
+        return;
+      }
+
+      console.log("DEBUG: Current Hostname is", window.location.hostname);
       const formattedPhone = `+91${phone}`;
 
       const confirmationResult = await signInWithPhoneNumber(
@@ -108,15 +131,28 @@ export default function Home({ handleBacktoLogin }) {
       alert("OTP sent!");
     } catch (error) {
       console.error("Error sending OTP:", error);
-      alert("Error: Check if phone number is correct or refresh page.");
+      if (error.code === 'auth/captcha-check-failed') {
+        const hostname = window.location.hostname;
+        setConfigError(hostname);
+      } else if (error.code === 'auth/invalid-phone-number') {
+        alert("Invalid phone number format.");
+      } else {
+        alert("Error sending OTP: " + error.message);
+      }
+
+      // Force reset of recaptcha so user can try again
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
     } finally {
-      setLoading(false); // ✅ Stop loading
+      setLoading(false);
     }
   };
 
   const verifyOtp = async (e) => {
     e.preventDefault();
-    setLoading(true); // ✅ Start loading
+    setLoading(true);
     try {
       const result = await window.confirmationResult.confirm(otp);
       setOtpVerified(true);
@@ -125,11 +161,10 @@ export default function Home({ handleBacktoLogin }) {
       console.error("Verification/DB Error:", error);
       alert("Invalid OTP ❌");
     } finally {
-      setLoading(false); // ✅ Stop loading
+      setLoading(false);
     }
   };
 
-  // FINAL STEP: DATABASE SAVE
   // FINAL STEP: VERIFY OTP And SAVE TO DB
   const handleCreateAndRegister = async (e) => {
     e.preventDefault();
@@ -141,7 +176,6 @@ export default function Home({ handleBacktoLogin }) {
       await window.confirmationResult.confirm(otp);
 
       // 2. Save to DB
-      // 2. Save to DB
       const cleanPhone = phone; // Already just numbers
       await axios.post('/api/users', { name, email, password, phone: cleanPhone, dateOfBirth });
 
@@ -149,7 +183,6 @@ export default function Home({ handleBacktoLogin }) {
       window.location.href = "./";
     } catch (error) {
       if (error.code === 'auth/invalid-verification-code') {
-        // Expected error for wrong OTP, suppress console noise
         alert("Invalid OTP ❌");
       } else {
         console.error("Error:", error);
@@ -163,6 +196,29 @@ export default function Home({ handleBacktoLogin }) {
   return (
     <div>
       {loading && <Loading />}
+
+      {/* Config Error Banner */}
+      {configError && (
+        <div style={{ backgroundColor: '#fee2e2', border: '1px solid #ef4444', padding: '15px', margin: '20px', borderRadius: '8px', color: '#b91c1c', zIndex: 9999, position: 'relative', fontFamily: 'sans-serif' }}>
+          <strong style={{ fontSize: '1.1rem' }}>⚠️ Configuration Required (Action Needed)</strong>
+          <p className="mb-2 mt-2">
+            Your current domain is <strong>{configError}</strong>, which is not authorized by Firebase.
+          </p>
+          <p>To fix this (Compulsory Step):</p>
+          <ol className="pl-5 text-sm" style={{ paddingLeft: '20px', lineHeight: '1.6' }}>
+            <li>Go to <strong>Firebase Console</strong> &gt; <strong>Authentication</strong> &gt; <strong>Settings</strong> &gt; <strong>Authorized Domains</strong>.</li>
+            <li>Click <strong>Add Domain</strong>.</li>
+            <li>Enter EXACTLY this: <strong>{configError}</strong></li>
+            <li>Click Add. Wait 10 seconds. Try again.</li>
+          </ol>
+          <p className="mt-2 text-xs" style={{ fontStyle: 'italic' }}>
+            Note: Paying for Firebase does not skip this security step. It is mandatory for all projects.
+          </p>
+          <button onClick={() => setConfigError(null)} style={{ marginTop: '10px', padding: '5px 10px', border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', borderRadius: '4px', cursor: 'pointer' }}>
+            Close
+          </button>
+        </div>
+      )}
 
       <div className="signup-container" style={{ display: loading ? 'none' : 'flex' }}>
         {/* Header Section */}
@@ -293,7 +349,6 @@ export default function Home({ handleBacktoLogin }) {
                 shouldCloseOnSelect={true}
               />
             </div>
-            {validationErrors.dateOfBirth && <p className="validation-message">{validationErrors.dateOfBirth}</p>}
             {validationErrors.dateOfBirth && <p className="validation-message">{validationErrors.dateOfBirth}</p>}
 
             {/* OTP Section - Appears after sending OTP, includes Terms */}
