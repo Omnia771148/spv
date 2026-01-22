@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from 'axios';
 import Script from 'next/script';
 import Loading from '../loading/page';
+import { showToast } from '../../toaster/page';
 import './cart.css';
 
 export default function Cart() {
@@ -98,6 +99,27 @@ export default function Cart() {
     setUserName(localStorage.getItem("userName") || "");
     setUserEmail(localStorage.getItem("userEmail") || "");
     setUserPhone(localStorage.getItem("userPhone") || "");
+  }, []);
+
+  // ✅ Check for active orders
+  const [hasActiveOrder, setHasActiveOrder] = useState(false);
+
+  useEffect(() => {
+    const checkActiveOrders = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      try {
+        const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setHasActiveOrder(data.hasActiveOrder);
+        }
+      } catch (err) {
+        console.error("Error checking active orders:", err);
+      }
+    };
+    checkActiveOrders();
   }, []);
 
   useEffect(() => {
@@ -293,7 +315,7 @@ export default function Cart() {
           <div className="beige-card">
             <div className="totals-row">
               <span>Total</span>
-              <span>{totalPrice.toFixed(0)}</span>
+              <span>₹{totalPrice.toFixed(0)}</span>
             </div>
             <div className="totals-row">
               <span>GST</span>
@@ -301,12 +323,12 @@ export default function Cart() {
             </div>
             <div className="totals-row">
               <span>Delivery charges ({distance} km)</span>
-              <span>{deliveryCharge}</span>
+              <span>₹{deliveryCharge}</span>
             </div>
             <div className="totals-divider"></div>
             <div className="grand-total-row">
               <span>Grand total</span>
-              <span>{grandTotal.toFixed(0)}</span>
+              <span>₹{grandTotal.toFixed(0)}</span>
             </div>
           </div>
 
@@ -314,11 +336,19 @@ export default function Cart() {
           <div className="action-buttons-container">
             <button onClick={clear} className="beige-btn-outline">Clear all</button>
             <button
-              onClick={() => setShowAddressBox(true)}
+              onClick={() => {
+                if (hasActiveOrder) {
+                  showToast("Order already exists. Please finish it first.", "danger");
+                  return;
+                }
+                setShowAddressBox(true);
+              }}
               className="beige-btn-filled"
-              disabled={showAddressBox}
+              disabled={showAddressBox || hasActiveOrder}
+              title={hasActiveOrder ? "You have an active order" : "Place order"}
+              style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
-              Place the order
+              {hasActiveOrder ? "Order in Progress" : "Place the order"}
             </button>
           </div>
 
@@ -349,8 +379,17 @@ export default function Cart() {
                 onChange={(e) => setLandmark(e.target.value)}
               />
 
-              <button onClick={placeOrder} className="confirm-btn" disabled={loading}>
-                {loading ? <Loading /> : `Confirm order and pay ₹${grandTotal.toFixed(0)}`}
+              <button
+                onClick={placeOrder}
+                className="confirm-btn"
+                disabled={loading || hasActiveOrder}
+                title={hasActiveOrder ? "Cannot proceed with active order" : "Confirm Order"}
+                style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              >
+                {hasActiveOrder
+                  ? "Order already in progress"
+                  : (loading ? <Loading /> : `Confirm order and pay ₹${grandTotal.toFixed(0)}`)
+                }
               </button>
             </div>
           )}
