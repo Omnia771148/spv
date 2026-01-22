@@ -170,13 +170,13 @@ export default function KushasMenuList() {
             button={item.button}
             onAddToCart={addToCart}
             disabled={!restaurantActive}
-            image = {item.image}
-         
+            image={item.image}
+
           />
         ))}
       </div>
 
-      
+
 
       <Navbar />
     </div>
