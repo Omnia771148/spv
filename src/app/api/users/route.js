@@ -7,13 +7,13 @@ import User from "../../../../models/User";
 export async function POST(request) {
   try {
     await connectionToDatabase();
-    const { name, email, phone } = await request.json();
-    const newUser = new User({ name, email,phone });
+    const { name, email, phone, password, dateOfBirth } = await request.json();
+    const newUser = new User({ name, email, phone, password, dateOfBirth });
     await newUser.save();
 
     return NextResponse.json(newUser, { status: 200 });
 
-  
+
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: 'Server Error' }, { status: 500 });

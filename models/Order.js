@@ -22,9 +22,9 @@ const orderSchema = new mongoose.Schema({
   razorpayPaymentId: { type: String },
   paymentStatus: { type: String, default: "Pending" },
 
-  userName: { type: String }, // ✅ Saved from localStorage
-  userEmail: { type: String }, // ✅ Saved from localStorage
-  userPhone: { type: String }, // ✅ Saved from localStorage
+  userName: { type: String }, 
+  userEmail: { type: String }, 
+  userPhone: { type: String }, 
 
   // ✅ ADD LOCATION FIELDS HERE
   location: {
