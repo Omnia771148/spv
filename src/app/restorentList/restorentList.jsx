@@ -175,45 +175,28 @@ export default function RestorentList() {
         const userId = localStorage.getItem("userId");
         if (!userId) {
             router.replace("/login");
-        } else {
-            setLoading(false);
-
-            // Check ACTIVE ORDER before demanding location
-            const initPage = async () => {
-                const isAppLoaded = sessionStorage.getItem("isAppLoaded");
-                if (isAppLoaded === "true") {
-                    requestLocation();
-                    return;
-                }
-
-                try {
-                    // Call our API to check if user has active order
-                    // If so, we use the stored location inside the order if available
-                    // and skip showing the modal
-                    const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
-                    const data = await res.json();
-
-                    if (data.hasActiveOrder && data.storedLocation) {
-                        console.log("Active order found with location. Using that.");
-                        // Save to localStorage as if we fetched it
-                        localStorage.setItem("customerLat", data.storedLocation.lat);
-                        localStorage.setItem("customerLng", data.storedLocation.lng);
-
-                        await fetchAllDistances(data.storedLocation.lat, data.storedLocation.lng);
-                        // Do not show modal
-                    } else {
-                        // No active order, so proceed with mandatory location request
-                        setShowLocationModal(true);
-                    }
-                } catch (err) {
-                    console.error("Error checking active order:", err);
-                    // Fallback to showing modal if API fails
-                    setShowLocationModal(true);
-                }
-            };
-            initPage();
+            return;
         }
-    }, [router, requestLocation, fetchAllDistances]);
+
+        setLoading(false);
+
+        // ALWAYS ask for location if not loaded, regardless of active orders
+        /*
+        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+        
+        if (isAppLoaded === "true") {
+            // If app already loaded this session, try to request/use valid location silently
+            if (!hasRequestedThisMount.current) {
+                hasRequestedThisMount.current = true;
+                requestLocation();
+            }
+        } else {
+            // Otherwise show modal to ask for location
+            setShowLocationModal(true);
+        }
+        */
+
+    }, []); // Empty dependency array -> runs once on mount
 
     const proceedToRoute = (name, distance) => {
         setIsRouting(true);
@@ -247,7 +230,7 @@ export default function RestorentList() {
     if (!mounted || loading) return <Loading />;
 
     return (
-        <div className="restaurant-list-page" style={{ paddingBottom: '80px' }}>
+        <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
 
             {/* Location Modal */}
             <Modal show={showLocationModal} centered backdrop="static" size="sm">
@@ -346,8 +329,6 @@ export default function RestorentList() {
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-
-
                 {/* Search and Filter Section */}
                 <div className="filter-section mb-4">
                     <div className="search-input-group">
@@ -410,7 +391,7 @@ export default function RestorentList() {
                     }
                 </div>
             </div>
-            <Navbar />
+            {/* Navbar Removed: Already handled in global layout */}
         </div>
     );
 }
