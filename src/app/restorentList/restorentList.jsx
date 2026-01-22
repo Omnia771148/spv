@@ -36,7 +36,6 @@ export default function RestorentList() {
     const hasRequestedThisMount = useRef(false);
 
     // Kurnool polygon boundary
-    /*
     const kurnoolPolygon = [
         { latitude: 15.845928, longitude: 78.012744 },
         { latitude: 15.846311, longitude: 78.019729 },
@@ -59,11 +58,9 @@ export default function RestorentList() {
         { latitude: 15.813778, longitude: 77.996924 },
         { latitude: 15.847026, longitude: 78.005964 }
     ];
-    */
 
     // Fetch distances function
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        /*
         console.log("🌐 Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
@@ -82,12 +79,10 @@ export default function RestorentList() {
         distRef.current = results;
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
         sessionStorage.setItem("isAppLoaded", "true");
-        */
     }, []);
 
     // Request location function
     const requestLocation = useCallback(() => {
-        /*
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
         const savedDistances = localStorage.getItem("allRestaurantDistances");
 
@@ -101,11 +96,6 @@ export default function RestorentList() {
         }
 
         if (!navigator.geolocation) return;
-        // Removed hasRequestedThisMount check here to allow manual retry if needed, 
-        // or we can keep it if we are sure it's only called once per session logic.
-        // But for "Enable Location" button click, we definitely want it to run even if useEffect called it.
-        // Actually, the original logic had it. Let's keep it but reset it if needed? 
-        // Better: rely on logic flow.
 
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
@@ -170,16 +160,13 @@ export default function RestorentList() {
                 maximumAge: 0             // Do not use cached position
             }
         );
-        */
-    }, [fetchAllDistances]);
+    }, [fetchAllDistances, kurnoolPolygon]);
 
     // Enable location handler
     const handleEnableLocation = () => {
-        /*
         setShowLocationModal(false);
         setShowFetchingModal(true);
         requestLocation();
-        */
     };
 
     useEffect(() => {
@@ -191,16 +178,42 @@ export default function RestorentList() {
         } else {
             setLoading(false);
 
-            /*
-            const isAppLoaded = sessionStorage.getItem("isAppLoaded");
-            if (isAppLoaded !== "true") {
-                setShowLocationModal(true);
-            } else {
-                requestLocation();
-            }
-            */
+            // Check ACTIVE ORDER before demanding location
+            const initPage = async () => {
+                const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+                if (isAppLoaded === "true") {
+                    requestLocation();
+                    return;
+                }
+
+                try {
+                    // Call our API to check if user has active order
+                    // If so, we use the stored location inside the order if available
+                    // and skip showing the modal
+                    const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
+                    const data = await res.json();
+
+                    if (data.hasActiveOrder && data.storedLocation) {
+                        console.log("Active order found with location. Using that.");
+                        // Save to localStorage as if we fetched it
+                        localStorage.setItem("customerLat", data.storedLocation.lat);
+                        localStorage.setItem("customerLng", data.storedLocation.lng);
+
+                        await fetchAllDistances(data.storedLocation.lat, data.storedLocation.lng);
+                        // Do not show modal
+                    } else {
+                        // No active order, so proceed with mandatory location request
+                        setShowLocationModal(true);
+                    }
+                } catch (err) {
+                    console.error("Error checking active order:", err);
+                    // Fallback to showing modal if API fails
+                    setShowLocationModal(true);
+                }
+            };
+            initPage();
         }
-    }, [router, requestLocation]);
+    }, [router, requestLocation, fetchAllDistances]);
 
     const proceedToRoute = (name, distance) => {
         setIsRouting(true);
@@ -237,7 +250,6 @@ export default function RestorentList() {
         <div className="restaurant-list-page" style={{ paddingBottom: '80px' }}>
 
             {/* Location Modal */}
-            {/* 
             <Modal show={showLocationModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <div className="mb-3">
@@ -253,6 +265,13 @@ export default function RestorentList() {
                     >
                         🔐 Turn On Location
                     </button>
+                    {/* Removed Skip button to enforce location if no order exists, based on "location should be asked" requirement. 
+                        If user strictly wants to enforce, better to remove skip. 
+                        But if user wants option, we can keep. 
+                        "if order is not there then location should be asked" implies mandatory? 
+                        The original code had Skip. I'll leave Skip but commented out or active? 
+                        I'll uncomment it as is for now. 
+                    */}
                     <button
                         className="btn btn-outline-secondary w-100"
                         onClick={() => {
@@ -265,10 +284,8 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
-             */}
 
             {/* Fetching Modal */}
-            {/* 
             <Modal show={showFetchingModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
@@ -276,10 +293,8 @@ export default function RestorentList() {
                     <div className="text-muted small mt-1">Please wait</div>
                 </Modal.Body>
             </Modal>
-             */}
 
             {/* Location Denied Modal */}
-            {/* 
             <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
@@ -290,10 +305,8 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
-             */}
 
             {/* Out of Zone Modal */}
-            {/* 
             <Modal show={outOfZone} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
@@ -311,25 +324,20 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
-             */}
 
-            {/* 
             <Modal show={isCalculating} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" size="sm" />
                     <div className="mt-3 fw-bold">Calculating Distance...</div>
                 </Modal.Body>
             </Modal>
-             */}
 
-            {/* 
             <Modal show={isRouting} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="grow" variant="success" size="sm" />
                     <div className="mt-2 fw-bold text-muted small">Entering Restaurant...</div>
                 </Modal.Body>
             </Modal>
-             */}
 
             <Carousel interval={3000} className='coroselmain'>
                 <Carousel.Item className='coroselmain2'>

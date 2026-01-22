@@ -44,9 +44,15 @@ export async function GET(request) {
         console.log("Active AcceptedOrder found:", !!activeAcceptedOrder);
         console.log("Active FinalOrder found:", !!activeFinalOrder);
 
-        const hasActiveOrder = !!activeOrderStatus || !!activeAcceptedOrder || !!activeFinalOrder;
+        const activeOrder = activeOrderStatus || activeAcceptedOrder || activeFinalOrder;
+        const hasActiveOrder = !!activeOrder;
 
-        return NextResponse.json({ hasActiveOrder });
+        let storedLocation = null;
+        if (hasActiveOrder && activeOrder.location) {
+            storedLocation = activeOrder.location;
+        }
+
+        return NextResponse.json({ hasActiveOrder, storedLocation });
     } catch (error) {
         console.error("Check active order error:", error);
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
