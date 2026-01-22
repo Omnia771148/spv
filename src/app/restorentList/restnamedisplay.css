@@ -1,12 +1,24 @@
+/* Optimized restnamedisplay.css */
+
 .restaurant-card {
     background-color: #E6DDBF;
+    /* Theme Beige */
     border-radius: 20px;
-    padding: 15px;
+    padding: 16px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    /* Modern soft shadow */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    /* Subtle glass border */
     display: flex;
     flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
 }
 
 .restaurant-content {
@@ -14,85 +26,130 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    gap: 15px;
 }
 
+/* Info Section - Light Cream Details */
 .restaurant-info {
     flex: 1;
-    background-color: #F8F5EB;
-    border-radius: 15px;
-    padding: 15px;
-    margin-right: 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 12px;
+    background-color: #FDFBF0;
+    /* Light Cream */
+    border-radius: 15px;
+    margin-right: 15px;
+    /* Spacing from image */
 }
 
 .restaurant-name {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #000;
-    margin-bottom: 12px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
     line-height: 1.2;
+    letter-spacing: -0.5px;
 }
 
 .restaurant-location {
     display: flex;
-    justify-content: space-between;
-    width: 90%;
-    font-size: 0.9rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
     font-weight: 500;
-    color: #333;
-    margin-bottom: 15px;
+    color: #555;
+    margin-bottom: 12px;
 }
 
+.restaurant-location span {
+    position: relative;
+}
+
+/* Add bullet between locations if needed */
+.restaurant-location span:not(:last-child)::after {
+    content: "•";
+    margin-left: 8px;
+    color: #aaa;
+}
+
+/* Rating Badge - Matched to UniversalDisplay */
 .restaurant-rating {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 15px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .rating-badge {
-    background-color: #6cce74;
-    color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.9rem;
+    background-color: #2E7D32;
+    /* Thick/Dark Green background */
+    border-radius: 12px;
+    padding: 2px 8px;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rating-star {
+    color: white;
+    font-size: 14px;
+    margin-right: 4px;
+}
+
+.rating-value {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .restaurant-type {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: #000;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2E7D32;
+    /* Green text */
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    text-transform: capitalize;
 }
 
 .check-icon {
-    color: #6cce74;
-    font-size: 1.3rem;
+    color: #2E7D32;
+    background: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Image Wrapper */
 .restaurant-image-wrapper {
-    width: 130px;
-    height: 140px;
-    border-radius: 15px;
+    width: 120px;
+    height: 120px;
+    border-radius: 16px;
     overflow: hidden;
     flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid white;
 }
 
 .restaurant-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.restaurant-card:hover .restaurant-image {
+    transform: scale(1.05);
+    /* Zoom effect */
 }
 
 /* Mobile Responsiveness */
@@ -102,15 +159,11 @@
     }
 
     .restaurant-name {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
 
     .restaurant-image-wrapper {
-        width: 110px;
-        height: 120px;
-    }
-
-    .restaurant-location {
-        width: 100%;
+        width: 100px;
+        height: 100px;
     }
 }

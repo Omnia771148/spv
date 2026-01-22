@@ -209,10 +209,11 @@ export default function UpdateEmail() {
           width: '100%',
           height: '100%',
           backgroundColor: 'rgba(255,255,255,0.8)',
-          zIndex: 10,
+          zIndex: 50, // Increased to cover icons (z-index 10)
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          borderRadius: '30px' // Match card radius
         }}>
           <Loading />
         </div>

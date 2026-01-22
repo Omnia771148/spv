@@ -101,7 +101,7 @@ export default function KushasMenuList() {
       )}
 
       {!statusLoading && !restaurantActive && (
-        <div className="alert alert-danger mt-3">
+        <div className="reststatus">
           Restaurant is currently CLOSED
         </div>
       )}

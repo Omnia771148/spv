@@ -1,6 +1,20 @@
 .coroselmain {
-    width: 300px;
+    width: 100%;
+    max-width: 800px;
+    /* Prevent it from being too wide */
     height: 200px;
+    margin: 0 auto;
+    /* Center it */
+    overflow: hidden;
+    /* Cut off anything extra */
+    border-radius: 15px;
+    /* Optional styling */
+}
+
+.coroselmain img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
 }
 
 body {
@@ -14,8 +28,10 @@ body {
 
     .coroselmain {
         width: 100%;
-        height: 250px;
-
+        height: 180px;
+        /* Slightly smaller on mobile to verify fit */
+        margin-bottom: 20px;
+        /* Space before search bar */
     }
 
     .d {
@@ -28,8 +44,8 @@ body {
     }
 
     .coroselmain2 {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 0;
+        padding-right: 0;
     }
 }
 
@@ -135,8 +151,8 @@ body {
 
 /* --- New Horizontal Beige Card Design --- */
 .rest-card-horizontal {
-    background-color: #E2DCC8;
-    /* Beige background matches reference */
+    background-color: #EBE5D5;
+    /* Updated to match search section color */
     border-radius: 12px;
     padding: 12px;
     margin-bottom: 20px;
@@ -220,6 +236,7 @@ body {
 }
 
 /* Mobile specific tweaks if needed */
+/* Mobile specific tweaks */
 @media (max-width: 480px) {
     .rest-card-horizontal {
         gap: 10px;
@@ -234,4 +251,76 @@ body {
     .rest-name-title {
         font-size: 1.1rem;
     }
+}
+
+/* --- Unique Modern Card Design --- */
+/* --- Unique Modern Card Design --- */
+.rest-card-unique {
+    background-color: #E6DDBF;
+    /* Navbar Color (#E6DDBF) */
+    border-radius: 20px;
+    padding: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.rest-card-unique:hover {
+    transform: translateY(-5px);
+    box-shadow: 8px 8px 20px #d1d9e6, -8px -8px 20px #ffffff;
+}
+
+.unique-image-container {
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.unique-image-container img {
+    transition: transform 0.5s ease;
+}
+
+.rest-card-unique:hover .unique-image-container img {
+    transform: scale(1.05);
+    /* Slight zoom on hover */
+}
+
+/* Floating Clean Badge for Rating */
+.rating-pill-floating {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: #2E7D32;
+    /* Thick Green */
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #ffffff;
+    z-index: 2;
+}
+
+.rest-title-modern {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    letter-spacing: -0.5px;
+}
+
+.rest-location-modern {
+    font-weight: 500;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }

@@ -36,6 +36,8 @@ export default function RestorentList() {
     const hasRequestedThisMount = useRef(false);
 
     // Kurnool polygon boundary
+    // Kurnool polygon boundary
+    /*
     const kurnoolPolygon = [
         { latitude: 15.845928, longitude: 78.012744 },
         { latitude: 15.846311, longitude: 78.019729 },
@@ -58,9 +60,12 @@ export default function RestorentList() {
         { latitude: 15.813778, longitude: 77.996924 },
         { latitude: 15.847026, longitude: 78.005964 }
     ];
+    */
 
     // Fetch distances function
+    // Fetch distances function
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
+        /*
         console.log("🌐 Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
@@ -79,10 +84,13 @@ export default function RestorentList() {
         distRef.current = results;
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
         sessionStorage.setItem("isAppLoaded", "true");
+        */
     }, []);
 
     // Request location function
+    // Request location function
     const requestLocation = useCallback(() => {
+        /*
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
         const savedDistances = localStorage.getItem("allRestaurantDistances");
 
@@ -160,13 +168,17 @@ export default function RestorentList() {
                 maximumAge: 0             // Do not use cached position
             }
         );
-    }, [fetchAllDistances, kurnoolPolygon]);
+        */
+    }, [fetchAllDistances]);
 
     // Enable location handler
+    // Enable location handler
     const handleEnableLocation = () => {
+        /*
         setShowLocationModal(false);
         setShowFetchingModal(true);
         requestLocation();
+        */
     };
 
     useEffect(() => {
@@ -232,7 +244,9 @@ export default function RestorentList() {
     return (
         <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
 
+
             {/* Location Modal */}
+            {/* 
             <Modal show={showLocationModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <div className="mb-3">
@@ -248,13 +262,6 @@ export default function RestorentList() {
                     >
                         🔐 Turn On Location
                     </button>
-                    {/* Removed Skip button to enforce location if no order exists, based on "location should be asked" requirement. 
-                        If user strictly wants to enforce, better to remove skip. 
-                        But if user wants option, we can keep. 
-                        "if order is not there then location should be asked" implies mandatory? 
-                        The original code had Skip. I'll leave Skip but commented out or active? 
-                        I'll uncomment it as is for now. 
-                    */}
                     <button
                         className="btn btn-outline-secondary w-100"
                         onClick={() => {
@@ -267,8 +274,10 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
+             */}
 
             {/* Fetching Modal */}
+            {/* 
             <Modal show={showFetchingModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
@@ -276,8 +285,10 @@ export default function RestorentList() {
                     <div className="text-muted small mt-1">Please wait</div>
                 </Modal.Body>
             </Modal>
+             */}
 
             {/* Location Denied Modal */}
+            {/* 
             <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
@@ -288,8 +299,10 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
+             */}
 
             {/* Out of Zone Modal */}
+            {/* 
             <Modal show={outOfZone} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
@@ -307,20 +320,25 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
+             */}
 
+            {/* 
             <Modal show={isCalculating} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" size="sm" />
                     <div className="mt-3 fw-bold">Calculating Distance...</div>
                 </Modal.Body>
             </Modal>
+             */}
 
+            {/* 
             <Modal show={isRouting} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="grow" variant="success" size="sm" />
                     <div className="mt-2 fw-bold text-muted small">Entering Restaurant...</div>
                 </Modal.Body>
             </Modal>
+             */}
 
             <Carousel interval={3000} className='coroselmain'>
                 <Carousel.Item className='coroselmain2'>

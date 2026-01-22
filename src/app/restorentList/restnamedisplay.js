@@ -36,17 +36,13 @@ export default function RestorentDisplay(props) {
             </div>
 
             <div className="restaurant-rating">
-              <span>({item.rating})</span>
               <div className="rating-badge">
-                <span>★</span>
+                <span className="rating-star">★</span>
+                <span className="rating-value">{item.rating}</span>
               </div>
             </div>
 
-            <div className="restaurant-type">
-              {/* Display type if available, or verified text */}
-              <span>{item.Type || item.type || 'Restaurant'}</span>
-              <span className="check-icon">✔</span>
-            </div>
+
           </div>
 
           <div className="restaurant-image-wrapper">
