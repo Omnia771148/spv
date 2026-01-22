@@ -58,7 +58,7 @@ export default function Home({ handleFPClick, handleSignUp }) {
     // Check user credentials
     const handleCheck = () => {
         const matchedUser = users.find(
-            (user) => user.phone === inputName && user.email === inputEmail
+            (user) => user.phone === inputName && (user.password ? user.password === inputEmail : user.email === inputEmail)
         );
 
         if (matchedUser) {
