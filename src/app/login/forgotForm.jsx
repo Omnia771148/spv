@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { auth } from "../../../lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 // ✅ Import your custom Loading component
-import Loading from '../loading/page'; 
+import Loading from '../loading/page';
 
 export default function UpdateEmail() {
   const [phone, setPhone] = useState("+91");
@@ -15,36 +15,35 @@ export default function UpdateEmail() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  /* REMOVED useEffect-based init to prevent stale instances during re-renders/errors */
   const verifierRef = useRef(null);
 
   const setupRecaptcha = () => {
-    const container = document.getElementById("recaptcha-container");
-    if (!container) return;
-
-    if (verifierRef.current) {
-      try {
-        verifierRef.current.clear();
-      } catch (e) {
-        console.warn("reCAPTCHA cleanup suppressed:", e.message);
-      }
-      verifierRef.current = null;
-      container.innerHTML = ""; 
-    }
-
-    try {
-      verifierRef.current = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-          callback: () => { console.log("reCAPTCHA verified"); },
-          "expired-callback": () => { setupRecaptcha(); }
+    if (!verifierRef.current) {
+      verifierRef.current = new RecaptchaVerifier(auth, "recaptcha-container", {
+        size: "invisible",
+        callback: () => console.log("reCAPTCHA verified"),
+        "expired-callback": () => {
+          // Reset if expired
+          console.warn("Recaptcha expired, clearing.");
+          if (verifierRef.current) {
+            verifierRef.current.clear();
+            verifierRef.current = null;
+          }
         }
-      );
-    } catch (err) {
-      console.error("reCAPTCHA Init Error:", err);
+      });
     }
   };
+
+  useEffect(() => {
+    // Only handle cleanup on unmount
+    return () => {
+      if (verifierRef.current) {
+        verifierRef.current.clear();
+        verifierRef.current = null;
+      }
+    };
+  }, []);
 
   const sendOtp = async (e) => {
     if (e) e.preventDefault();
@@ -65,7 +64,7 @@ export default function UpdateEmail() {
         formattedPhone,
         verifierRef.current
       );
-      
+
       window.confirmationResult = confirmationResult;
       setOtpSent(true);
       alert("OTP sent! ✅");
@@ -80,7 +79,7 @@ export default function UpdateEmail() {
   const verifyOtp = async (e) => {
     if (e) e.preventDefault();
     if (!otp) return alert("Please enter the OTP");
-    
+
     setLoading(true);
     try {
       await window.confirmationResult.confirm(otp);
@@ -101,7 +100,7 @@ export default function UpdateEmail() {
     if (!phone || !email) return alert("Enter phone and email");
 
     setLoading(true);
-    let formattedPhone = phone.trim().replace(/\s+/g, ''); 
+    let formattedPhone = phone.trim().replace(/\s+/g, '');
     if (!formattedPhone.startsWith("+91")) {
       formattedPhone = "+91" + formattedPhone;
     }
@@ -137,7 +136,7 @@ export default function UpdateEmail() {
   return (
     <div style={{ padding: "20px", maxWidth: "500px", margin: "auto" }}>
       <h2>Update Password for Phone</h2>
-      
+
       <div style={{ marginBottom: "10px" }}>
         <input
           type="text"
@@ -159,19 +158,20 @@ export default function UpdateEmail() {
       <div style={{ marginTop: "15px", marginBottom: "15px" }}>
         {!otpSent ? (
           <button onClick={sendOtp} disabled={loading} style={btnStyle}>
-             Send OTP
+            Send OTP
           </button>
         ) : !otpVerified ? (
           <>
             <input
               type="text"
               placeholder="Enter OTP"
+              autoComplete="one-time-code"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               style={{ padding: "8px", marginRight: "10px" }}
             />
             <button onClick={verifyOtp} disabled={loading} style={btnStyle}>
-               Verify OTP
+              Verify OTP
             </button>
           </>
         ) : (
@@ -179,18 +179,18 @@ export default function UpdateEmail() {
         )}
       </div>
 
-      <button 
-        onClick={handleUpdateEmail} 
+      <button
+        onClick={handleUpdateEmail}
         disabled={!otpVerified || loading}
-        style={{ 
-            width: "100%", 
-            padding: "10px", 
-            backgroundColor: otpVerified ? "#0070f3" : "#ccc", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "5px", 
-            cursor: otpVerified ? "pointer" : "not-allowed",
-            fontWeight: "bold"
+        style={{
+          width: "100%",
+          padding: "10px",
+          backgroundColor: otpVerified ? "#0070f3" : "#ccc",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: otpVerified ? "pointer" : "not-allowed",
+          fontWeight: "bold"
         }}
       >
         Update Password
@@ -204,9 +204,9 @@ export default function UpdateEmail() {
 }
 
 const btnStyle = {
-    padding: "8px 15px",
-    cursor: "pointer",
-    backgroundColor: "#eee",
-    border: "1px solid #ccc",
-    borderRadius: "4px"
+  padding: "8px 15px",
+  cursor: "pointer",
+  backgroundColor: "#eee",
+  border: "1px solid #ccc",
+  borderRadius: "4px"
 };
