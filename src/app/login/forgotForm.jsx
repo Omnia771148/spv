@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { auth } from "../../../lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import Loading from '../loading/page';
+import './signup.css';
 
 export default function UpdateEmail() {
   const [phone, setPhone] = useState("");
@@ -199,28 +200,7 @@ export default function UpdateEmail() {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "500px", margin: "auto", position: 'relative' }}>
-
-      {/* Config Error Banner */}
-      {configError && (
-        <div style={{ backgroundColor: '#fee2e2', border: '1px solid #ef4444', padding: '15px', marginBottom: '20px', borderRadius: '8px', color: '#b91c1c', fontFamily: 'sans-serif' }}>
-          <strong style={{ fontSize: '1.1rem' }}>⚠️ Configuration Required</strong>
-          <p className="mb-2 mt-2">
-            Your current domain is <strong>{configError}</strong>, which is not authorized by Firebase.
-          </p>
-          <p>Compulsory Fix:</p>
-          <ol className="pl-5 text-sm" style={{ paddingLeft: '20px', lineHeight: '1.6' }}>
-            <li>Go to <strong>Firebase Console</strong> &gt; <strong>Authentication</strong> &gt; <strong>Settings</strong> &gt; <strong>Authorized Domains</strong>.</li>
-            <li>Click <strong>Add Domain</strong>.</li>
-            <li>Enter: <strong>{configError}</strong></li>
-            <li>Click Add. Wait 10 seconds. Try again.</li>
-          </ol>
-          <button onClick={() => setConfigError(null)} style={{ marginTop: '10px', padding: '5px 10px', border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', borderRadius: '4px', cursor: 'pointer' }}>
-            Close
-          </button>
-        </div>
-      )}
-
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       {loading && (
         <div style={{
           position: 'absolute',
@@ -238,82 +218,135 @@ export default function UpdateEmail() {
         </div>
       )}
 
-      <h2>Update Password for Phone</h2>
-
-      <div style={{ marginBottom: "10px" }}>
-        <input
-          type="tel"
-          placeholder="Enter phone number"
-          value={phone}
-          onChange={(e) => {
-            const val = e.target.value.replace(/\D/g, '');
-            if (val.length <= 10) setPhone(val);
-          }}
-          style={{ padding: "8px", width: "100%", marginBottom: "5px", border: validationErrors.phone ? '1px solid red' : '1px solid #ccc' }}
-        />
-        {validationErrors.phone && <small style={{ color: 'red', display: 'block', marginBottom: '10px' }}>{validationErrors.phone}</small>}
-
-        <input
-          type="password"
-          placeholder="Enter new password"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ padding: "8px", width: "100%" }}
-        />
-      </div>
-
-      <div style={{ marginTop: "15px", marginBottom: "15px" }}>
-        {!otpSent ? (
-          <button onClick={sendOtp} disabled={loading} style={btnStyle}>
-            Send OTP
+      {/* Config Error Banner */}
+      {configError && (
+        <div style={{ backgroundColor: '#fee2e2', border: '1px solid #ef4444', padding: '15px', margin: '20px', borderRadius: '8px', color: '#b91c1c', zIndex: 9999, position: 'relative', fontFamily: 'sans-serif', maxWidth: '500px' }}>
+          <strong style={{ fontSize: '1.1rem' }}>⚠️ Configuration Required</strong>
+          <p className="mb-2 mt-2">
+            Your current domain is <strong>{configError}</strong>, which is not authorized by Firebase.
+          </p>
+          <p>Compulsory Fix:</p>
+          <ol className="pl-5 text-sm" style={{ paddingLeft: '20px', lineHeight: '1.6' }}>
+            <li>Go to <strong>Firebase Console</strong> &gt; <strong>Authentication</strong> &gt; <strong>Settings</strong> &gt; <strong>Authorized Domains</strong>.</li>
+            <li>Click <strong>Add Domain</strong>.</li>
+            <li>Enter: <strong>{configError}</strong></li>
+            <li>Click Add. Wait 10 seconds. Try again.</li>
+          </ol>
+          <button onClick={() => setConfigError(null)} style={{ marginTop: '10px', padding: '5px 10px', border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', borderRadius: '4px', cursor: 'pointer' }}>
+            Close
           </button>
-        ) : !otpVerified ? (
-          <>
+        </div>
+      )}
+
+      <div className="signup-container">
+        {/* Header Section */}
+        <div className="signup-header">
+          <h1 className="welcome-text">Forgot Password?</h1>
+          <p className="subtitle">
+            No worries! Enter your phone number<br />
+            to recover your account.
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <div className="signup-card">
+          <div className="input-group-styled">
+            <div className="input-icon-wrapper">
+              <svg viewBox="0 0 24 24">
+                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+              </svg>
+            </div>
             <input
-              type="text"
-              placeholder="Enter OTP"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              style={{ padding: "8px", marginRight: "10px" }}
+              type="tel"
+              placeholder="Phone number"
+              value={phone}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                if (val.length <= 10) setPhone(val);
+              }}
+              className={`styled-input ${validationErrors.phone ? 'error-border' : ''}`}
             />
-            <button onClick={verifyOtp} disabled={loading} style={btnStyle}>
-              Verify OTP
+          </div>
+          {validationErrors.phone && <p className="validation-message" style={{ marginTop: '-10px' }}>{validationErrors.phone}</p>}
+
+          <div className="input-group-styled">
+            <div className="input-icon-wrapper">
+              <svg viewBox="0 0 24 24">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3 3.1-3 1.71 0 3.1 1.29 3.1 3v2z" />
+              </svg>
+            </div>
+            <input
+              type="password"
+              placeholder="New Password"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="styled-input"
+            />
+          </div>
+
+          <div style={{ marginTop: "10px", marginBottom: "10px" }}>
+            {!otpSent ? (
+              <div className="create-btn-container">
+                <button onClick={sendOtp} disabled={loading} className="create-btn">
+                  Send OTP
+                </button>
+              </div>
+            ) : !otpVerified ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div className="input-group-styled">
+                  <div className="input-icon-wrapper">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    className="styled-input"
+                  />
+                </div>
+                <div className="create-btn-container">
+                  <button onClick={verifyOtp} disabled={loading} className="create-btn">
+                    Verify OTP
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', margin: '15px 0' }}>
+                <span style={{ color: "green", fontWeight: "bold", fontSize: '1.1rem' }}>✅ Phone Verified</span>
+              </div>
+            )}
+          </div>
+
+          <div className="create-btn-container">
+            <button
+              onClick={handleUpdateEmail}
+              disabled={!otpVerified || loading}
+              className="create-btn"
+              style={{
+                opacity: otpVerified ? 1 : 0.6,
+                cursor: otpVerified ? "pointer" : "not-allowed",
+                width: '100%',
+                backgroundColor: '#1a1a1a',
+                color: '#fff',
+                marginTop: '10px'
+              }}
+            >
+              Reset Password
             </button>
-          </>
-        ) : (
-          <span style={{ color: "green", fontWeight: "bold" }}>✅ Phone Verified</span>
-        )}
+          </div>
+
+          {result && <p style={{ marginTop: "10px", fontWeight: "bold", textAlign: 'center' }}>{result}</p>}
+        </div>
+
+        <div onClick={() => window.location.href = './login'} className="back-link">
+          Back to Login
+        </div>
       </div>
 
-      <button
-        onClick={handleUpdateEmail}
-        disabled={!otpVerified || loading}
-        style={{
-          width: "100%",
-          padding: "10px",
-          backgroundColor: otpVerified ? "#0070f3" : "#ccc",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: otpVerified ? "pointer" : "not-allowed",
-          fontWeight: "bold"
-        }}
-      >
-        Update Password
-      </button>
-
-      {result && <p style={{ marginTop: "20px", fontWeight: "bold" }}>{result}</p>}
-
-      {/* Recaptcha container must ALWAYS be present */}
       <div id="recaptcha-container"></div>
     </div>
   );
 }
-
-const btnStyle = {
-  padding: "8px 15px",
-  cursor: "pointer",
-  backgroundColor: "#eee",
-  border: "1px solid #ccc",
-  borderRadius: "4px"
-};
