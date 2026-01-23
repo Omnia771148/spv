@@ -143,12 +143,14 @@ export default function Cart() {
     setFlatNo("");
     setStreet("");
     setLandmark("");
+    window.dispatchEvent(new Event("cartUpdated")); // Notify Navbar
   };
 
   const removeItem = (id) => {
     const updatedCart = cartItems.filter(item => item.id !== id);
     setCartItems(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cartUpdated")); // Notify Navbar
   };
 
   const updateQuantity = (id, delta) => {

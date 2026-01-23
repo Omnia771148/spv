@@ -93,6 +93,7 @@ export default function KushasMenuLite() {
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cartUpdated")); // Notify Navbar
     showToast("ITEM ADDED", "success");
   };
 
@@ -187,6 +188,7 @@ export default function KushasMenuLite() {
 
 
 
+      <Navbar />
     </div>
   );
 }

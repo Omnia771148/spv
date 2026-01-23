@@ -83,6 +83,7 @@ export default function KushasMenuList() {
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cartUpdated")); // Notify Navbar
     showToast("Added to cart successfully!");
   };
 
