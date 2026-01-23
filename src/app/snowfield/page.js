@@ -9,6 +9,7 @@ import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 
 import Loading from '../loading/page';
+import Navbar from '../../navigation/page';
 
 import './snowfield.css';
 

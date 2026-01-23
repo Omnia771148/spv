@@ -24,7 +24,7 @@ export default function FinalOrderStatuses() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     // Check for rejected orders and set up auto-deletion
