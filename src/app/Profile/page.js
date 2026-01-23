@@ -56,7 +56,7 @@ export default function Profile() {
                 </button>
 
                 {/* Contact Us */}
-                <button className="custom-nav-btn" onClick={() => window.location.href = "/"}>
+                <button className="custom-nav-btn" onClick={() => window.location.href = "/contactus"}>
                     <div className="d-flex align-items-center">
                         <i className="fas fa-envelope btn-icon-left"></i>
                         <span className="btn-text">Contact Us</span>
