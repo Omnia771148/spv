@@ -17,9 +17,20 @@ export async function GET(request) {
       );
     }
 
+    // 1. Immediate Cleanup: Delete rejected orders updated > 1 min ago
+    // We use $or to handle cases where timestamps might be new
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+    await OrderStatus.deleteMany({
+      status: { $regex: 'rejected', $options: 'i' },
+      updatedAt: { $lt: oneMinuteAgo }
+    });
+
+
+
+    // 3. Fetch orders
     const orders = await OrderStatus.find({
       userId: new mongoose.Types.ObjectId(userId),
-    }).sort({ orderDate: -1 });
+    }).sort({ createdAt: -1 });
 
     return NextResponse.json(orders);
   } catch (error) {
