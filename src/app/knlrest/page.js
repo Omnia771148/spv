@@ -40,6 +40,18 @@ export default function KushasMenuList() {
   useEffect(() => {
     const fetchRestaurantStatus = async () => {
       try {
+        // Optimization: Check if status was passed from the previous page
+        const cachedStatus = localStorage.getItem("currentRestaurantStatus");
+
+        // We check for not null/undefined to handle both 'false' and 'true' correctly
+        if (cachedStatus !== null && cachedStatus !== undefined) {
+          console.log("Using cached status:", cachedStatus);
+          setRestaurantActive(cachedStatus === "true" || cachedStatus === true);
+          setStatusLoading(false);
+          // Trust the list page status to be fast
+          return;
+        }
+
         const res = await fetch("/api/restaurant/knl");
         const data = await res.json();
         setRestaurantActive(data.isActive);

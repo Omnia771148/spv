@@ -77,7 +77,36 @@ export async function POST(request) {
     });
 
     // 5️⃣ SEND NOTIFICATION TO RESTAURANT APP
-    await sendNotificationToRestaurant(orderDoc.restaurantId, formattedOrderId);
+    // 5️⃣ SEND NOTIFICATION TO RESTAURANT APP
+    /* 
+      TRIGGER NOTIFICATION TO RESTAURANT 
+      Add this in your Customer App -> API Route that handles Order Placement
+    */
+    // 1. Define your Restaurant App URL (Change this when deploying!)
+    // Assuming Restaurant App runs on port 3001 locally or set via env
+    // 1. Define your Restaurant App URL (Change this when deploying!)
+    // Assuming Restaurant App runs on port 3001 locally or set via env
+    const RESTAURANT_APP_URL = process.env.RESTAURANT_APP_URL || "http://localhost:3002";
+
+    try {
+      // 2. Send the notification request
+      // Corrected endpoint to match your Restaurant App's actual route
+      console.log(`Attempting to send notification to: ${RESTAURANT_APP_URL}/api/send-notification`);
+      await fetch(`${RESTAURANT_APP_URL}/api/send-notification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          restaurantId: orderDoc.restaurantId, // Validate this matches the 'restId' in Restaurant App
+          title: "New Order! 🔔",
+          body: `Order #${orderDoc.orderId} received for ₹${orderDoc.totalPrice}`,
+          url: "/orders", // Where the restaurant owner should go
+          orderId: orderDoc.orderId
+        })
+      });
+      console.log("Notification sent to restaurant!");
+    } catch (error) {
+      console.error("Failed to trigger notification:", error);
+    }
 
     return NextResponse.json({
       success: true,
@@ -94,26 +123,3 @@ export async function POST(request) {
   }
 }
 
-// Helper function to send notification to the Restaurant App
-async function sendNotificationToRestaurant(restaurantId, orderId) {
-  // ⚠️ Ensure this URL matches your deployed Restaurant App URL
-  const RESTAURANT_APP_URL = "https://restuaredappcolabtoday28-12-25.vercel.app";
-  try {
-    const response = await fetch(`${RESTAURANT_APP_URL}/api/send-notification`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        restId: restaurantId, // ✅ Sent as restId to match Restaurant users DB
-        restaurantId: restaurantId,
-        title: "New Order Handlers! 🍔",
-        body: `Order #${orderId} has just been placed. Check it out!`,
-      }),
-    });
-    const data = await response.json();
-    console.log("Notification sent:", data);
-  } catch (error) {
-    console.error("Failed to send notification:", error);
-  }
-}

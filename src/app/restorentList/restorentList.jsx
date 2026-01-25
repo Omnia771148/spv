@@ -10,6 +10,7 @@ import Navbar from '@/navigation/page';
 import { isPointInPolygon } from "geolib";
 import { getExactDistance } from '../actions/delivery';
 import Loading from "../loading/page";
+import { showToast } from '../../toaster/page';
 
 export default function RestorentList() {
     const [loading, setLoading] = useState(true);
@@ -19,6 +20,7 @@ export default function RestorentList() {
     const [error, setError] = useState(null);
     const [isRouting, setIsRouting] = useState(false);
     const [isCalculating, setIsCalculating] = useState(false);
+    const [restaurantStatuses, setRestaurantStatuses] = useState({});
 
     // Location modal states
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -192,6 +194,21 @@ export default function RestorentList() {
 
         setLoading(false);
 
+        // Fetch restaurant statuses
+        const fetchStatuses = async () => {
+            try {
+                const res = await fetch('/api/restaurants/all-status', { cache: 'no-store' });
+                if (res.ok) {
+                    const data = await res.json();
+                    setRestaurantStatuses(data);
+                }
+            } catch (e) {
+                console.error("Failed to fetch statuses", e);
+            }
+        };
+
+        fetchStatuses();
+
         // ALWAYS ask for location if not loaded, regardless of active orders
         /*
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
@@ -222,6 +239,17 @@ export default function RestorentList() {
     };
 
     const handleClicke = (name) => {
+        // Find the restaurant to get its ID
+        const restaurant = restList.find(r => r.name === name);
+        if (restaurant && restaurant.id) {
+            const isActive = restaurantStatuses[restaurant.id];
+            // Store status in localStorage to be used by the restaurant page immediately
+            // This prevents the need for a second fetch inside the restaurant page
+            if (isActive !== undefined) {
+                localStorage.setItem("currentRestaurantStatus", isActive);
+            }
+        }
+
         const dist = roadDistances[name] || "0";
         localStorage.setItem("currentRestaurantDistance", dist);
         localStorage.setItem("currentRestaurantName", name);

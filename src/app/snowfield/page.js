@@ -50,6 +50,14 @@ export default function KushasMenuLite() {
   useEffect(() => {
     const fetchRestaurantStatus = async () => {
       try {
+        // Optimization: Check if status was passed from the previous page
+        const cachedStatus = localStorage.getItem("currentRestaurantStatus");
+        if (cachedStatus !== null && cachedStatus !== undefined) {
+          setRestaurantActive(cachedStatus === "true" || cachedStatus === true);
+          setStatusLoading(false);
+          return;
+        }
+
         const res = await fetch("/api/restaurant/snow");
         const data = await res.json();
         setRestaurantActive(data.isActive);
