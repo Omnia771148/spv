@@ -1,5 +1,6 @@
 export const restList = [
     {
+        id: "1",
         name: "Kushas",
         type: "veg",
         place: "Venkata Ramana Colony",
@@ -9,6 +10,7 @@ export const restList = [
         image: "/2.jpg",
     },
     {
+        id: "2",
         name: "KNL",
         type: "veg",
         place: "Venkata Ramana Colony",
@@ -18,6 +20,7 @@ export const restList = [
         image: "/2.jpg",
     },
     {
+        id: "3",
         name: "Snow Field",
         type: "non-veg",
         place: "Venkata Ramana Colony",
@@ -32,6 +35,7 @@ export const restList = [
 
 
     {
+        id: "5",
         name: "mayuri",
         type: "non-veg",
         place: "Venkata Ramana Colony",
@@ -41,6 +45,7 @@ export const restList = [
         image: "/2.jpg",
     },
     {
+        id: "4",
         name: "bros",
         type: "veg",
         place: "Venkata Ramana Colony",

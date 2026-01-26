@@ -2,9 +2,9 @@ export default function RestorentDisplay({ name, place, rating, image, distance 
     return (
         <div className="rest-card-main">
             {/* Unique Modern Card Structure */}
-            <div className="rest-card-unique">
+            <div className="rest-card-unique position-relative">
                 {/* Image Section with Hover Zoom */}
-                <div className="unique-image-container">
+                <div className="unique-image-container position-relative">
                     <img
                         src={image}
                         alt={name}
@@ -13,7 +13,7 @@ export default function RestorentDisplay({ name, place, rating, image, distance 
                             width: "100%",
                             height: "180px", // Slightly taller for better look
                             objectFit: "cover",
-                            display: "block" // Removes bottom gap
+                            display: "block", // Removes bottom gap
                         }}
                     />
 
