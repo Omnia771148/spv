@@ -97,7 +97,7 @@ export async function POST(request) {
 // Helper function to send notification to the Restaurant App
 async function sendNotificationToRestaurant(restaurantId, orderId) {
   // ⚠️ Ensure this URL matches your deployed Restaurant App URL
-  const RESTAURANT_APP_URL = "https://restuaredappcolabtoday28-12-25.vercel.app";
+  const RESTAURANT_APP_URL = "https://newrest.vercel.app/";
   try {
     const response = await fetch(`${RESTAURANT_APP_URL}/api/send-notification`, {
       method: "POST",
