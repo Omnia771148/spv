@@ -17,13 +17,23 @@ export default function FinalOrderStatuses() {
       return;
     }
 
-    fetch(`/api/finalorderstatuses?userId=${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setOrders(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    const fetchOrders = () => {
+      fetch(`/api/finalorderstatuses?userId=${userId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setOrders(data);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    };
+
+    // Initial fetch
+    fetchOrders();
+
+    // Poll every 2 minutes (120,000 ms)
+    const intervalId = setInterval(fetchOrders, 200000);
+
+    return () => clearInterval(intervalId);
   }, [router]);
 
   useEffect(() => {
