@@ -8,8 +8,7 @@ export default function Profile() {
     const router = useRouter();
 
     const handleLogout = () => {
-        localStorage.removeItem("userId");
-        localStorage.removeItem("loginTimestamp");
+        localStorage.clear();
         // We use replace to ensure history is clean and pathname is correct for hiding navbar
         router.replace("/");
     };

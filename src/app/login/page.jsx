@@ -70,6 +70,8 @@ export default function Home({ handleFPClick, handleSignUp }) {
 
             alert("Login successful!");
             window.location.href = "/mainRestorentList";
+        } else if (inputName.length !== 10) {
+            alert("Mobile number must be exactly 10 digits.");
         } else if (inputName === "" && inputEmail === "") {
             alert("Please fill in both fields.");
         } else {
@@ -104,7 +106,13 @@ export default function Home({ handleFPClick, handleSignUp }) {
                         type="text"
                         placeholder="Mobile number"
                         value={inputName}
-                        onChange={(e) => setInputName(e.target.value)}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            // Only allow numbers and max 10 digits
+                            if (/^\d*$/.test(val) && val.length <= 10) {
+                                setInputName(val);
+                            }
+                        }}
                         className="custom-input"
                     />
                 </div>
