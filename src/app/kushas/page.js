@@ -26,6 +26,11 @@ export default function KushasMenuList() {
   const [restaurantActive, setRestaurantActive] = useState(false);
   const [statusLoading, setStatusLoading] = useState(true);
 
+  // Button statuses state
+  const [buttonStatuses, setButtonStatuses] = useState({});
+  const [buttonStatusLoading, setButtonStatusLoading] = useState(true);
+
+
   // ✅ Authentication check
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -59,6 +64,28 @@ export default function KushasMenuList() {
     };
 
     fetchRestaurantStatus();
+  }, []);
+
+  // Fetch button statuses
+  useEffect(() => {
+    const fetchButtonStatuses = async () => {
+      try {
+        const res = await fetch("/api/button-status");
+        if (res.ok) {
+          const data = await res.json();
+          const statusMap = {};
+          data.forEach(s => {
+            statusMap[s.buttonId] = s.isActive;
+          });
+          setButtonStatuses(statusMap);
+        }
+      } catch (error) {
+        console.error("Error fetching button statuses", error);
+      } finally {
+        setButtonStatusLoading(false);
+      }
+    };
+    fetchButtonStatuses();
   }, []);
 
   // ✅ Add item to cart (WITH STATUS CHECK)
@@ -95,7 +122,7 @@ export default function KushasMenuList() {
     showToast("Added to cart successfully!");
   };
 
-  if (loading) return <Loading />;
+  if (loading || buttonStatusLoading) return <Loading />;
 
   return (
     <div className="restaurant-page-bg container mt-4">
@@ -161,8 +188,12 @@ export default function KushasMenuList() {
         {Data.filter(item => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === '' || item.type === typeFilter;
-          const matchesId = item.id >= 1 && item.id <= 4;
-          return matchesSearch && matchesType && matchesId;
+          const matchesId = item.id >= 1 && item.id <= 4; ///cange for the item statuses
+
+          // Check button status for this item
+          const isActive = buttonStatuses[item.id] === true;
+
+          return matchesSearch && matchesType && matchesId && isActive;
         }).map(item => (
           <ProductCard
             key={item.id}
@@ -176,9 +207,18 @@ export default function KushasMenuList() {
             image={item.image}
           />
         ))}
+        {Data.filter(item => {
+          const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+          const matchesType = typeFilter === '' || item.type === typeFilter;
+          const matchesId = item.id >= 1 && item.id <= 4;  ///cange for the item statuses
+          const isActive = buttonStatuses[item.id] === true;
+          return matchesSearch && matchesType && matchesId && isActive;
+        }).length === 0 && (
+            <div className="col-12 text-center text-muted">
+              No active items available.
+            </div>
+          )}
       </div>
-
-
 
       <Navbar />
     </div>
