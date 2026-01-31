@@ -11,6 +11,9 @@ import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from "@/navigation/page";
 // ✅ Fixed Import: Capitalized 'Loading'
 import Loading from '../loading/page';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from '../../../lib/features/restaurantSlice';
+import { selectUser } from '../../../lib/features/userSlice';
 
 import './knlrest.css';
 
@@ -22,74 +25,41 @@ export default function KushasMenuList() {
   const [typeFilter, setTypeFilter] = useState("");
   const [cart, setCart] = useState([]);
 
-  // 🔴 SAFE DEFAULTS (NO FLICKER)
-  const [restaurantActive, setRestaurantActive] = useState(false);
-  const [statusLoading, setStatusLoading] = useState(true);
 
-  // Button statuses state
-  const [buttonStatuses, setButtonStatuses] = useState({});
-  const [buttonStatusLoading, setButtonStatusLoading] = useState(true);
 
-  // ✅ AUTH CHECK (UNCHANGED)
+  // ✅ REDUX INTEGRATION
+  const dispatch = useDispatch();
+  const allStatuses = useSelector(selectAllStatuses);
+  const isLoadingRedux = useSelector(selectRestaurantLoading);
+
+  // Item (Button) Statuses
+  const buttonStatuses = useSelector(selectAllItemStatuses);
+  const buttonStatusLoading = useSelector(selectItemLoading);
+
+  // ID "2" corresponds to KNL based on API verification
+  const restaurantActive = allStatuses["2"] ?? false;
+  // If we have data, we are not "loading status" anymore. If Redux is fetching, use that.
+  const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
+
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    // If we landed here directly (refresh), store might be empty. Fetch it.
+    if (Object.keys(allStatuses).length === 0) {
+      dispatch(fetchRestaurantStatuses());
+      dispatch(fetchItemStatuses()); // Ensure items are also fetched
+    }
+  }, [dispatch, allStatuses]);
+
+  // ✅ REDUX AUTH CHECK
+  const user = useSelector(selectUser);
+  useEffect(() => {
+    if (!user && !localStorage.getItem("userId")) {
       router.push("/login");
     } else {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, user]);
 
-  // ✅ FETCH RESTAURANT STATUS
-  useEffect(() => {
-    const fetchRestaurantStatus = async () => {
-      try {
-        // Optimization: Check if status was passed from the previous page
-        const cachedStatus = localStorage.getItem("currentRestaurantStatus");
-
-        // We check for not null/undefined to handle both 'false' and 'true' correctly
-        if (cachedStatus !== null && cachedStatus !== undefined) {
-          console.log("Using cached status:", cachedStatus);
-          setRestaurantActive(cachedStatus === "true" || cachedStatus === true);
-          setStatusLoading(false);
-          // Trust the list page status to be fast
-          return;
-        }
-
-        const res = await fetch("/api/restaurant/knl");
-        const data = await res.json();
-        setRestaurantActive(data.isActive);
-      } catch (error) {
-        console.error("Error fetching restaurant status");
-      } finally {
-        setStatusLoading(false);
-      }
-    };
-
-    fetchRestaurantStatus();
-  }, []);
-
-  // Fetch button statuses
-  useEffect(() => {
-    const fetchButtonStatuses = async () => {
-      try {
-        const res = await fetch("/api/button-status");
-        if (res.ok) {
-          const data = await res.json();
-          const statusMap = {};
-          data.forEach(s => {
-            statusMap[s.buttonId] = s.isActive;
-          });
-          setButtonStatuses(statusMap);
-        }
-      } catch (error) {
-        console.error("Error fetching button statuses", error);
-      } finally {
-        setButtonStatusLoading(false);
-      }
-    };
-    fetchButtonStatuses();
-  }, []);
+  // Removed manual Fetch button statuses useEffect
 
   // ✅ ADD TO CART (UNCHANGED LOGIC)
   const addToCart = (item) => {

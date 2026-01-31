@@ -3,6 +3,8 @@ import "./globals.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Navbar from '@/navigation/page';
+import StoreProvider from '../../lib/StoreProvider';
+import AuthInitializer from '../../lib/AuthInitializer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,8 +29,11 @@ export default function RootLayout({ children }) {
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <Navbar />
+        <StoreProvider>
+          <AuthInitializer />
+          {children}
+          <Navbar />
+        </StoreProvider>
       </body>
     </html>
   );

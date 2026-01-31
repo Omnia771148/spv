@@ -1,4 +1,4 @@
-export default function RestorentDisplay({ name, place, rating, image, distance }) {
+export default function RestorentDisplay({ name, place, rating, image, distance, isActive = true }) {
     return (
         <div className="rest-card-main">
             {/* Unique Modern Card Structure */}

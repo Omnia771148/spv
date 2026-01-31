@@ -11,6 +11,9 @@ import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 import Navbar from '@/navigation/page';
 import Loading from '../loading/page';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from '../../../lib/features/restaurantSlice';
+import { selectUser } from '../../../lib/features/userSlice';
 
 import './kushas.css';
 
@@ -23,70 +26,36 @@ export default function KushasMenuList() {
   const [cart, setCart] = useState([]);
 
   // ✅ Restaurant status states
-  const [restaurantActive, setRestaurantActive] = useState(false);
-  const [statusLoading, setStatusLoading] = useState(true);
+  const dispatch = useDispatch();
+  const allStatuses = useSelector(selectAllStatuses);
+  const isLoadingRedux = useSelector(selectRestaurantLoading);
 
-  // Button statuses state
-  const [buttonStatuses, setButtonStatuses] = useState({});
-  const [buttonStatusLoading, setButtonStatusLoading] = useState(true);
+  // ID "1" corresponds to Kushas
+  const restaurantActive = allStatuses["1"] ?? false;
+  const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
 
+  // Button statuses state (REDUX)
+  const buttonStatuses = useSelector(selectAllItemStatuses);
+  const buttonStatusLoading = useSelector(selectItemLoading);
+
+  useEffect(() => {
+    if (Object.keys(allStatuses).length === 0) {
+      dispatch(fetchRestaurantStatuses());
+      dispatch(fetchItemStatuses());
+    }
+  }, [dispatch, allStatuses]);
 
   // ✅ Authentication check
+  const user = useSelector(selectUser);
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    if (!user && !localStorage.getItem("userId")) {
       router.push("/login");
     } else {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, user]);
 
-  // ✅ Fetch restaurant status (KUSHAS)
-  useEffect(() => {
-    const fetchRestaurantStatus = async () => {
-      try {
-        // Optimization: Check if status was passed from the previous page
-        const cachedStatus = localStorage.getItem("currentRestaurantStatus");
-        if (cachedStatus !== null && cachedStatus !== undefined) {
-          setRestaurantActive(cachedStatus === "true" || cachedStatus === true);
-          setStatusLoading(false);
-          return;
-        }
-
-        const res = await fetch("/api/restaurant/kushas");
-        const data = await res.json();
-        setRestaurantActive(data.isActive);
-      } catch (err) {
-        console.error("Error fetching restaurant status");
-      } finally {
-        setStatusLoading(false);
-      }
-    };
-
-    fetchRestaurantStatus();
-  }, []);
-
-  // Fetch button statuses
-  useEffect(() => {
-    const fetchButtonStatuses = async () => {
-      try {
-        const res = await fetch("/api/button-status");
-        if (res.ok) {
-          const data = await res.json();
-          const statusMap = {};
-          data.forEach(s => {
-            statusMap[s.buttonId] = s.isActive;
-          });
-          setButtonStatuses(statusMap);
-        }
-      } catch (error) {
-        console.error("Error fetching button statuses", error);
-      } finally {
-        setButtonStatusLoading(false);
-      }
-    };
-    fetchButtonStatuses();
-  }, []);
+  // Removed manual fetch button statuses logic
 
   // ✅ Add item to cart (WITH STATUS CHECK)
   const addToCart = (item) => {

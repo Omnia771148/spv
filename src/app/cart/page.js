@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
+import { useSelector } from 'react-redux';
+import { selectUser, selectIsAuthenticated } from '../../../lib/features/userSlice';
 import axios from 'axios';
 import Script from 'next/script';
 import Loading from '../loading/page';
@@ -28,14 +30,37 @@ export default function Cart() {
 
   const aa = "gg";
 
+  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // REDUX AUTH CHECK
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    // If we're unsure yet (initial load might mean user is null for a split second),
+    // we might want to wait. But for now, if no user in Redux, redirect.
+    // NOTE: AuthInitializer runs fast, but there IS a race condition potential.
+    // Ideally we check a "authLoaded" flag. 
+    // Given the user wants "work as before", and before it read localStorage directly on mount.
+    // AuthInitializer reads localStorage on mount.
+    // So by the time this effect runs, ideally Redux is populated or about to be.
+    // We add a tiny delay or just check. 
+
+    // Actually, to simulate "reading from localstorage", we rely on the Redux state 
+    // which IS effectively the memory cache of localstorage now.
+
+    // We can't strictly block rendering if AuthInitializer hasn't finished.
+    // BUT, checking localStorage directly here was sync. Redux update is async-ish.
+
+    // Let's rely on the fact that if they are NOT logged in, Redux is null.
+    // If they ARE logged in, AuthInitializer sets it.
+
+    // To be safe and "instant": we check the state.
+    if (!isAuthenticated && !localStorage.getItem("userId")) {
+      // Fallback check to localStorage to prevent accidental redirect during hydration
       router.replace("/login");
     } else {
       setLoading(false);
     }
-  }, [router]);
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');

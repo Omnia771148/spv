@@ -2,10 +2,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import './login.css';
+import { useDispatch } from "react-redux";
+import { setUser } from "../../../lib/features/userSlice";
 // ✅ Import your custom Loading component
 import Loading from '../loading/page';
 
 export default function Home({ handleFPClick, handleSignUp }) {
+    const dispatch = useDispatch();
     const [users, setUsers] = useState([]);
     const [inputName, setInputName] = useState('');
     const [inputEmail, setInputEmail] = useState('');
@@ -61,12 +64,22 @@ export default function Home({ handleFPClick, handleSignUp }) {
             (user) => user.phone === inputName && (user.password ? user.password === inputEmail : user.email === inputEmail)
         );
 
+
         if (matchedUser) {
+            // 1. Save to LocalStorage (Persistence)
             localStorage.setItem("userId", matchedUser._id);
-            localStorage.setItem("userPhone", matchedUser.phone || ""); // Save Phone
-            localStorage.setItem("userName", matchedUser.name || "");   // Save Name
-            localStorage.setItem("userEmail", matchedUser.email || ""); // Save Email
+            localStorage.setItem("userPhone", matchedUser.phone || "");
+            localStorage.setItem("userName", matchedUser.name || "");
+            localStorage.setItem("userEmail", matchedUser.email || "");
             localStorage.setItem("loginTimestamp", new Date().getTime().toString());
+
+            // 2. Save to Redux (Instant State)
+            dispatch(setUser({
+                id: matchedUser._id,
+                name: matchedUser.name,
+                phone: matchedUser.phone,
+                email: matchedUser.email
+            }));
 
             alert("Login successful!");
             window.location.href = "/mainRestorentList";

@@ -1,14 +1,23 @@
 "use client"
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../lib/features/userSlice";
 
 import './profile.css';
 
 
 export default function Profile() {
     const router = useRouter();
+    const dispatch = useDispatch();
 
     const handleLogout = () => {
+        // 1. Clear Redux State (Memory)
+        dispatch(logoutUser());
+
+        // 2. Clear Local Storage (Disk)
         localStorage.clear();
+
+        // 3. Redirect
         // We use replace to ensure history is clean and pathname is correct for hiding navbar
         router.replace("/");
     };

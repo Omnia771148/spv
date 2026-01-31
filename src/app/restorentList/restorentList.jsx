@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Carousel, Modal, Spinner } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading } from '../../../lib/features/restaurantSlice';
 
 import './restorentList.css';
 import { restList } from './restorentDtata';
@@ -20,7 +22,7 @@ export default function RestorentList() {
     const [error, setError] = useState(null);
     const [isRouting, setIsRouting] = useState(false);
     const [isCalculating, setIsCalculating] = useState(false);
-    const [restaurantStatuses, setRestaurantStatuses] = useState({});
+
 
     // Location modal states
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -183,31 +185,39 @@ export default function RestorentList() {
         */
     };
 
+
+    const dispatch = useDispatch();
+    // Get statuses from Redux store
+    const restaurantStatuses = useSelector(selectAllStatuses);
+
     useEffect(() => {
         setMounted(true);
 
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
+        // Redux Auth Check
+        // We can just rely on the layout/AuthInitializer, but for safety:
+        if (!localStorage.getItem("userId")) {
+            // Keeping the simple check here as RestorentList is the main landing.
+            // Converting this fully to Redux subscription might cause flicker if AuthInitializer is slow.
+            // But let's try to be consistent with the "Hybrid" approach I used in other files.
             router.replace("/login");
             return;
         }
 
         setLoading(false);
 
-        // Fetch restaurant statuses
-        const fetchStatuses = async () => {
-            try {
-                const res = await fetch('/api/restaurants/all-status', { cache: 'no-store' });
-                if (res.ok) {
-                    const data = await res.json();
-                    setRestaurantStatuses(data);
-                }
-            } catch (e) {
-                console.error("Failed to fetch statuses", e);
-            }
-        };
+        // Fetch restaurant statuses via Redux
+        dispatch(fetchRestaurantStatuses());
+        dispatch(fetchItemStatuses());
 
-        fetchStatuses();
+        // ✅ AUTO-REFRESH STATUS EVERY 20 SECONDS (20000ms)
+        const intervalId = setInterval(() => {
+            console.log("🔄 Auto-refreshing restaurant data...");
+            dispatch(fetchRestaurantStatuses());
+            dispatch(fetchItemStatuses());
+        }, 20000);
+
+        return () => clearInterval(intervalId);
+
 
         // ALWAYS ask for location if not loaded, regardless of active orders
         /*
@@ -224,8 +234,9 @@ export default function RestorentList() {
             setShowLocationModal(true);
         }
         */
+    }, [dispatch, router]); // Dependency array updated
 
-    }, []); // Empty dependency array -> runs once on mount
+
 
     const proceedToRoute = (name, distance) => {
         setIsRouting(true);
@@ -430,6 +441,7 @@ export default function RestorentList() {
                                         image={item.image}
                                         rating={item.rating || "4.2"}
                                         distance={roadDistances[item.name] ? `${roadDistances[item.name]} km` : "..."}
+                                        isActive={restaurantStatuses[item.id] !== false} // Default to true if undefined to avoid flashing closed on load, or handle loading state
                                     />
                                 </button>
                             </div>

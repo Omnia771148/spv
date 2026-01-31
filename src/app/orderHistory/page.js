@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../../lib/features/userSlice';
 
 export default function MyOrders() {
   const router = useRouter();
@@ -10,14 +12,18 @@ export default function MyOrders() {
   const [loading, setLoading] = useState(true);
 
   // ✅ Authentication check
+  const user = useSelector(selectUser);
+
+  // ✅ REDUX Authentication check
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
+    // Similar safety check: if Redux is empty AND localStorage is empty, then redirect.
+    // This allows the AuthInitializer time to work if localStorage HAS data.
+    if (!user && !localStorage.getItem("userId")) {
       router.push('/login');
     } else {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, user]);
 
   // Fetch orders
   useEffect(() => {

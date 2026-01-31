@@ -10,6 +10,9 @@ import restuarents from "../restorentList/restuarentnamesdata";
 
 import Loading from '../loading/page';
 import Navbar from '../../navigation/page';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from '../../../lib/features/restaurantSlice';
+import { selectUser } from '../../../lib/features/userSlice';
 
 import './snowfield.css';
 
@@ -24,18 +27,31 @@ export default function KushasMenuLite() {
   // ✅ Distance
   const [distance, setDistance] = useState(null);
 
-  // ✅ Restaurant status (NEW)
-  const [restaurantActive, setRestaurantActive] = useState(false);
-  const [statusLoading, setStatusLoading] = useState(true);
+  // ✅ Restaurant status (NEW - REDUX)
+  const dispatch = useDispatch();
+  const allStatuses = useSelector(selectAllStatuses);
+  const isLoadingRedux = useSelector(selectRestaurantLoading);
 
-  // Button statuses state
-  const [buttonStatuses, setButtonStatuses] = useState({});
-  const [buttonStatusLoading, setButtonStatusLoading] = useState(true);
+  // ID "3" corresponds to Snow Field
+  const restaurantActive = allStatuses["3"] ?? false;
+  // If we have data, we are not "loading status" anymore. If Redux is fetching, use that.
+  const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
+
+  useEffect(() => {
+    // If we landed here directly (refresh), store might be empty. Fetch it.
+    if (Object.keys(allStatuses).length === 0) {
+      dispatch(fetchRestaurantStatuses());
+    }
+  }, [dispatch, allStatuses]);
+
+  // Button statuses state (REDUX)
+  const buttonStatuses = useSelector(selectAllItemStatuses);
+  const buttonStatusLoading = useSelector(selectItemLoading);
 
   // ✅ AUTH + DISTANCE
+  const user = useSelector(selectUser);
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    if (!user && !localStorage.getItem("userId")) {
       router.replace("/login");
     } else {
       const savedDistances = localStorage.getItem("allRestaurantDistances");
@@ -48,54 +64,18 @@ export default function KushasMenuLite() {
       }
       setLoading(false);
     }
-  }, [router]);
+  }, [router, user]);
 
-  // ✅ FETCH RESTAURANT STATUS (NEW)
+  // Ensure data fetch on mount (if direct link)
   useEffect(() => {
-    const fetchRestaurantStatus = async () => {
-      try {
-        // Optimization: Check if status was passed from the previous page
-        const cachedStatus = localStorage.getItem("currentRestaurantStatus");
-        if (cachedStatus !== null && cachedStatus !== undefined) {
-          setRestaurantActive(cachedStatus === "true" || cachedStatus === true);
-          setStatusLoading(false);
-          return;
-        }
+    if (Object.keys(allStatuses).length === 0) {
+      dispatch(fetchRestaurantStatuses());
+      dispatch(fetchItemStatuses());
+    }
+  }, [dispatch, allStatuses]);
 
-        const res = await fetch("/api/restaurant/snow");
-        const data = await res.json();
-        setRestaurantActive(data.isActive);
-      } catch (error) {
-        console.error("Error fetching restaurant status");
-      } finally {
-        setStatusLoading(false);
-      }
-    };
 
-    fetchRestaurantStatus();
-  }, []);
-
-  // Fetch button statuses
-  useEffect(() => {
-    const fetchButtonStatuses = async () => {
-      try {
-        const res = await fetch("/api/button-status");
-        if (res.ok) {
-          const data = await res.json();
-          const statusMap = {};
-          data.forEach(s => {
-            statusMap[s.buttonId] = s.isActive;
-          });
-          setButtonStatuses(statusMap);
-        }
-      } catch (error) {
-        console.error("Error fetching button statuses", error);
-      } finally {
-        setButtonStatusLoading(false);
-      }
-    };
-    fetchButtonStatuses();
-  }, []);
+  // Removed manual fetch button statuses useEffect
 
   // ✅ ADD TO CART (WITH STATUS BLOCK)
   const addToCart = (item) => {
