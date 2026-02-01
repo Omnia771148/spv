@@ -26,8 +26,10 @@
 
 .nav-hidden {
     opacity: 0;
-    transform: translateX(-50%) translateY(100px);
-    /* Move down off-screen */
+    pointer-events: none;
+    /* Prevent clicks when hidden */
+    transform: translateX(-50%) translateY(150%);
+    /* Move strictly by percentage of self height */
 }
 
 /* Individual Nav Items */

@@ -21,18 +21,21 @@ export default function Navbar() {
   useEffect(() => {
     updateCartCount(); // Initial check
 
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
-        // Scrolling down
+      // Determine scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling DOWN
         setIsVisible(false);
       } else {
-        // Scrolling up or at top
+        // Scrolling UP
         setIsVisible(true);
       }
 
-      lastScrollY.current = currentScrollY;
+      lastScrollY = currentScrollY;
     };
 
     // Listen for custom cart update event
