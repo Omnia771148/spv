@@ -30,7 +30,7 @@ const [loading, setLoading] = useState(true);
           totalPrice: o.totalPrice,
         }));
 
-      setOrders(formatted);
+      setOrders(foatted);
       setLoading(false);
     };
 

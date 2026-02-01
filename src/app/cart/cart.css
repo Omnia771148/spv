@@ -9,7 +9,7 @@ body {
     max-width: 400px !important;
     /* Mobile width constraint as per image aspect */
     margin: 0 auto;
-    padding: 20px 15px;
+    padding: 20px 15px 150px 15px;
     background-color: #FDFBF7;
     min-height: 100vh;
 }

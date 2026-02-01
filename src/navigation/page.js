@@ -18,30 +18,47 @@ export default function Navbar() {
     }
   };
 
+  // Use useRef to track the previous scroll position across renders without triggering them
+
+
   useEffect(() => {
     updateCartCount(); // Initial check
-
-    let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Determine scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Scrolling DOWN
+      // Always show if near the top (e.g. within 50px) to ensure accessibility
+      if (currentScrollY < 50) {
+        setIsVisible(true);
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      const diff = currentScrollY - lastScrollY.current;
+
+      // Hysteresis: Only react if scroll difference is > 10px
+      // This prevents "jitter" where tiny movements toggle the nav repeatedly
+      if (Math.abs(diff) < 10) {
+        return;
+      }
+
+      if (diff > 0) {
+        // Scrolled DOWN
         setIsVisible(false);
       } else {
-        // Scrolling UP
+        // Scrolled UP
         setIsVisible(true);
       }
 
-      lastScrollY = currentScrollY;
+      // Update the "anchor" position only after a significant move
+      lastScrollY.current = currentScrollY;
     };
 
-    // Listen for custom cart update event
     const handleCartUpdate = () => updateCartCount();
-    window.addEventListener("cartUpdated", handleCartUpdate);
+
+    // Use passive listener for better performance
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("cartUpdated", handleCartUpdate);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);

@@ -269,7 +269,7 @@ export default function Cart() {
             if (verifyRes.data.success) {
               alert('Order Placed Successfully!');
               clear();
-              router.push("/Tracker");
+              router.push("/finalorderstatuses");
             } else {
               setLoading(false);
               alert(`Order verification failed: ${verifyRes.data.message}`);
