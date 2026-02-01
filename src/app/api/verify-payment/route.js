@@ -3,7 +3,9 @@ import crypto from "crypto";
 import connectionToDatabase from "../../../../lib/mongoose";
 import Order from "../../../../models/Order";
 import OrderStatus from "../../../../models/OrderStatus";
+import User from "../../../../models/User";
 import { generateOrderId } from "../../../../lib/generateOrderId";
+
 export async function POST(request) {
   try {
     await connectionToDatabase();
@@ -14,6 +16,7 @@ export async function POST(request) {
       orderData
     } = await request.json();
     console.log("🔥 VERIFY PAYMENT ORDER DATA:", orderData);
+
     // 1️⃣ VERIFY SIGNATURE
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
@@ -26,9 +29,22 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    // 2️⃣ GENERATE CUSTOM ORDER ID
+
+    // 2️⃣ FETCH USER DETAILS (SERVER-SIDE SOURCE OF TRUTH)
+    // Sometimes localStorage might be empty/stale, so we verify from DB
+    let dbUser = null;
+    if (orderData.userId) {
+      try {
+        dbUser = await User.findById(orderData.userId);
+      } catch (err) {
+        console.error("Error fetching user in verify-payment:", err);
+      }
+    }
+
+    // 3️⃣ GENERATE CUSTOM ORDER ID
     const formattedOrderId = await generateOrderId();
-    // 3️⃣ SAVE ORDER
+
+    // 4️⃣ SAVE ORDER
     const orderDoc = {
       userId: orderData.userId,
       items: orderData.items,
@@ -38,11 +54,13 @@ export async function POST(request) {
       deliveryCharge: orderData.deliveryCharge,
       grandTotal: orderData.grandTotal,
       restaurantId: orderData.restaurantId,
+      restaurantName: orderData.restaurantName,
       aa: orderData.aa,
-      // ✅ USER INFO
-      userName: orderData.userName,
-      userEmail: orderData.userEmail,
-      userPhone: orderData.userPhone,
+      // ✅ USER INFO: Prefer DB User, fallback to Payload
+      userName: dbUser ? dbUser.name : orderData.userName,
+      userEmail: dbUser ? dbUser.email : orderData.userEmail,
+      userPhone: dbUser ? dbUser.phone : orderData.userPhone,
+
       flatNo: orderData.flatNo,
       street: orderData.street,
       landmark: orderData.landmark,
@@ -54,7 +72,7 @@ export async function POST(request) {
       paymentStatus: "Paid"
     };
     const newOrder = await Order.create(orderDoc);
-    // 4️⃣ ORDER STATUS
+    // 5️⃣ ORDER STATUS
     await OrderStatus.create({
       ...orderDoc,
       status: "Pending",
@@ -65,12 +83,12 @@ export async function POST(request) {
        TRIGGER NOTIFICATION TO RESTAURANT 
        We target the production URL for the Restaurant App.
     */
-    
+
     // ✅ Updated to point to your LIVE Vercel App
     const RESTAURANT_APP_URL = process.env.RESTAURANT_APP_URL || "https://newrest.vercel.app";
     try {
       console.log(`Attempting to send notification to: ${RESTAURANT_APP_URL}/api/send-notification`);
-      
+
       const notiResponse = await fetch(`${RESTAURANT_APP_URL}/api/send-notification`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

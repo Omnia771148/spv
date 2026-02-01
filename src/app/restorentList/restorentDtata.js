@@ -2,6 +2,7 @@ export const restList = [
     {
         id: "1",
         name: "Kushas",
+        dbname: "kushas",
         type: "veg",
         place: "Venkata Ramana Colony",
         lat: 15.8353465, // Hard-coded Latitude
@@ -12,6 +13,7 @@ export const restList = [
     {
         id: "2",
         name: "KNL",
+        dbname: "knl",
         type: "veg",
         place: "Venkata Ramana Colony",
         lat: 15.8324,
@@ -22,6 +24,7 @@ export const restList = [
     {
         id: "3",
         name: "Snow Field",
+        dbname: "snowfield",
         type: "non-veg",
         place: "Venkata Ramana Colony",
         lat: 15.8302831,
@@ -29,14 +32,10 @@ export const restList = [
         rating: "4.5",
         image: "/2.jpg",
     },
-
-
-
-
-
     {
         id: "5",
         name: "mayuri",
+        dbname: "mayuri",
         type: "non-veg",
         place: "Venkata Ramana Colony",
         lat: 15.8302831,
@@ -47,6 +46,7 @@ export const restList = [
     {
         id: "4",
         name: "bros",
+        dbname: "bros",
         type: "veg",
         place: "Venkata Ramana Colony",
         lat: 15.8061586,

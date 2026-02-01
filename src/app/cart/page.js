@@ -9,6 +9,7 @@ import Script from 'next/script';
 import Loading from '../loading/page';
 import { showToast } from '../../toaster/page';
 import './cart.css';
+import { restList } from '../restorentList/restorentDtata';
 
 export default function Cart() {
   const router = useRouter();
@@ -201,6 +202,11 @@ export default function Cart() {
         ? `https://www.google.com/maps/search/?api=1&query=${latStr},${lngStr}`
         : "";
 
+      // Look up dbName
+      const currentRestName = cartItems[0]?.restaurantName;
+      const currentRest = restList.find(r => r.name === currentRestName);
+      const dbName = currentRest ? currentRest.dbname : "";
+
       const orderPayload = {
         userId: localStorage.getItem('userId'),
         items: cartItems.map(item => ({
@@ -210,6 +216,7 @@ export default function Cart() {
           quantity: Number(quantities[item.id] || 1)
         })),
         restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
+        restaurantName: dbName,
         totalCount: cartItems.length,
         totalPrice: Number(totalPrice),
         gst: Number(gstAmount),

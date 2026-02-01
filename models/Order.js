@@ -40,6 +40,7 @@ const orderSchema = new mongoose.Schema({
   deliveryAddress: { type: String },
 
   restaurantId: { type: String, required: true },
+  restaurantName: { type: String },
   orderDate: { type: Date, default: Date.now },
   aa: { type: String, required: true },
 });

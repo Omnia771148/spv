@@ -36,6 +36,7 @@ const orderStatusSchema = new mongoose.Schema({
   street: { type: String },
   landmark: { type: String },
   deliveryAddress: { type: String }, // Remove required: true
+  restaurantName: { type: String },
   aa: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   expireAt: { type: Date }
