@@ -114,7 +114,7 @@ export default function FinalOrderStatuses() {
             <i className="fas fa-utensils empty-orders-icon"></i>
           </div>
           <h3 className="empty-orders-title">No Active Orders</h3>
-          <p className="empty-orders-subtitle">Your kitchen is quiet right now. Let's fix that with some delicious food!</p>
+          <p className="empty-orders-subtitle">Your kitchen is quiet right now. Let&apos;s fix that with some delicious food!</p>
           <button onClick={() => router.push('/')} className="browse-btn-orders">
             Order Something Tasty
           </button>

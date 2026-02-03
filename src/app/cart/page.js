@@ -335,7 +335,7 @@ export default function Cart() {
             <i className="fas fa-shopping-basket empty-cart-icon"></i>
           </div>
           <h3 className="empty-cart-title">Your Cart is Empty</h3>
-          <p className="empty-cart-subtitle">Looks like you haven't added any food yet. Hunger is a bad emotion!</p>
+          <p className="empty-cart-subtitle">Looks like you haven&apos;t added any food yet. Hunger is a bad emotion!</p>
           <button onClick={() => router.push('/')} className="browse-btn">
             Browse Restaurants
           </button>
