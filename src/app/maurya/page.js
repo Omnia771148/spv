@@ -17,7 +17,7 @@ import { selectUser } from '../../../lib/features/userSlice';
 
 import './maurya.css';
 
-export default function Mayuri() {
+export default function KushasMenuLite() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,7 @@ export default function Mayuri() {
   const isLoadingRedux = useSelector(selectRestaurantLoading);
 
   // ID "5" corresponds to Mayuri
-  const restaurantActive = allStatuses["5"] ?? false;
+  const restaurantActive = allStatuses["4"] ?? false;
   const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
 
   // Button statuses state (REDUX)
@@ -77,10 +77,12 @@ export default function Mayuri() {
     }
 
     if (
-      existingCart.some((cartItem) => cartItem.id >= 9 && cartItem.id <= 12) ||
-      existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 4) ||
-      existingCart.some((cartItem) => cartItem.id >= 5 && cartItem.id <= 8) ||
-      existingCart.some((cartItem) => cartItem.id >= 13 && cartItem.id <= 16)
+       existingCart.some((cartItem) => cartItem.id >= 1&& cartItem.id <= 100) ||
+      existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
+      existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
+       existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512) ||
+       existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
+       existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714) 
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
@@ -162,7 +164,7 @@ export default function Mayuri() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === "" || item.type === typeFilter;
-          const matchesId = item.id >= 17 && item.id <= 20; ///cange for the item statuses
+          const matchesId = item.id >= 311 && item.id <= 411; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
 
           return matchesSearch && matchesType && matchesId && isActive;
@@ -183,7 +185,7 @@ export default function Mayuri() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === "" || item.type === typeFilter;
-          const matchesId = item.id >= 17 && item.id <= 20; ///cange for the item statuses
+          const matchesId = item.id >= 311 && item.id <= 411; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
           return matchesSearch && matchesType && matchesId && isActive;
         }).length === 0 && (

@@ -182,7 +182,21 @@ export default function Cart() {
   const updateQuantity = (id, delta) => {
     setQuantities(prev => {
       const newQty = (prev[id] || 1) + delta;
-      return { ...prev, [id]: newQty > 0 ? newQty : 1 };
+      const finalQty = newQty > 0 ? newQty : 1;
+
+      // Update localStorage as well to persist quantity changes
+      const updatedCart = cartItems.map(item => {
+        if (item.id === id) {
+          return { ...item, quantity: finalQty };
+        }
+        return item;
+      });
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      // Update local cartItems state to keep in sync (though optional if we only used quantities state, but good for consistency)
+      setCartItems(updatedCart);
+      window.dispatchEvent(new Event("cartUpdated")); // Notify other components
+
+      return { ...prev, [id]: finalQty };
     });
   };
 
@@ -311,17 +325,20 @@ export default function Cart() {
 
       <div className="cart-header">
         <div>
-          <i className="fas fa-chevron-left me-2" onClick={() => router.back()} style={{ cursor: 'pointer', fontSize: '1.2rem' }}></i>
           <span className="restaurant-name">{cartItems[0]?.restaurantName || "Restaurant"}</span>
         </div>
-        {/* Date placeholder or dynamic if needed, keeping simple for now to match layout */}
-        <span className="cart-date">{new Date().toLocaleDateString('en-GB')}</span>
       </div>
 
       {cartItems.length === 0 ? (
-        <div className="text-center py-5">
-          <p className="text-muted h5">No items in the cart.</p>
-          <button onClick={() => router.push('/')} className="btn btn-primary mt-3 btn-sm">Browse Restaurants</button>
+        <div className="empty-cart-container">
+          <div className="empty-cart-icon-wrapper">
+            <i className="fas fa-shopping-basket empty-cart-icon"></i>
+          </div>
+          <h3 className="empty-cart-title">Your Cart is Empty</h3>
+          <p className="empty-cart-subtitle">Looks like you haven't added any food yet. Hunger is a bad emotion!</p>
+          <button onClick={() => router.push('/')} className="browse-btn">
+            Browse Restaurants
+          </button>
         </div>
       ) : (
         <>
@@ -332,11 +349,11 @@ export default function Cart() {
                 <span className="item-name">{item.name}</span>
                 <div className="d-flex align-items-center">
                   <div className="qty-control">
-                    <button onClick={() => updateQuantity(item.id, 1)} className="qty-btn">+</button>
-                    <span className="qty-val">{quantities[item.id]}</span>
                     <button onClick={() => updateQuantity(item.id, -1)} className="qty-btn">-</button>
+                    <span className="qty-val">{quantities[item.id]}</span>
+                    <button onClick={() => updateQuantity(item.id, 1)} className="qty-btn">+</button>
                   </div>
-                  <span className="item-price">₹{item.price} x {quantities[item.id]}</span>
+                  <span className="item-price">₹{item.price} </span>
                   <button onClick={() => removeItem(item.id)} className="trash-btn">
                     <i className="fas fa-trash-alt"></i>
                   </button>
@@ -380,7 +397,7 @@ export default function Cart() {
               className="beige-btn-filled"
               disabled={showAddressBox || hasActiveOrder}
               title={hasActiveOrder ? "You have an active order" : "Place order"}
-              style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              style={hasActiveOrder ? { cursor: 'not-allowed', backgroundColor: '#dc3545', color: '#fff' } : {}}
             >
               {hasActiveOrder ? "Order in Progress" : "Place the order"}
             </button>
@@ -418,7 +435,7 @@ export default function Cart() {
                 className="confirm-btn"
                 disabled={loading || hasActiveOrder}
                 title={hasActiveOrder ? "Cannot proceed with active order" : "Confirm Order"}
-                style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                style={hasActiveOrder ? { cursor: 'not-allowed', backgroundColor: '#dc3545', color: '#fff' } : {}}
               >
                 {hasActiveOrder
                   ? "Order already in progress"

@@ -4,27 +4,57 @@ import { useState, useEffect } from 'react';
 
 
 export function ProductCard({ name, price, button, onAddToCart, item, image, rating, disabled }) {
-  const [isAdded, setIsAdded] = useState(false);
+  const [quantity, setQuantity] = useState(0);
 
-  // Check if item is already in cart on mount
+  // Check if item is already in cart on mount and listen for updates
   useEffect(() => {
-    // Ensure we are in browser environment
     if (typeof window !== 'undefined') {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const exists = cart.some(cartItem => cartItem.id === item.id);
-      if (exists) {
-        setIsAdded(true);
-      }
+      const checkCart = () => {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const cartItem = cart.find(cartItem => cartItem.id === item.id);
+        if (cartItem) {
+          setQuantity(cartItem.quantity || 1);
+        } else {
+          setQuantity(0);
+        }
+      };
+
+      checkCart();
+
+      // Listen for cart updates from other components
+      window.addEventListener('cartUpdated', checkCart);
+      return () => window.removeEventListener('cartUpdated', checkCart);
     }
   }, [item.id]);
 
-  const handleClick = () => {
+  const handleAdd = () => {
     if (onAddToCart) {
       onAddToCart(item);
+      // After parent handler, check if it was added to update our state
       if (!disabled) {
-        setIsAdded(true);
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const exists = cart.find(c => c.id === item.id);
+        if (exists) {
+          setQuantity(exists.quantity || 1);
+        }
       }
     }
+  };
+
+  const updateQuantity = (newQty) => {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let updatedCart;
+
+    if (newQty <= 0) {
+      updatedCart = cart.filter(c => c.id !== item.id);
+      setQuantity(0);
+    } else {
+      updatedCart = cart.map(c => c.id === item.id ? { ...c, quantity: newQty } : c);
+      setQuantity(newQty);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    window.dispatchEvent(new Event("cartUpdated"));
   };
 
   return (
@@ -56,19 +86,20 @@ export function ProductCard({ name, price, button, onAddToCart, item, image, rat
           </div>
         </div>
 
-        <button
-          className={`product-add-btn ${isAdded ? 'added' : ''}`}
-          onClick={handleClick}
-          style={isAdded ? { backgroundColor: '#28a745', color: 'white' } : {}}
-        >
-          {isAdded ? (
-            <>
-              Added <i className="fa-solid fa-check" style={{ marginLeft: '5px' }}></i>
-            </>
-          ) : (
-            button || 'ADD'
-          )}
-        </button>
+        {quantity > 0 ? (
+          <div className="quantity-controls">
+            <button className="qty-btn" onClick={() => updateQuantity(quantity - 1)}>-</button>
+            <span className="qty-value">{quantity}</span>
+            <button className="qty-btn" onClick={() => updateQuantity(quantity + 1)}>+</button>
+          </div>
+        ) : (
+          <button
+            className={`product-add-btn`}
+            onClick={handleAdd}
+          >
+            {button || 'ADD'}
+          </button>
+        )}
       </div>
     </div>
   );

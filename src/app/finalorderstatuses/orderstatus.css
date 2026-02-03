@@ -60,8 +60,8 @@
 /* Restaurant Header */
 .card-header-row {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    justify-content: center;
+    align-items: center;
     border-bottom: 1.5px solid #000;
     padding-bottom: 8px;
     margin-bottom: 20px;
@@ -69,11 +69,21 @@
 
 .restaurant-title {
     font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    font-style: italic;
+    font-size: 32px;
+    font-weight: bold;
     color: #1a1a1a;
     margin: 0;
     line-height: 1.2;
+    text-align: center;
+}
+
+/* Order Details Header Side-by-Side */
+.order-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 5px;
 }
 
 .order-timestamp {
@@ -86,26 +96,52 @@
 /* Details Section */
 .details-section {
     margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* Large spacing between elements */
+    align-items: flex-start;
+    /* Align everything left */
+    text-align: left;
 }
 
 .section-label {
-    font-size: 14px;
-    text-decoration: underline;
-    margin-bottom: 5px;
-    color: #111;
+    font-size: 16px;
+    font-weight: 800;
+    text-decoration: none;
+    margin-bottom: 0;
+    /* Handled by gap */
+    color: #000;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 8px 18px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-left: -10px;
+    /* Align text to 0 left */
 }
 
 .order-id-text {
-    font-size: 13px;
-    font-weight: 500;
-    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 0;
+    /* Handled by gap */
+    color: #222;
+    letter-spacing: 0.5px;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 8px 18px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-left: -10px;
 }
 
 /* Progress Bar */
 .progress-container {
     position: relative;
-    margin: 40px 0 25px 0;
+    margin: 50px 0 15px 0;
+    /* Move down by 5px (was 10px) */
     text-align: center;
+    width: 100%;
+    /* Ensure it spans full width despite flex-start */
 }
 
 .progress-track {
@@ -118,8 +154,8 @@
 }
 
 .progress-fill {
-    background-color: #6BCB77;
-    /* Fresh green */
+    background-color: #2E7D32;
+    /* Thick green */
     height: 100%;
     border-radius: 20px;
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -199,12 +235,37 @@
     color: #111;
 }
 
+/* Bill Container */
+.bill-container {
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin: 25px -12px 15px -12px;
+    /* Top spacing, negative sides, bottom spacing */
+    width: calc(100% + 24px);
+    font-size: 16px;
+}
+
 /* Items Table */
 .bill-table {
     width: 100%;
     font-size: 16px;
     /* Bigger font for items */
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    margin-top: 0;
+    /* Added space before items */
+}
+
+/* Header Pills for table */
+.header-pill {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1a1a1a;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: inline-block;
 }
 
 .bill-table td {
@@ -257,11 +318,48 @@
 
 /* Payment Info */
 .payment-info {
-    font-size: 13px;
-    margin-top: 20px;
+    font-size: 14px;
+    margin-top: 25px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin-left: -12px;
+    /* Align text to 0 left */
+    margin-right: -12px;
+    width: calc(100% + 24px);
+}
+
+.payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.payment-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+.payment-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #444;
+}
+
+.payment-status-badge {
+    background-color: #4CAF50;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
 }
 
 .check-green {
@@ -289,4 +387,148 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     font-family: 'Courier New', Courier, monospace;
     /* Monospace for OTP look */
+}
+
+/* Call Button */
+.call-btn {
+    background-color: #2E7D32;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s ease, background-color 0.2s;
+    margin-top: 5px;
+}
+
+.call-btn:active {
+    transform: scale(0.95);
+}
+
+.call-btn:hover {
+    background-color: #1B5E20;
+    color: white;
+}
+
+/* Hunger Savior Card */
+.savior-card {
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 15px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin: 5px -12px 0 -12px;
+    width: calc(100% + 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.savior-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.savior-label {
+    font-size: 18px;
+    /* Same as Items/Quantity headers */
+    color: #1a1a1a;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 4px 12px;
+    border-radius: 8px;
+}
+
+.savior-value {
+    font-size: 16px;
+    /* Same as Subtotal/GST text */
+    font-weight: 500;
+    color: #444;
+}
+
+/* Empty Orders State */
+@keyframes orderFloat {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-15px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.empty-orders-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    max-width: 400px;
+}
+
+.empty-orders-icon-wrapper {
+    width: 130px;
+    height: 130px;
+    background-color: #E3DAC5;
+    /* matching card color */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    animation: orderFloat 3s ease-in-out infinite;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+}
+
+.empty-orders-icon {
+    font-size: 55px;
+    color: #1a1a1a;
+}
+
+.empty-orders-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.empty-orders-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 35px;
+    line-height: 1.6;
+}
+
+.browse-btn-orders {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 14px 40px;
+    border-radius: 30px;
+    font-weight: 600;
+    border: none;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.browse-btn-orders:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+    background-color: #000;
 }

@@ -31,7 +31,7 @@ export default function Bro() {
   const isLoadingRedux = useSelector(selectRestaurantLoading);
 
   // ID "4" corresponds to Bros
-  const restaurantActive = allStatuses["4"] ?? false;
+  const restaurantActive = allStatuses["5"] ?? false;
   const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
 
   // Button statuses state (REDUX)
@@ -77,10 +77,12 @@ export default function Bro() {
     }
 
     if (
-      existingCart.some((cartItem) => cartItem.id >= 9 && cartItem.id <= 12) ||
-      existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 4) ||
-      existingCart.some((cartItem) => cartItem.id >= 5 && cartItem.id <= 8) ||
-      existingCart.some((cartItem) => cartItem.id >= 17 && cartItem.id <= 20)
+     existingCart.some((cartItem) => cartItem.id >= 1&& cartItem.id <= 100) ||
+      existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
+      existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
+       existingCart.some((cartItem) => cartItem.id >= 311&& cartItem.id <= 411) ||
+       existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
+       existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714) 
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
@@ -162,7 +164,7 @@ export default function Bro() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === "" || item.type === typeFilter;
-          const matchesId = item.id >= 13 && item.id <= 16; ///cange for the item statuses
+          const matchesId = item.id >= 412 && item.id <= 512; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
 
           return matchesSearch && matchesType && matchesId && isActive;
@@ -182,7 +184,7 @@ export default function Bro() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === "" || item.type === typeFilter;
-          const matchesId = item.id >= 13 && item.id <= 16; ///cange for the item statuses
+          const matchesId = item.id >= 412 && item.id <= 512; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
           return matchesSearch && matchesType && matchesId && isActive;
         }).length === 0 && (

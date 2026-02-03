@@ -1,7 +1,9 @@
-"use client"
+"use client";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { logoutUser } from "../../lib/features/userSlice";
+import Loading from "../loading/page";
 
 import './profile.css';
 
@@ -9,6 +11,15 @@ import './profile.css';
 export default function Profile() {
     const router = useRouter();
     const dispatch = useDispatch();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Simple artificial delay to show the cool loader
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleLogout = () => {
         // 1. Clear Redux State (Memory)
@@ -22,23 +33,20 @@ export default function Profile() {
         router.replace("/");
     };
 
+    if (loading) return <Loading />;
+
     return (
         <div className="profile-page-container">
-            {/* Header with Back Button */}
-            <div className="d-flex align-items-center mb-4">
-                <i
-                    className="fas fa-caret-left back-btn me-3"
-                    onClick={() => router.back()}
-                    style={{ fontSize: '2rem', color: '#ccc' }}
-                ></i>
-                {/* Spacer/Alignment could go here if needed, but image shows back arrow top left */}
-            </div>
 
-            {/* Profile Badge - Left Aligned */}
-            <div className="mb-4">
-                <div className="profile-header-badge">
-                    <i className="fas fa-cog profile-header-icon"></i>
-                    <span>Profile</span>
+
+
+
+            {/* Header - Matching My Orders style */}
+            <div className="orders-header">
+                {/* No back button here as requested in previous turns or implied by layout */}
+                <div className="orders-header-pill">
+                    <span className="header-icon"><i className="fas fa-cog"></i></span>
+                    <h2>Profile</h2>
                 </div>
             </div>
 
@@ -49,7 +57,7 @@ export default function Profile() {
                 <button className="custom-nav-btn" onClick={() => window.location.href = "/userdetails"}>
                     <div className="d-flex align-items-center">
                         <i className="fas fa-edit btn-icon-left"></i>
-                        <span className="btn-text">Edit my profile</span>
+                        <span className="btn-text">My Profile</span>
                     </div>
                     <i className="fas fa-caret-right btn-arrow"></i>
                 </button>

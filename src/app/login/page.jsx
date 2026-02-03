@@ -13,7 +13,6 @@ export default function Home({ handleFPClick, handleSignUp }) {
     const [inputName, setInputName] = useState('');
     const [inputEmail, setInputEmail] = useState('');
     const [loading, setLoading] = useState(true);
-    const [showError, setShowError] = useState(false);
 
     // 1. Check for existing session on load
     useEffect(() => {
@@ -81,15 +80,10 @@ export default function Home({ handleFPClick, handleSignUp }) {
                 email: matchedUser.email
             }));
 
-            alert("Login successful!");
+            // Directly go to restaurant list
             window.location.href = "/mainRestorentList";
-        } else if (inputName.length !== 10) {
-            alert("Mobile number must be exactly 10 digits.");
-        } else if (inputName === "" && inputEmail === "") {
-            alert("Please fill in both fields.");
-        } else {
-            setShowError(true);
         }
+        // No action on failure as per instruction
     };
 
     // ✅ Use your custom Loading component with the spinning pizza
@@ -163,31 +157,14 @@ export default function Home({ handleFPClick, handleSignUp }) {
             </div>
 
             <div className="create-account-text">
-                Don’t have account?
+                Designed For Your Order's
                 <span
                     className="create-link"
                     onClick={handleSignUp}
                 >
-                    create
+                    SignUp
                 </span>
             </div>
-
-            {/* Error Popup UI */}
-            {showError && (
-                <div className="error-popup-overlay">
-                    <div className="error-popup-card">
-                        <div className="error-icon-circle">
-                            <span className="error-icon-cross">✕</span>
-                        </div>
-                        <p className="error-text">
-                            Username/Password are<br />incorrect please<br />Retry
-                        </p>
-                        <button className="error-retry-btn" onClick={() => setShowError(false)}>
-                            Retry
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

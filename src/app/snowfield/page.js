@@ -95,10 +95,12 @@ export default function KushasMenuLite() {
     }
 
     if (
-      existingCart.some(cartItem => cartItem.id >= 1 && cartItem.id <= 4) ||
-      existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8) ||
-      existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
-      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20)
+       existingCart.some((cartItem) => cartItem.id >= 1&& cartItem.id <= 100) ||
+      existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
+      existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
+      existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512) ||
+       existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
+       existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714) 
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
@@ -184,7 +186,7 @@ export default function KushasMenuLite() {
         {Data.filter(item => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === '' || item.type === typeFilter;
-          const matchesId = item.id >= 9 && item.id <= 12; ///cange for the item statuses
+          const matchesId = item.id >= 206 && item.id <= 310; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
 
           return matchesSearch && matchesType && matchesId && isActive;
@@ -204,7 +206,7 @@ export default function KushasMenuLite() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === '' || item.type === typeFilter;
-          const matchesId = item.id >= 9 && item.id <= 12; ///cange for the item statuses
+          const matchesId = item.id >= 206 && item.id <= 310; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
           return matchesSearch && matchesType && matchesId && isActive;
         }).length === 0 && (

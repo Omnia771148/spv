@@ -1,20 +1,33 @@
 .coroselmain {
-    width: 100%;
-    max-width: 800px;
+    width: calc(100% - 40px);
+    max-width: 100%;
     /* Prevent it from being too wide */
-    height: 200px;
-    margin: 0 auto;
+    height: 30px;
+    margin: 20px auto 0;
     /* Center it */
     overflow: hidden;
     /* Cut off anything extra */
-    border-radius: 15px;
+    border-radius: 25px;
     /* Optional styling */
 }
+
+/* Ensure bootstrap inner containers fill the height */
+.coroselmain .carousel-inner,
+.coroselmain .carousel-item {
+    height: 100%;
+}
+
 
 .coroselmain img {
     height: 100%;
     width: 100%;
     object-fit: cover;
+}
+
+/* Ensure bootstrap inner containers fill the height */
+.coroselmain .carousel-inner,
+.coroselmain .carousel-item {
+    height: 100%;
 }
 
 body {
@@ -27,8 +40,8 @@ body {
 @media (max-width: 768px) {
 
     .coroselmain {
-        width: 100%;
-        height: 180px;
+        width: calc(100% - 40px);
+        height: 243px;
         /* Slightly smaller on mobile to verify fit */
         margin-bottom: 20px;
         /* Space before search bar */

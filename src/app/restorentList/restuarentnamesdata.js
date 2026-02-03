@@ -39,7 +39,23 @@ const restuarents = [
     rating: 4.5,
     image: "/2.jpg",
   },
-    
+  {
+    id: 6,
+    name: "Cake wala",
+    Type: "Pure Veg",
+    place: "Venkata Ramana Colony",
+    rating: 4.5,
+    image: "/2.jpg",
+  },
+  {
+    id: 7,
+    name: "Cream Stone",
+    Type: "Non-Veg",
+    place: "Venkata Ramana Colony",
+    rating: 4.5,
+    image: "/2.jpg",
+  },
+
 ];
 
 export default restuarents;

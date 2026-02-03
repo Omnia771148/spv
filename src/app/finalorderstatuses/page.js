@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Loading from '../loading/page';
 import './orderstatus.css';
 
 export default function FinalOrderStatuses() {
@@ -31,7 +32,7 @@ export default function FinalOrderStatuses() {
     fetchOrders();
 
     // Poll every 2 minutes (120,000 ms)
-    const intervalId = setInterval(fetchOrders, 200000);
+    const intervalId = setInterval(fetchOrders, 10000);
 
     return () => clearInterval(intervalId);
   }, [router]);
@@ -68,11 +69,11 @@ export default function FinalOrderStatuses() {
   const getStatusProgress = (status) => {
     const s = status?.toLowerCase() || '';
     if (s.includes('rejected')) return { width: '100%', text: 'Rejected by restaurant', color: '#DC3545' };
-    if (s.includes('pending') || s.includes('preparing')) return { width: '25%', text: 'Your food is being prepared', color: '#6BCB77' };
-    if (s.includes('waiting') || s.includes('driver')) return { width: '50%', text: 'Waiting for delivery partner', color: '#6BCB77' };
-    if (s.includes('out') || s.includes('soon')) return { width: '80%', text: 'Out for delivery', color: '#6BCB77' };
-    if (s.includes('delivered')) return { width: '100%', text: 'Delivered', color: '#6BCB77' };
-    return { width: '10%', text: 'Processing', color: '#6BCB77' };
+    if (s.includes('pending') || s.includes('preparing')) return { width: '25%', text: 'Your food is being prepared', color: '#2E7D32' };
+    if (s.includes('waiting') || s.includes('driver')) return { width: '50%', text: 'Waiting for delivery partner', color: '#2E7D32' };
+    if (s.includes('out') || s.includes('soon')) return { width: '80%', text: 'Out for delivery', color: '#2E7D32' };
+    if (s.includes('delivered')) return { width: '100%', text: 'Delivered', color: '#2E7D32' };
+    return { width: '10%', text: 'Processing', color: '#ff0000' };
   };
 
   const getOtp = (razorpayOrderId) => {
@@ -80,19 +81,45 @@ export default function FinalOrderStatuses() {
     return razorpayOrderId.slice(-5);
   };
 
-  if (loading) return <div className="d-flex justify-content-center align-items-center vh-100" style={{ backgroundColor: '#F8F5EB' }}>Loading...</div>;
+  const getRestaurantName = (id) => {
+    const names = {
+      "1": "Kushas",
+      "2": "KNL",
+      "3": "Snow Field",
+      "4": "Mayuri",
+      "5": "Bros",
+      "6": "Sai",
+      "7": "PV"
+    };
+    return names[String(id)] || id || "Kushas";
+  };
+
+  if (loading) return <Loading />;
 
   return (
     <div className="order-wrapper">
-      {/* Header Badge */}
-      <div className="live-badge">
-        <div className="live-dot-outer">
-          <div className="live-dot-inner"></div>
+      {/* Header Badge - Only show if there are orders */}
+      {orders.length > 0 && (
+        <div className="live-badge">
+          <div className="live-dot-outer">
+            <div className="live-dot-inner"></div>
+          </div>
+          Clear the table! Greatness is on its way... 🍽️
         </div>
-        Live orders
-      </div>
+      )}
 
-      {orders.length === 0 && <p className="text-center mt-5">No active orders found.</p>}
+      {orders.length === 0 && (
+        <div className="empty-orders-container">
+          <div className="empty-orders-icon-wrapper">
+            <i className="fas fa-utensils empty-orders-icon"></i>
+          </div>
+          <h3 className="empty-orders-title">No Active Orders</h3>
+          <p className="empty-orders-subtitle">Your kitchen is quiet right now. Let's fix that with some delicious food!</p>
+          <button onClick={() => router.push('/')} className="browse-btn-orders">
+            Order Something Tasty
+          </button>
+        </div>
+      )}
 
       {orders.map((order) => {
         const { width, text, color } = getStatusProgress(order.status);
@@ -101,14 +128,14 @@ export default function FinalOrderStatuses() {
           <div className="order-card" key={order._id}>
             {/* Header: RestaurantName + Date */}
             <div className="card-header-row">
-              <h2 className="restaurant-title">{order.restaurantId || "Kushal Kitchen"}</h2>
-              <span className="order-timestamp">{new Date(order.createdAt).toLocaleString('en-GB')}</span>
+              <h2 className="restaurant-title">{getRestaurantName(order.restaurantId)}</h2>
+
             </div>
 
             {/* Order Details */}
             <div className="details-section">
               <div className="section-label">Order details</div>
-              <div className="order-id-text">Order ID - {order.orderId}</div>
+              <div className="order-id-text" style={{ alignSelf: 'flex-start' }}>Order ID - {order.orderId}</div>
 
               {/* Progress Bar */}
               <div className="progress-container">
@@ -126,66 +153,95 @@ export default function FinalOrderStatuses() {
               </div>
             </div>
 
-            {/* Delivery Boy Details - Static/Fallback if missing in data as requested */}
+            {/* Hunger Savior Details */}
             <div className="details-section">
-              <div className="section-label">Delivery Boy details</div>
-              <div>Delivery boy name - {order.deliveryBoyName || "Not Assigned"}</div>
-              <div>Delivery boy phone no - {order.deliveryBoyPhone || "Pending"}</div>
-            </div>
-
-            {/* Items Table */}
-            <table className="bill-table">
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', fontWeight: 'bold', fontSize: '18px', paddingBottom: '5px' }}>Items</th>
-                  <th style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '18px', paddingBottom: '5px' }}>Quantity</th>
-                  <th style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '18px', paddingBottom: '5px' }}>Cost</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.items.map((item, i) => (
-                  <tr key={i}>
-                    <td className="item-name">{item.name}</td>
-                    <td className="item-qty">{item.quantity}x</td>
-                    <td className="item-price">-{item.price}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Totals */}
-            <div className="divider-line"></div>
-
-            <div className="subtotal-row">
-              <span>Sub Total</span>
-              <span>-{order.totalPrice}</span>
-            </div>
-            {order.gst > 0 && (
-              <div className="gst-row">
-                <span>GST</span>
-                <span style={{ marginRight: 'auto', marginLeft: '10px' }}>5%</span>
-                <span>-{order.gst}</span>
+              <div className="section-label">Your Hunger Savior details</div>
+              <div className="savior-card">
+                <div className="savior-row">
+                  <span className="savior-label">Name</span>
+                  <span className="savior-value">{order.deliveryBoyName || "Not Assigned"}</span>
+                </div>
+                {order.deliveryBoyPhone ? (
+                  <div className="savior-row">
+                    <a href={`tel:${order.deliveryBoyPhone}`} className="call-btn">
+                      <i className="fa-solid fa-phone"></i> Call Savior
+                    </a>
+                  </div>
+                ) : (
+                  <div className="savior-row">
+                    <span className="savior-label">Phone</span>
+                    <span className="savior-value">Pending</span>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
-            <div className="divider-line"></div>
-            <div className="total-row">
-              <span>-{order.grandTotal}</span>
+            <div className="bill-container">
+              {/* Items Table */}
+              <table className="bill-table">
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: 'left', paddingBottom: '10px' }}>
+                      <span className="header-pill">Items</span>
+                    </th>
+                    <th style={{ textAlign: 'center', paddingBottom: '10px' }}>
+                      <span className="header-pill">Quantity</span>
+                    </th>
+                    <th style={{ textAlign: 'right', paddingBottom: '10px' }}>
+                      <span className="header-pill">Cost</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.items.map((item, i) => (
+                    <tr key={i}>
+                      <td className="item-name">{item.name}</td>
+                      <td className="item-qty">{item.quantity}x</td>
+                      <td className="item-price">₹ {item.price}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Totals */}
+              <div className="divider-line"></div>
+
+              <div className="subtotal-row">
+                <span>Sub Total</span>
+                <span>₹ {order.totalPrice}</span>
+              </div>
+              {order.gst > 0 && (
+                <div className="gst-row">
+                  <span>GST</span>
+                  <span style={{ marginRight: 'auto', marginLeft: '10px' }}>5%</span>
+                  <span>₹ {order.gst}</span>
+                </div>
+              )}
+
+              <div className="divider-line"></div>
+              <div className="total-row">
+                <span style={{ marginRight: 'auto', marginLeft: '0px' }}>Total</span>
+                <span>₹ {order.grandTotal}</span>
+              </div>
             </div>
 
             {/* Payment Status */}
             <div className="payment-info">
-              <div>
-                Payment status - <i className="fa-solid fa-circle-check check-green"></i> {order.paymentStatus}
+              <div className="payment-row">
+                <span className="payment-label">Payment status</span>
+                <span className="payment-value">
+                  <span className="payment-status-badge">{order.paymentStatus}</span>
+                </span>
               </div>
-              <div style={{ fontSize: '11px', color: '#555' }}>
-                Payment ID - {order.razorpayPaymentId}
+              <div className="payment-row">
+                <span className="payment-label">Payment ID</span>
+                <span className="payment-value">{order.razorpayPaymentId}</span>
               </div>
             </div>
 
             {/* OTP Section */}
             <div className="otp-container">
-              <span style={{ fontWeight: 'bold' }}>Total</span>
+
               <div className="otp-pill">
                 OTP - {getOtp(order.razorpayOrderId)}
               </div>
@@ -194,6 +250,10 @@ export default function FinalOrderStatuses() {
           </div>
         );
       })}
+      <br></br>
+      <br></br>
+      <br></br>
     </div>
+
   );
 }

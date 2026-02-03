@@ -3,33 +3,45 @@
 /* Main Container */
 .profile-page-container {
     min-height: 100vh;
-    background-color: #F8F5F1;
-    /* Light cream to match premium vibe */
+    background-color: #EEE8D6;
+    /* Beige background */
     padding: 20px;
     font-family: 'Poppins', sans-serif;
     color: #333;
     overflow-x: hidden;
 }
 
-/* Header Badge */
-.profile-header-badge {
-    background: #fff;
-    display: inline-flex;
-    align-items: center;
+/* Header Styling - Pill Shape */
+.orders-header {
+    display: flex;
     justify-content: center;
-    padding: 10px 30px;
-    border-radius: 50px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    font-size: 1.3rem;
-    font-weight: 500;
-    gap: 12px;
-    margin-bottom: 20px;
-    min-width: 150px;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
-.profile-header-icon {
-    font-size: 1.5rem;
+.orders-header-pill {
+    background-color: #fff;
+    padding: 10px 30px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.orders-header h2 {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
     color: #000;
+    font-weight: 600;
+}
+
+.header-icon {
+    font-size: 24px;
 }
 
 /* Card Container */
@@ -95,17 +107,6 @@
 .btn-arrow {
     font-size: 1.2rem;
     color: #000;
-}
-
-/* Back Button */
-.back-btn {
-    cursor: pointer;
-    color: #aaa;
-    transition: color 0.3s;
-}
-
-.back-btn:hover {
-    color: #333 !important;
 }
 
 /* Responsive adjustments */

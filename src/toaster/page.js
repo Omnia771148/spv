@@ -22,12 +22,12 @@ export const showToast = (msg, bg = 'success') => {
 
   // Styles
   const html = `
-    <div id="${id}" class="toast-pill" style="position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background-color: ${bgColor}; z-index: 9999; justify-content: center; align-items: center;">
+    <div id="${id}" class="toast-pill" style="position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background-color: ${bgColor}; z-index: 9999; justify-content: center; align-items: center; min-width: 80%;">
       ${iconHtml}
       <span style="font-weight: 600; padding-top: 2px;">${msg.toUpperCase()}</span>
     </div>
   `;
 
   document.body.insertAdjacentHTML('beforeend', html);
-  setTimeout(() => document.getElementById(id)?.remove(), 3000);
+  setTimeout(() => document.getElementById(id)?.remove(), 1000);
 };

@@ -72,15 +72,15 @@ export default function KushasMenuList() {
     }
 
     // ✅ One restaurant restriction
-    if (
-      existingCart.some(cartItem => cartItem.id >= 5 && cartItem.id <= 8) ||
-      existingCart.some(cartItem => cartItem.id >= 9 && cartItem.id <= 12) ||
-      existingCart.some(cartItem => cartItem.id >= 13 && cartItem.id <= 16) ||
-      existingCart.some(cartItem => cartItem.id >= 17 && cartItem.id <= 20)
-    ) {
-      showToast("You Can Select From Only One Restaurant", "danger");
-      return;
-    }
+       if (
+          existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
+          existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
+          existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
+          existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512)
+        ) {
+          showToast("You Can Select From Only One Restaurant", "danger");
+          return;
+        }
 
     item.restaurantName = "Kushas";
 
@@ -157,7 +157,7 @@ export default function KushasMenuList() {
         {Data.filter(item => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === '' || item.type === typeFilter;
-          const matchesId = item.id >= 1 && item.id <= 4; ///cange for the item statuses
+          const matchesId = item.id >= 1 && item.id <= 100; ///cange for the item statuses
 
           // Check button status for this item
           const isActive = buttonStatuses[item.id] === true;
@@ -179,7 +179,7 @@ export default function KushasMenuList() {
         {Data.filter(item => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === '' || item.type === typeFilter;
-          const matchesId = item.id >= 1 && item.id <= 4;  ///cange for the item statuses
+          const matchesId = item.id >= 1 && item.id <= 100; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
           return matchesSearch && matchesType && matchesId && isActive;
         }).length === 0 && (

@@ -88,128 +88,131 @@ export default function MyOrders() {
                     <span className="header-icon">📦</span>
                     <h2>My Orders</h2>
                 </div>
-            </div>
+            </div >
 
             {error && (
                 <div className="error-message">
                     <p>{error}</p>
                 </div>
-            )}
+            )
+            }
 
-            {orders.length === 0 ? (
-                <div className="no-orders">
-                    <p>No orders found for your account.</p>
-                    <button onClick={() => fetchMyOrders(userId)} className="refresh-btn">
-                        Refresh Orders
-                    </button>
-                </div>
-            ) : (
-                <div className="orders-list">
-                    {orders.map((order) => (
-                        <div key={order._id} className="order-card">
-                            <div className="order-header">
-                                <div className="order-id-section">
-                                    <h3>Order #{order.orderId}</h3>
-                                    <span
-                                        className="status-badge"
-                                        style={{ backgroundColor: getStatusColor(order.status), color: 'white' }}
-                                    >
-                                        {order.status}
-                                    </span>
-                                </div>
-                                <p className="order-date">
-                                    {formatDate(order.orderDate)}
-                                </p>
-                            </div>
-
-                            <div className="order-details">
-                                {/* Items Section */}
-                                <div className="order-section">
-                                    <h4>Items Ordered</h4>
-                                    <div className="items-list">
-                                        {order.items.map((item, index) => (
-                                            <div key={index} className="item-row">
-                                                <span className="item-name">{item.name}</span>
-                                                <span className="item-quantity">x {item.quantity}</span>
-                                                <span className="item-price">₹{item.price * item.quantity}</span>
-                                            </div>
-                                        ))}
+            {
+                orders.length === 0 ? (
+                    <div className="no-orders">
+                        <p>No orders found for your account.</p>
+                        <button onClick={() => fetchMyOrders(userId)} className="refresh-btn">
+                            Refresh Orders
+                        </button>
+                    </div>
+                ) : (
+                    <div className="orders-list">
+                        {orders.map((order) => (
+                            <div key={order._id} className="order-card">
+                                <div className="order-header">
+                                    <div className="order-id-section">
+                                        <h3>Order #{order.orderId}</h3>
+                                        <span
+                                            className="status-badge"
+                                            style={{ backgroundColor: getStatusColor(order.status), color: 'white' }}
+                                        >
+                                            {order.status}
+                                        </span>
                                     </div>
+                                    <p className="order-date">
+                                        {formatDate(order.orderDate)}
+                                    </p>
                                 </div>
 
-                                {/* Pricing Section */}
-                                <div className="order-section">
-                                    <h4>Payment Details</h4>
-                                    <div className="pricing-details">
-                                        <div className="price-row">
-                                            <span>Subtotal</span>
-                                            <span>₹{order.totalPrice}</span>
-                                        </div>
-                                        {order.gst > 0 && (
-                                            <div className="price-row">
-                                                <span>GST</span>
-                                                <span>₹{order.gst}</span>
-                                            </div>
-                                        )}
-                                        <div className="price-row">
-                                            <span>Delivery</span>
-                                            <span>₹{order.deliveryCharge || 0}</span>
-                                        </div>
-                                        <div className="price-row total">
-                                            <strong>Total</strong>
-                                            <strong>₹{order.grandTotal}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Payment Info */}
-                                <div className="order-section">
-                                    <div className="payment-info">
-                                        <p style={{ margin: 0 }}>
-                                            <strong>Payment:</strong> {order.paymentStatus}
-                                            {order.razorpayPaymentId && (
-                                                <span style={{ display: 'block', fontSize: '11px', color: '#666', marginTop: '4px' }}>
-                                                    TxN: {order.razorpayPaymentId}
-                                                </span>
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Address */}
-                                {order.location?.address && (
+                                <div className="order-details">
+                                    {/* Items Section */}
                                     <div className="order-section">
-                                        <div className="delivery-address">
-                                            <strong>Delivering to:</strong> {order.location.address}
+                                        <h4>Items Ordered</h4>
+                                        <div className="items-list">
+                                            {order.items.map((item, index) => (
+                                                <div key={index} className="item-row">
+                                                    <span className="item-name">{item.name}</span>
+                                                    <span className="item-quantity">x {item.quantity}</span>
+                                                    <span className="item-price">₹{item.price * item.quantity}</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                )}
-                            </div>
 
-                            {/* Footer Buttons */}
-                            <div className="order-footer">
-                                <div className="footer-left">
-                                    {/* Timestamp logic if needed, e.g. Accepted At */}
-                                    {(order.completedAt || order.acceptedAt) && (
-                                        <span>Updated: {formatDate(order.completedAt || order.acceptedAt)}</span>
+                                    {/* Pricing Section */}
+                                    <div className="order-section">
+                                        <h4>Payment Details</h4>
+                                        <div className="pricing-details">
+                                            <div className="price-row">
+                                                <span>Subtotal</span>
+                                                <span>₹{order.totalPrice}</span>
+                                            </div>
+                                            {order.gst > 0 && (
+                                                <div className="price-row">
+                                                    <span>GST</span>
+                                                    <span>₹{order.gst}</span>
+                                                </div>
+                                            )}
+                                            <div className="price-row">
+                                                <span>Delivery</span>
+                                                <span>₹{order.deliveryCharge || 0}</span>
+                                            </div>
+                                            <div className="price-row total">
+                                                <strong>Total</strong>
+                                                <strong>₹{order.grandTotal}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Payment Info */}
+                                    <div className="order-section">
+                                        <div className="payment-info">
+                                            <p style={{ margin: 0 }}>
+                                                <strong>Payment:</strong> {order.paymentStatus}
+                                                {order.razorpayPaymentId && (
+                                                    <span style={{ display: 'block', fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                                                        TxN: {order.razorpayPaymentId}
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Address */}
+                                    {order.location?.address && (
+                                        <div className="order-section">
+                                            <div className="delivery-address">
+                                                <strong>Delivering to:</strong> {order.location.address}
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
 
-                                <div className="footer-right">
-                                    
-                                    <Link
-                                        href={`/invoice/${order._id}`}
-                                        className="invoice-btn"
-                                        target="_blank"
-                                    >
-                                        📄 Invoice
-                                    </Link>
+                                {/* Footer Buttons */}
+                                <div className="order-footer">
+                                    <div className="footer-left">
+                                        {/* Timestamp logic if needed, e.g. Accepted At */}
+                                        {(order.completedAt || order.acceptedAt) && (
+                                            <span>Updated: {formatDate(order.completedAt || order.acceptedAt)}</span>
+                                        )}
+                                    </div>
+
+                                    <div className="footer-right">
+
+                                        <Link
+                                            href={`/invoice/${order._id}`}
+                                            className="invoice-btn"
+                                            target="_blank"
+                                        >
+                                            📄 Invoice
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
+                        ))}
+                    </div>
+                )
+            }
+        </div >
     );
 }

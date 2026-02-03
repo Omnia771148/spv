@@ -9,6 +9,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(true);
   const [cartCount, setCartCount] = useState(0); // State for cart count
+  const [activeOrderCount, setActiveOrderCount] = useState(0); // State for active orders count
   const lastScrollY = useRef(0);
 
   const updateCartCount = () => {
@@ -18,11 +19,31 @@ export default function Navbar() {
     }
   };
 
+  const updateActiveOrdersCount = async () => {
+    if (typeof window !== 'undefined') {
+      const userId = localStorage.getItem("userId");
+      if (userId) {
+        try {
+          const res = await fetch(`/api/finalorderstatuses?userId=${userId}`);
+          if (res.ok) {
+            const orders = await res.json();
+            // define active status logic if needed, but for now assuming all returned are 'active' until deleted
+            // User said "if there is any item ... in second option ... it should be highlighted"
+            setActiveOrderCount(orders.length);
+          }
+        } catch (e) {
+          console.error("Failed to fetch active orders count", e);
+        }
+      }
+    }
+  };
+
   // Use useRef to track the previous scroll position across renders without triggering them
 
 
   useEffect(() => {
     updateCartCount(); // Initial check
+    updateActiveOrdersCount();
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
@@ -55,6 +76,9 @@ export default function Navbar() {
     };
 
     const handleCartUpdate = () => updateCartCount();
+
+    // Listen for order updates if we implement an event, otherwise just poll or rely on mount
+    // For now, let's just inspect mount.
 
     // Use passive listener for better performance
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -92,6 +116,10 @@ export default function Navbar() {
             {/* Show badge only for Cart item if count > 0 */}
             {item.name === 'Cart' && cartCount > 0 && (
               <span className="cart-badge">{cartCount}</span>
+            )}
+            {/* Show badge for Orders item if count > 0 - Red Dot */}
+            {item.name === 'Orders' && activeOrderCount > 0 && (
+              <span className="cart-badge" style={{ minWidth: '20px', width: '20px', height: '20px', padding: 0, borderRadius: '50%', border: '2px solid white' }}></span>
             )}
           </Link>
         );

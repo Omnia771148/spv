@@ -275,6 +275,10 @@ export default function RestorentList() {
             window.location.href = './bro';
         } else if (name === "mayuri") {
             window.location.href = './maurya';
+        } else if (name === "Cake wala") {
+            window.location.href = './sai';
+        } else if (name === "Cream Stone") {
+            window.location.href = './pv';
         }
     };
 
@@ -381,7 +385,13 @@ export default function RestorentList() {
 
             <Carousel interval={3000} className='coroselmain'>
                 <Carousel.Item className='coroselmain2'>
-                    <img className="d-block w-100" src="https://img.etimg.com/thumb/msid-106775052,width-300,height-225,imgsize-69266,resizemode-75/mclaren-750s-launched-in-india-at-rs-5-91-crore-what-makes-it-so-expensive.jpg" alt="Slide" />
+                    <img className="d-block w-100" src="CA2.jpg" alt="Slide" />
+                </Carousel.Item>
+                <Carousel.Item className='coroselmain2'>
+                    <img className="d-block w-100" src="CA1.jpg" alt="Slide" />
+                </Carousel.Item>
+                <Carousel.Item className='coroselmain2'>
+                    <img className="d-block w-100" src="CA3.jpg" alt="Slide" />
                 </Carousel.Item>
             </Carousel>
 

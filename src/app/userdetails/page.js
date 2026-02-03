@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Loading from "../loading/page";
 import "./userdetails.css"; // Import the custom styles
 
 export default function UsersPage() {
@@ -12,6 +13,8 @@ export default function UsersPage() {
   // Edit form state
   const [formData, setFormData] = useState({ name: "", email: "", dateOfBirth: "", phone: "" });
   const [isEditing, setIsEditing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   // Helper to format date for display and input
   const formatDate = (isoString) => {
@@ -73,6 +76,7 @@ export default function UsersPage() {
     }
 
     try {
+      setLoading(true); // Show brand loader during save
       const storedUserId = localStorage.getItem("userId");
       const res = await fetch(`/api/users/${storedUserId}`, {
         method: "PUT",
@@ -81,27 +85,26 @@ export default function UsersPage() {
       });
 
       if (!res.ok) {
-        alert("Failed to update user");
+        setLoading(false);
+        setShowError(true);
         return;
       }
 
       const updatedUser = await res.json();
       setUser(updatedUser); // Update the displayed user
       setIsEditing(false);
-      alert("User updated successfully!");
+      setLoading(false);
+      setShowSuccess(true);
+      // Auto-close after 2.5 seconds
+      setTimeout(() => setShowSuccess(false), 2500);
     } catch (err) {
+      setLoading(false);
       console.error("Error updating user:", err);
-      alert("Failed to update user");
+      setShowError(true);
     }
   };
 
-  if (loading) return (
-    <div className="user-details-container" style={{ justifyContent: 'center' }}>
-      <div className="spinner-border text-primary" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-    </div>
-  );
+  if (loading) return <Loading />;
 
   if (!user) {
     return (
@@ -113,19 +116,26 @@ export default function UsersPage() {
 
   return (
     <div className="user-details-container">
-      {/* Back Arrow */}
-      <div className="back-arrow" onClick={() => window.history.back()}>
-        <i className="fas fa-chevron-left"></i>
+      {/* Header - Matching My Orders style */}
+      <div className="orders-header">
+        <button className="back-button-svg" onClick={() => window.history.back()}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <div className="orders-header-pill">
+          <span className="header-icon"><i className={isEditing ? "fas fa-user-edit" : "fas fa-user"}></i></span>
+          <h2>{isEditing ? "Edit Profile" : "My Profile"}</h2>
+        </div>
       </div>
 
       <div className="user-card">
-        {/* Card Heading */}
-        <h2 className="card-title">{isEditing ? "Edit Profile" : "My Profile"}</h2>
+        {/* Heading removed from here */}
 
         {/* Phone Row (Read-only always, consistent look) */}
         <div className="data-row">
           <div className="data-icon">
-            <i className="fas fa-phone-alt"></i>
+            <i className="fas fa-phone" style={{ transform: "rotate(90deg)" }}></i>
           </div>
           {isEditing ? (
             <input
@@ -142,7 +152,7 @@ export default function UsersPage() {
         {/* Name Row */}
         <div className="data-row">
           <div className="data-icon">
-            <i className="fas fa-user"></i>
+            <i className="fas fa-user-circle"></i>
           </div>
           {isEditing ? (
             <input
@@ -160,7 +170,7 @@ export default function UsersPage() {
         {/* Email Row */}
         <div className="data-row">
           <div className="data-icon">
-            <i className="fas fa-envelope"></i>
+            <i className="fas fa-envelope-open"></i>
           </div>
           {isEditing ? (
             <input
@@ -178,7 +188,7 @@ export default function UsersPage() {
         {/* DOB Row */}
         <div className="data-row">
           <div className="data-icon">
-            <i className="fas fa-calendar-alt"></i>
+            <i className="fas fa-calendar"></i>
           </div>
           {isEditing ? (
             <DatePicker
@@ -207,7 +217,7 @@ export default function UsersPage() {
           /* Edit Button (Bottom) */
           <div className="card-bottom-btn" onClick={handleEditClick}>
             <div className="edit-icon-box">
-              <i className="fas fa-pen"></i>
+              <i className="fas fa-user-edit"></i>
             </div>
             <span className="btn-text">Edit my profile</span>
           </div>
@@ -219,6 +229,46 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      {/* Success Popup UI */}
+      {showSuccess && (
+        <div className="success-popup-overlay">
+          <div className="success-popup-card">
+            <div className="success-icon-circle">
+              <svg viewBox="0 0 24 24" width="44" height="44">
+                <path fill="white" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+              </svg>
+            </div>
+            <h2 className="success-title">Updated!</h2>
+            <p className="success-message">
+              Your profile has been<br />
+              successfully updated.
+            </p>
+            <button className="success-continue-btn" onClick={() => setShowSuccess(false)}>
+              Back
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Error Popup UI */}
+      {showError && (
+        <div className="error-popup-overlay">
+          <div className="error-popup-card">
+            <div className="error-icon-circle">
+              <span className="error-icon-cross">✕</span>
+            </div>
+            <h2 className="error-title">Failed!</h2>
+            <p className="error-text">
+              Unable to update your profile.<br />
+              Please try again later.
+            </p>
+            <button className="error-retry-btn" onClick={() => setShowError(false)}>
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
