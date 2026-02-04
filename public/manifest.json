@@ -1,12 +1,14 @@
 {
   "name": "delivery",
   "short_name": "delivery",
-  "description": "",
+  "description": "Food Delivery Application",
   "display": "standalone",
   "start_url": "/",
   "scope": "/",
   "orientation": "any",
-  "id": "",
+  "theme_color": "#6BCB77",
+  "background_color": "#ffffff",
+  "id": "/",
   "lang": "en",
   "dir": "auto",
   "icons": [
