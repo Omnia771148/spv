@@ -1,9 +1,6 @@
 'use client';
 import React from 'react';
-// 1. ADD THIS IMPORT (Adjust the path to where your item display component is)
 import DisCart from './DisCart';
-{
-  /* 1. Item List */}
 {cartItems.length === 0 ? (
   <p className="text-center mt-5 text-muted">No items in the cart.</p>
 ) : (
@@ -20,8 +17,6 @@ import DisCart from './DisCart';
     ))}
   </ul>
 )}
-
-{/* 2. Bill Details (Only shows if items exist) */}
 {cartItems.length > 0 && (
   <>
     <div className="card shadow-sm mt-4 border-0">
@@ -46,7 +41,6 @@ import DisCart from './DisCart';
         </div>
       </div>
     </div>
-
     <div className="mt-3">
       <button onClick={clear} className="btn btn-warning me-2">Clear All</button>
       <button onClick={placeOrder} className="btn btn-primary">Pay & Place Order</button>

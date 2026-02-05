@@ -54,7 +54,7 @@ export default function Profile() {
             <div className="profile-card">
 
                 {/* Edit Profile */}
-                <button className="custom-nav-btn" onClick={() => window.location.href = "/userdetails"}>
+                <button className="custom-nav-btn" onClick={() => router.push("/userdetails")}>
                     <div className="d-flex align-items-center">
                         <i className="fas fa-edit btn-icon-left"></i>
                         <span className="btn-text">My Profile</span>
@@ -63,7 +63,7 @@ export default function Profile() {
                 </button>
 
                 {/* My Orders */}
-                <button className="custom-nav-btn" onClick={() => window.location.href = "/finalorders"}>
+                <button className="custom-nav-btn" onClick={() => router.push("/finalorders")}>
                     <div className="d-flex align-items-center">
                         <i className="fas fa-box-open btn-icon-left"></i>
                         <span className="btn-text">My Orders</span>
@@ -72,7 +72,7 @@ export default function Profile() {
                 </button>
 
                 {/* Contact Us */}
-                <button className="custom-nav-btn" onClick={() => window.location.href = "/contactus"}>
+                <button className="custom-nav-btn" onClick={() => router.push("/contactus")}>
                     <div className="d-flex align-items-center">
                         <i className="fas fa-envelope btn-icon-left"></i>
                         <span className="btn-text">Contact Us</span>

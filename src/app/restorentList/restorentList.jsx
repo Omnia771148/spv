@@ -6,6 +6,7 @@ import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRe
 
 import './restorentList.css';
 import { restList } from './restorentDtata';
+import { Data } from '../data/page';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
@@ -15,7 +16,7 @@ import Loading from "../loading/page";
 import { showToast } from '../../toaster/page';
 
 export default function RestorentList() {
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [mounted, setMounted] = useState(false);
@@ -266,23 +267,23 @@ export default function RestorentList() {
         localStorage.setItem("currentRestaurantName", name);
 
         if (name === "KNL") {
-            window.location.href = './knlrest';
+            router.push('/knlrest');
         } else if (name === "Snow Field") {
-            window.location.href = './snowfield';
+            router.push('/snowfield');
         } else if (name === "Kushas") {
-            window.location.href = './kushas';
+            router.push('/kushas');
         } else if (name === "bros") {
-            window.location.href = './bro';
+            router.push('/bro');
         } else if (name === "mayuri") {
-            window.location.href = './maurya';
+            router.push('/maurya');
         } else if (name === "Cake wala") {
-            window.location.href = './sai';
+            router.push('/sai');
         } else if (name === "Cream Stone") {
-            window.location.href = './pv';
+            router.push('/pv');
         }
     };
 
-    if (!mounted || loading) return <Loading />;
+    if (loading && !mounted) return <Loading />;
 
     return (
         <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
@@ -441,7 +442,45 @@ export default function RestorentList() {
 
                 <div className="mt-4">
                     {restList
-                        .filter(item => (item.name.toLowerCase().includes(search.toLowerCase()) && (typeFilter === '' || item.type === typeFilter)))
+                        .filter(restaurant => {
+                            // 1. Type Filter
+                            if (typeFilter && restaurant.type !== typeFilter) return false;
+
+                            // 2. Search Filter
+                            if (!search) return true;
+
+                            const lowerSearch = search.toLowerCase();
+
+                            // Check Restaurant Name
+                            if (restaurant.name.toLowerCase().includes(lowerSearch)) return true;
+
+                            // Check Items in Restaurant
+                            let startId = 0;
+                            let endId = 0;
+
+                            switch (restaurant.name) {
+                                case "Kushas":
+                                    startId = 1; endId = 4; break;
+                                case "KNL":
+                                    startId = 5; endId = 8; break;
+                                case "Snow Field":
+                                    startId = 9; endId = 12; break;
+                                case "bros":
+                                    startId = 13; endId = 16; break;
+                                case "mayuri":
+                                    startId = 17; endId = 20; break;
+                                default:
+                                    return false;
+                            }
+
+                            const hasMatchingItem = Data.some(item =>
+                                item.id >= startId &&
+                                item.id <= endId &&
+                                item.name.toLowerCase().includes(lowerSearch)
+                            );
+
+                            return hasMatchingItem;
+                        })
                         .map(item => (
                             <div key={item.name} className="mb-3">
                                 <button onClick={() => handleClicke(item.name)} className="w-100 border-0 bg-transparent p-0">

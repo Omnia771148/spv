@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import Navbar from '@/navigation/page';
 import StoreProvider from '../../lib/StoreProvider';
 import AuthInitializer from '../../lib/AuthInitializer';
-import LifecycleListener from '../components/LifecycleListener';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
       >
         <StoreProvider>
           <AuthInitializer />
-          <LifecycleListener />
+
           {children}
           <Navbar />
         </StoreProvider>

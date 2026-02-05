@@ -362,7 +362,6 @@ export default function Cart() {
           {showAddressBox && (
             <div className="mt-4">
               <label className="address-label">Delivery address</label>
-
               <input
                 type="text"
                 className="address-input"
@@ -384,7 +383,6 @@ export default function Cart() {
                 value={landmark}
                 onChange={(e) => setLandmark(e.target.value)}
               />
-
               <button
                 onClick={placeOrder}
                 className="confirm-btn"
