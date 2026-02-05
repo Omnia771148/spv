@@ -252,82 +252,81 @@ body {
     padding: 0 !important;
 }
 
-/* Empty Cart Animation */
-@keyframes float {
+/* Empty Orders State (Matched to Final Order Status) */
+@keyframes orderFloat {
     0% {
-        transform: translateY(0px) rotate(0deg);
+        transform: translateY(0px);
     }
 
     50% {
-        transform: translateY(-15px) rotate(2deg);
+        transform: translateY(-15px);
     }
 
     100% {
-        transform: translateY(0px) rotate(0deg);
+        transform: translateY(0px);
     }
 }
 
-.empty-cart-container {
+.empty-orders-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 60px 20px;
+    padding: 80px 20px;
     text-align: center;
-    min-height: 50vh;
+    width: 100%;
 }
 
-.empty-cart-icon-wrapper {
-    width: 120px;
-    height: 120px;
-    background-color: #E6Dfc9;
+.empty-orders-icon-wrapper {
+    width: 130px;
+    height: 130px;
+    background-color: #E3DAC5;
+    /* matching card color */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 25px;
-    animation: float 3s ease-in-out infinite;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-}
-
-.empty-cart-icon {
-    font-size: 50px;
-    color: #555;
-}
-
-.empty-cart-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.empty-cart-subtitle {
-    font-family: 'Poppins', sans-serif;
-    font-size: 14px;
-    color: #777;
     margin-bottom: 30px;
-    max-width: 250px;
-    line-height: 1.5;
+    animation: orderFloat 3s ease-in-out infinite;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
 }
 
-.browse-btn {
-    background-color: #000;
-    color: #fff;
-    padding: 12px 30px;
-    border-radius: 30px;
+.empty-orders-icon {
+    font-size: 55px;
+    color: #1a1a1a;
+}
+
+.empty-orders-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.empty-orders-subtitle {
     font-family: 'Poppins', sans-serif;
-    font-weight: 500;
-    text-decoration: none;
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 35px;
+    line-height: 1.6;
+}
+
+.browse-btn-orders {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 14px 40px;
+    border-radius: 30px;
+    font-weight: 600;
     border: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
     cursor: pointer;
 }
 
-.browse-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-    background-color: #222;
+.browse-btn-orders:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+    background-color: #000;
 }

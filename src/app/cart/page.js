@@ -2,15 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
-import { useSelector } from 'react-redux';
-import { selectUser, selectIsAuthenticated } from '../../../lib/features/userSlice';
 import axios from 'axios';
 import Script from 'next/script';
 import Loading from '../loading/page';
 import { showToast } from '../../toaster/page';
 import './cart.css';
-import { restList } from '../restorentList/restorentDtata';
-import ErrorPopup from '../login/ErrorPopup';
 
 export default function Cart() {
   const router = useRouter();
@@ -30,91 +26,107 @@ export default function Cart() {
   const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
 
-  // Custom Popup State
-  const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false, onConfirm: null });
-
   const aa = "gg";
 
-  const user = useSelector(selectUser);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-
-  // ... (useEffect hooks remain same until placeOrder)
-
-  // REDUX AUTH CHECK
   useEffect(() => {
-    // ... (existing logic)
-    if (!isAuthenticated && !localStorage.getItem("userId")) {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
       router.replace("/login");
     } else {
       setLoading(false);
     }
-  }, [isAuthenticated, router]);
+  }, [router]);
 
   useEffect(() => {
-    // ... (existing logic for loading cart and user details)
     const savedCart = localStorage.getItem('cart');
     let cartRestName = "";
-    // ... (rest of cart loading logic)
+
     if (savedCart) {
       const parsedCart = JSON.parse(savedCart);
       setCartItems(parsedCart);
+
       if (parsedCart.length > 0) {
         cartRestName = parsedCart[0].restaurantName || parsedCart[0].restName || "";
       }
+
       const initialQuantities = {};
-      parsedCart.forEach(item => { initialQuantities[item.id] = item.quantity || 1; });
+      parsedCart.forEach(item => {
+        initialQuantities[item.id] = item.quantity || 1;
+      });
       setQuantities(initialQuantities);
     }
 
     const savedDistances = localStorage.getItem("allRestaurantDistances");
     const currentDirectDist = localStorage.getItem("currentRestaurantDistance");
     const currentDirectName = localStorage.getItem("currentRestaurantName");
+
     let distToUse = null;
 
+    // 1. Try to use the clicked distance IF it matches the cart restaurant
     if (currentDirectDist && currentDirectName && cartRestName) {
       if (currentDirectName.toLowerCase().trim() === cartRestName.toLowerCase().trim()) {
         distToUse = parseFloat(currentDirectDist);
       }
     }
+
+    // 2. If not matched above, look up in allRestaurantDistances
     if (distToUse === null && savedDistances && cartRestName) {
       const distanceData = JSON.parse(savedDistances);
-      const matchingKey = Object.keys(distanceData).find(key => key.toLowerCase().trim() === cartRestName.toLowerCase().trim());
-      if (matchingKey) distToUse = parseFloat(distanceData[matchingKey]);
+      const matchingKey = Object.keys(distanceData).find(
+        key => key.toLowerCase().trim() === cartRestName.toLowerCase().trim()
+      );
+      if (matchingKey) {
+        distToUse = parseFloat(distanceData[matchingKey]);
+      }
     }
 
+    // 3. Apply the distance or default
     if (distToUse !== null) {
       setDistance(distToUse);
-      if (distToUse <= 3) setDeliveryCharge(25);
-      else setDeliveryCharge(25 + (Math.ceil(distToUse - 3) * 5));
+
+      if (distToUse <= 3) {
+        setDeliveryCharge(25);
+      } else {
+        const extraKm = Math.ceil(distToUse - 3);
+        setDeliveryCharge(25 + (extraKm * 5));
+      }
     } else {
       setDistance(0);
       setDeliveryCharge(25);
     }
 
+    // ✅ Load User Details into State
     setUserName(localStorage.getItem("userName") || "");
     setUserEmail(localStorage.getItem("userEmail") || "");
     setUserPhone(localStorage.getItem("userPhone") || "");
   }, []);
 
+  // ✅ Check for active orders
   const [hasActiveOrder, setHasActiveOrder] = useState(false);
+
   useEffect(() => {
     const checkActiveOrders = async () => {
       const userId = localStorage.getItem("userId");
       if (!userId) return;
+
       try {
         const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
         if (res.ok) {
           const data = await res.json();
           setHasActiveOrder(data.hasActiveOrder);
         }
-      } catch (err) { console.error(err); }
+      } catch (err) {
+        console.error("Error checking active orders:", err);
+      }
     };
     checkActiveOrders();
   }, []);
 
   useEffect(() => {
     const totals = {};
-    cartItems.forEach(item => { totals[item.id] = item.price * (quantities[item.id] || 1); });
+    cartItems.forEach(item => {
+      totals[item.id] = item.price * (quantities[item.id] || 1);
+    });
     setItemTotals(totals);
   }, [cartItems, quantities]);
 
@@ -122,7 +134,6 @@ export default function Cart() {
   const gstAmount = totalPrice * 0.05;
   const grandTotal = totalPrice + gstAmount + deliveryCharge;
 
-  /* Clear All with Feedback */
   const clear = () => {
     localStorage.removeItem('cart');
     setCartItems([]);
@@ -132,35 +143,27 @@ export default function Cart() {
     setFlatNo("");
     setStreet("");
     setLandmark("");
-    window.dispatchEvent(new Event("cartUpdated"));
-    showToast("Cart cleared successfully! 🗑️", "danger");
+    window.dispatchEvent(new Event("cartUpdated")); // Notify Navbar
   };
 
-  /* Remove Single Item with Feedback */
   const removeItem = (id) => {
     const updatedCart = cartItems.filter(item => item.id !== id);
     setCartItems(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
-    window.dispatchEvent(new Event("cartUpdated"));
-    showToast("Removed from cart 🗑️", "danger");
+    window.dispatchEvent(new Event("cartUpdated")); // Notify Navbar
   };
 
   const updateQuantity = (id, delta) => {
     setQuantities(prev => {
       const newQty = (prev[id] || 1) + delta;
-      const finalQty = newQty > 0 ? newQty : 1;
-      const updatedCart = cartItems.map(item => item.id === id ? { ...item, quantity: finalQty } : item);
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      setCartItems(updatedCart);
-      window.dispatchEvent(new Event("cartUpdated"));
-      return { ...prev, [id]: finalQty };
+      return { ...prev, [id]: newQty > 0 ? newQty : 1 };
     });
   };
 
   const placeOrder = async () => {
-    if (cartItems.length === 0) return setPopup({ show: true, message: "Cart is empty", isSuccess: false });
+    if (cartItems.length === 0) return alert("Cart is empty");
     const deliveryAddress = `${flatNo}, ${street} ${landmark ? ', ' + landmark : ''}`;
-    if (!flatNo.trim() || !street.trim()) return setPopup({ show: true, message: "Please enter Flat No and Street address.", isSuccess: false });
+    if (!flatNo.trim() || !street.trim()) return alert("Please enter Flat No and Street address.");
 
     setLoading(true);
 
@@ -168,10 +171,10 @@ export default function Cart() {
       const latStr = localStorage.getItem("customerLat");
       const lngStr = localStorage.getItem("customerLng");
 
-      const dynamicMapUrl = latStr && lngStr ? `https://www.google.com/maps/search/?api=1&query=${latStr},${lngStr}` : "";
-      const currentRestName = cartItems[0]?.restaurantName;
-      const currentRest = restList.find(r => r.name === currentRestName);
-      const dbName = currentRest ? currentRest.dbname : "";
+      // ✅ Generate dynamic Google Maps link using coordinates
+      const dynamicMapUrl = latStr && lngStr
+        ? `https://www.google.com/maps/search/?api=1&query=${latStr},${lngStr}`
+        : "";
 
       const orderPayload = {
         userId: localStorage.getItem('userId'),
@@ -182,7 +185,6 @@ export default function Cart() {
           quantity: Number(quantities[item.id] || 1)
         })),
         restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
-        restaurantName: dbName,
         totalCount: cartItems.length,
         totalPrice: Number(totalPrice),
         gst: Number(gstAmount),
@@ -192,6 +194,7 @@ export default function Cart() {
         flatNo: flatNo.trim(),
         street: street.trim(),
         landmark: landmark.trim(),
+        // ✅ User Details from State
         userName: userName,
         userEmail: userEmail,
         userPhone: userPhone,
@@ -204,7 +207,12 @@ export default function Cart() {
         }
       };
 
-      const { data } = await axios.post('/api/create-order', { grandTotal: orderPayload.grandTotal });
+      console.log("🚀 SENDING ORDER PAYLOAD:", orderPayload); // DEBUG LOG
+
+      const { data } = await axios.post('/api/create-order', {
+        grandTotal: orderPayload.grandTotal
+      });
+
       if (!data.success) {
         setLoading(false);
         throw new Error(data.message || "Order creation failed");
@@ -227,27 +235,29 @@ export default function Cart() {
             });
 
             if (verifyRes.data.success) {
-              setPopup({
-                show: true,
-                message: 'Order Placed Successfully! 🎉',
-                isSuccess: true,
-                onConfirm: () => {
-                  clear();
-                  router.push("/finalorderstatuses");
-                }
-              });
+              showToast('Order Placed Successfully!', 'success');
+              clear();
+              router.push("/finalorderstatuses");
             } else {
               setLoading(false);
-              setPopup({ show: true, message: `Order verification failed: ${verifyRes.data.message}`, isSuccess: false });
+              showToast(`Order verification failed: ${verifyRes.data.message}`, 'danger');
             }
           } catch (verifyErr) {
             setLoading(false);
-            setPopup({ show: true, message: `Payment verification error: ${verifyErr.response?.data?.error || verifyErr.message}`, isSuccess: false });
+            showToast(`Payment verification error: ${verifyErr.response?.data?.error || verifyErr.message}`, 'danger');
           }
         },
-        prefill: { name: userName, email: userEmail, contact: userPhone || "9999999999" },
+        prefill: {
+          name: userName,
+          email: userEmail,
+          contact: userPhone || "9999999999"
+        },
         theme: { color: "#3399cc" },
-        modal: { ondismiss: function () { setLoading(false); } }
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          }
+        }
       };
 
       const rzp = new window.Razorpay(options);
@@ -255,55 +265,50 @@ export default function Cart() {
 
     } catch (err) {
       setLoading(false);
-      setPopup({ show: true, message: `Error: ${err.message}`, isSuccess: false });
+      alert(`Error: ${err.message}`);
     }
   };
 
-  if (loading) return <Loading />;
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="cart-container">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
-      {/* Custom Popup */}
-      {popup.show && (
-        <ErrorPopup
-          message={popup.message}
-          isSuccess={popup.isSuccess}
-          onClose={() => {
-            if (popup.onConfirm) {
-              popup.onConfirm();
-            }
-            setPopup({ ...popup, show: false, onConfirm: null });
-          }}
-        />
-      )}
-
-      {/* ... Rest of JSX ... */}
       <div className="cart-header">
-        <div><span className="restaurant-name">{cartItems[0]?.restaurantName || "Restaurant"}</span></div>
+        <div>
+          <span className="restaurant-name">{cartItems.length > 0 ? cartItems[0]?.restaurantName : ""}</span>
+        </div>
+        {/* Date line removed as per user edit */}
       </div>
 
       {cartItems.length === 0 ? (
-        <div className="empty-cart-container">
-          <div className="empty-cart-icon-wrapper"><i className="fas fa-shopping-basket empty-cart-icon"></i></div>
-          <h3 className="empty-cart-title">Your Cart is Empty</h3>
-          <p className="empty-cart-subtitle">Looks like you haven&apos;t added any food yet. Hunger is a bad emotion!</p>
-          <button onClick={() => router.push('/')} className="browse-btn">Browse Restaurants</button>
+        <div className="empty-orders-container">
+          <div className="empty-orders-icon-wrapper">
+            <i className="fas fa-utensils empty-orders-icon"></i>
+          </div>
+          <h3 className="empty-orders-title">No items in the cart</h3>
+          <p className="empty-orders-subtitle">Your cart is quiet right now. Let&apos;s fix that with some delicious food!</p>
+          <button onClick={() => router.push('/')} className="browse-btn-orders">
+            Order Something Tasty
+          </button>
         </div>
       ) : (
         <>
+          {/* Items Card */}
           <div className="beige-card">
             {cartItems.map(item => (
               <div key={item.id} className="cart-item-row">
                 <span className="item-name">{item.name}</span>
                 <div className="d-flex align-items-center">
                   <div className="qty-control">
-                    <button onClick={() => updateQuantity(item.id, -1)} className="qty-btn">-</button>
-                    <span className="qty-val">{quantities[item.id]}</span>
                     <button onClick={() => updateQuantity(item.id, 1)} className="qty-btn">+</button>
+                    <span className="qty-val">{quantities[item.id]}</span>
+                    <button onClick={() => updateQuantity(item.id, -1)} className="qty-btn">-</button>
                   </div>
-                  <span className="item-price">₹{item.price} </span>
+                  <span className="item-price">₹{item.price} x {quantities[item.id]}</span>
                   <button onClick={() => removeItem(item.id)} className="trash-btn">
                     <i className="fas fa-trash-alt"></i>
                   </button>
@@ -312,15 +317,28 @@ export default function Cart() {
             ))}
           </div>
 
+          {/* Totals Card */}
           <div className="beige-card">
-            {/* Totals logic */}
-            <div className="totals-row"><span>Total</span><span>₹{totalPrice.toFixed(0)}</span></div>
-            <div className="totals-row"><span>GST</span><span>₹{gstAmount.toFixed(0)}</span></div>
-            <div className="totals-row"><span>Delivery charges ({distance} km)</span><span>₹{deliveryCharge}</span></div>
+            <div className="totals-row">
+              <span>Total</span>
+              <span>₹{totalPrice.toFixed(0)}</span>
+            </div>
+            <div className="totals-row">
+              <span>GST</span>
+              <span>₹{gstAmount.toFixed(0)}</span>
+            </div>
+            <div className="totals-row">
+              <span>Delivery charges ({distance} km)</span>
+              <span>₹{deliveryCharge}</span>
+            </div>
             <div className="totals-divider"></div>
-            <div className="grand-total-row"><span>Grand total</span><span>₹{grandTotal.toFixed(0)}</span></div>
+            <div className="grand-total-row">
+              <span>Grand total</span>
+              <span>₹{grandTotal.toFixed(0)}</span>
+            </div>
           </div>
 
+          {/* Action Buttons */}
           <div className="action-buttons-container">
             <button onClick={clear} className="beige-btn-outline">Clear all</button>
             <button
@@ -334,26 +352,50 @@ export default function Cart() {
               className="beige-btn-filled"
               disabled={showAddressBox || hasActiveOrder}
               title={hasActiveOrder ? "You have an active order" : "Place order"}
-              style={hasActiveOrder ? { cursor: 'not-allowed', backgroundColor: '#dc3545', color: '#fff' } : {}}
+              style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
               {hasActiveOrder ? "Order in Progress" : "Place the order"}
             </button>
           </div>
 
+          {/* Address Section */}
           {showAddressBox && (
             <div className="mt-4">
               <label className="address-label">Delivery address</label>
-              <input type="text" className="address-input" placeholder="Flat no / house no" value={flatNo} onChange={(e) => setFlatNo(e.target.value)} />
-              <input type="text" className="address-input" placeholder="Street / Area / Colony" value={street} onChange={(e) => setStreet(e.target.value)} />
-              <input type="text" className="address-input" placeholder="Land Mark" value={landmark} onChange={(e) => setLandmark(e.target.value)} />
+
+              <input
+                type="text"
+                className="address-input"
+                placeholder="Flat no / house no"
+                value={flatNo}
+                onChange={(e) => setFlatNo(e.target.value)}
+              />
+              <input
+                type="text"
+                className="address-input"
+                placeholder="Street / Area / Colony"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+              />
+              <input
+                type="text"
+                className="address-input"
+                placeholder="Land Mark"
+                value={landmark}
+                onChange={(e) => setLandmark(e.target.value)}
+              />
+
               <button
                 onClick={placeOrder}
                 className="confirm-btn"
                 disabled={loading || hasActiveOrder}
                 title={hasActiveOrder ? "Cannot proceed with active order" : "Confirm Order"}
-                style={hasActiveOrder ? { cursor: 'not-allowed', backgroundColor: '#dc3545', color: '#fff' } : {}}
+                style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
               >
-                {hasActiveOrder ? "Order already in progress" : (loading ? <Loading /> : `Confirm order and pay ₹${grandTotal.toFixed(0)}`)}
+                {hasActiveOrder
+                  ? "Order already in progress"
+                  : (loading ? <Loading /> : `Confirm order and pay ₹${grandTotal.toFixed(0)}`)
+                }
               </button>
             </div>
           )}
