@@ -9,7 +9,6 @@ import ErrorPopup from './ErrorPopup';
 
 export default function LoginForm({ handleFPClick, handleSignUp }) {
     const dispatch = useDispatch();
-    const [users, setUsers] = useState([]);
     const [inputName, setInputName] = useState('');
     const [inputEmail, setInputEmail] = useState('');
     const [loading, setLoading] = useState(true);
@@ -67,47 +66,56 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
             }
         }
 
-        // If no user found or time expired, fetch users
-        const fetchUsers = async () => {
-            try {
-                const res = await axios.get('/api/users');
-                setUsers(res.data);
-            } catch (err) {
-                console.error("Error fetching users:", err);
-            } finally {
-                setLoading(false); // Show the login form
-            }
-        };
-        fetchUsers();
+        // Ready to show login form
+        setLoading(false);
     }, []);
 
     // Check user credentials
-    const handleCheck = () => {
-        const matchedUser = users.find(
-            (user) => user.phone === inputName && (user.password ? user.password === inputEmail : user.email === inputEmail)
-        );
+    const handleCheck = async () => {
+        if (!inputName || !inputEmail) {
+            setPopup({ show: true, message: "Please enter both Mobile Number and Password.", isSuccess: false });
+            return;
+        }
 
+        setLoading(true);
+        try {
+            // inputName = Phone, inputEmail = Password
+            const res = await axios.post('/api/login', {
+                phone: inputName,
+                password: inputEmail
+            });
 
-        if (matchedUser) {
-            // 1. Save to LocalStorage (Persistence)
-            localStorage.setItem("userId", matchedUser._id);
-            localStorage.setItem("userPhone", matchedUser.phone || "");
-            localStorage.setItem("userName", matchedUser.name || "");
-            localStorage.setItem("userEmail", matchedUser.email || "");
-            localStorage.setItem("loginTimestamp", new Date().getTime().toString());
+            const matchedUser = res.data;
 
-            // 2. Save to Redux (Instant State)
-            dispatch(setUser({
-                id: matchedUser._id,
-                name: matchedUser.name,
-                phone: matchedUser.phone,
-                email: matchedUser.email
-            }));
+            if (matchedUser) {
+                // 1. Save to LocalStorage (Persistence)
+                localStorage.setItem("userId", matchedUser._id);
+                localStorage.setItem("userPhone", matchedUser.phone || "");
+                localStorage.setItem("userName", matchedUser.name || "");
+                localStorage.setItem("userEmail", matchedUser.email || "");
+                localStorage.setItem("loginTimestamp", new Date().getTime().toString());
 
-            // Directly go to restaurant list
-            window.location.href = "/mainRestorentList";
-        } else {
-            setPopup({ show: true, message: "Invalid Mobile Number or Password. Please try again.", isSuccess: false });
+                // 2. Save to Redux (Instant State)
+                dispatch(setUser({
+                    id: matchedUser._id,
+                    name: matchedUser.name,
+                    phone: matchedUser.phone,
+                    email: matchedUser.email
+                }));
+
+                // Directly go to restaurant list
+                window.location.href = "/mainRestorentList";
+            }
+        } catch (err) {
+            // Only log unexpected errors, not standard login failures (401)
+            if (err.response && err.response.status === 401) {
+                setPopup({ show: true, message: "Invalid Mobile Number or Password. Please try again.", isSuccess: false });
+            } else {
+                console.error("Login verification failed:", err);
+                setPopup({ show: true, message: "Something went wrong. Please try again later.", isSuccess: false });
+            }
+        } finally {
+            setLoading(false);
         }
     };
 

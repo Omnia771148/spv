@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 import connectionToDatabase from "../../../../lib/mongoose";
 import User from "../../../../models/User";
-
-
+import crypto from "crypto";
 
 export async function POST(request) {
   try {
     await connectionToDatabase();
     const { name, email, phone, password, dateOfBirth } = await request.json();
-    const newUser = new User({ name, email, phone, password, dateOfBirth });
+
+    // Hash password using SHA-256
+    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+    const newUser = new User({ name, email, phone, password: hashedPassword, dateOfBirth });
     await newUser.save();
 
     return NextResponse.json(newUser, { status: 200 });
