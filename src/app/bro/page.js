@@ -31,7 +31,7 @@ export default function Bro() {
   const isLoadingRedux = useSelector(selectRestaurantLoading);
 
   // ID "4" corresponds to Bros
-  const restaurantActive = allStatuses["5"] ?? false;
+  const restaurantActive = allStatuses["4"] ?? false;
   const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
 
   // Button statuses state (REDUX)
@@ -77,12 +77,12 @@ export default function Bro() {
     }
 
     if (
-     existingCart.some((cartItem) => cartItem.id >= 1&& cartItem.id <= 100) ||
+      existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 100) ||
       existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
       existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
-       existingCart.some((cartItem) => cartItem.id >= 311&& cartItem.id <= 411) ||
-       existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
-       existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714) 
+      existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
+      existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
+      existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714)
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
@@ -103,7 +103,7 @@ export default function Bro() {
     <div className="restaurant-page-bg container mt-4">
       {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
-        <RestorentDisplay data={restuarents[3]} className="col-12 mb-4" />
+        <RestorentDisplay data={restuarents.find(r => r.id === 4)} className="col-12 mb-4" />
 
         {statusLoading && (
           <div className="alert alert-warning mt-3">

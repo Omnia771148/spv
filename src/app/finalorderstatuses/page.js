@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Loading from '../loading/page';
 import './orderstatus.css';
 
+import { restList } from '../restorentList/restorentDtata';
+
 export default function FinalOrderStatuses() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,16 +84,12 @@ export default function FinalOrderStatuses() {
   };
 
   const getRestaurantName = (id) => {
-    const names = {
-      "1": "Kushas",
-      "2": "KNL",
-      "3": "Snow Field",
-      "4": "Mayuri",
-      "5": "Bros",
-      "6": "Sai",
-      "7": "PV"
-    };
-    return names[String(id)] || id || "Kushas";
+    const restaurant = restList.find((r) => r.id === String(id));
+    if (restaurant) {
+      // Capitalize first letter of each word if needed (e.g. "bros" -> "Bros")
+      return restaurant.name.replace(/\b\w/g, l => l.toUpperCase());
+    }
+    return id || "Ordered Item";
   };
 
   if (loading) return <Loading />;
