@@ -10,49 +10,139 @@ import { showToast } from '../../toaster/page';
 
 export default function UpdateEmail({ handleBacktoLogin }) {
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(""); // Renamed from email to password
   const [result, setResult] = useState(null);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [configError, setConfigError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false });
 
-  // ... (rest of the code)
+  const recaptchaVerifierRef = useRef(null);
 
-  // ... inside verifyOtp ...
-  // ...
-
-  const handleUpdateEmail = async () => {
-    if (!otpVerified) {
-      return setPopup({ show: true, message: "Please verify your phone number with OTP first!", isSuccess: false });
+  useEffect(() => {
+    // Safety check for Auth
+    if (!auth) {
+      console.error("Firebase Auth not initialized");
+      setPopup({ show: true, message: "System Error: Firebase Auth missing", isSuccess: false });
+      return;
     }
+
+    // Initialize Recaptcha
+    try {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-forgot", {
+          size: "invisible",
+          callback: (response) => {
+            console.log("reCAPTCHA verified");
+          },
+          "expired-callback": () => {
+            console.log("reCAPTCHA expired");
+          }
+        });
+      }
+      recaptchaVerifierRef.current = window.recaptchaVerifier;
+    } catch (err) {
+      console.error("Recaptcha Init Failed:", err);
+    }
+
+    return () => {
+      // Cleanup
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (e) { console.error(e); }
+        window.recaptchaVerifier = null;
+      }
+      recaptchaVerifierRef.current = null;
+
+      // Remove badges
+      document.querySelectorAll('.grecaptcha-badge').forEach(el => el.remove());
+    };
+  }, []);
+
+  const sendOtp = async (e) => {
+    e.preventDefault();
+
+    const errors = {};
+    if (!phone) errors.phone = "Phone number is required";
+    if (phone.length !== 10) errors.phone = "Enter valid 10-digit number";
+
+    setValidationErrors(errors);
+    if (Object.keys(errors).length > 0) return;
+
+    if (!recaptchaVerifierRef.current) {
+      setPopup({ show: true, message: "Recaptcha not initialized. Please refresh.", isSuccess: false });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formattedPhone = `+91${phone}`;
+      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, recaptchaVerifierRef.current);
+
+      window.confirmationResult = confirmationResult;
+      setOtpSent(true);
+      showToast("OTP sent successfully! ✅", "success");
+    } catch (error) {
+      console.error("SMS Error:", error);
+      setPopup({ show: true, message: "Error sending OTP. Please try again.", isSuccess: false });
+
+      // Reset recaptcha on error
+      if (window.recaptchaVerifier) {
+        try { window.recaptchaVerifier.clear(); } catch (e) { }
+        window.recaptchaVerifier = null;
+        recaptchaVerifierRef.current = null;
+        // Re-init logic would go here if extracted, but for now just let user refresh or rely on partial state
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otp) return setPopup({ show: true, message: "Enter OTP", isSuccess: false });
+
+    setLoading(true);
+    try {
+      await window.confirmationResult.confirm(otp);
+      setOtpVerified(true);
+      setPopup({ show: true, message: "Verified! ✅", isSuccess: true });
+    } catch (error) {
+      console.error("Verify Error:", error);
+      setPopup({ show: true, message: "Invalid OTP ❌", isSuccess: false });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!otpVerified) return setPopup({ show: true, message: "Verify OTP first", isSuccess: false });
     if (!phone || !password) return setPopup({ show: true, message: "Enter phone and password", isSuccess: false });
 
     setLoading(true);
-    // Send raw 10-digit phone number as stored in DB
-    let formattedPhone = phone.trim().replace(/\s+/g, '').replace('+91', '');
+    let formattedPhone = phone.trim().replace(/\D/g, ''); // Keep only digits
 
     try {
       const res = await fetch("/api/check-phone", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: formattedPhone, password }),
+        body: JSON.stringify({ phone: formattedPhone, password: password }),
       });
-
       const data = await res.json();
 
       if (data.exists) {
-        setResult("Password Updated Successfully 🎉");
-        setPopup({ show: true, message: "Password Updated Successfully 🎉", isSuccess: true });
+        setPopup({ show: true, message: "Password Updated! 🎉", isSuccess: true });
+        setResult("Success");
       } else {
-        setResult("User not found ❌");
+        setPopup({ show: true, message: "User not found ❌", isSuccess: false });
+        setResult("User not found");
       }
     } catch (err) {
-      console.error("Update Error:", err);
-      setResult("Error updating password ❌");
+      console.error(err);
+      setPopup({ show: true, message: "Server Error", isSuccess: false });
     } finally {
       setLoading(false);
     }
@@ -60,25 +150,8 @@ export default function UpdateEmail({ handleBacktoLogin }) {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-      {loading && (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(255,255,255,0.8)',
-          zIndex: 50, // Increased to cover icons (z-index 10)
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderRadius: '30px' // Match card radius
-        }}>
-          <Loading />
-        </div>
-      )}
+      {loading && <Loading />}
 
-      {/* Custom Popup */}
       {popup.show && (
         <ErrorPopup
           message={popup.message}
@@ -87,28 +160,7 @@ export default function UpdateEmail({ handleBacktoLogin }) {
         />
       )}
 
-      {/* Config Error Banner */}
-      {configError && (
-        <div style={{ backgroundColor: '#fee2e2', border: '1px solid #ef4444', padding: '15px', margin: '20px', borderRadius: '8px', color: '#b91c1c', zIndex: 9999, position: 'relative', fontFamily: 'sans-serif', maxWidth: '500px' }}>
-          <strong style={{ fontSize: '1.1rem' }}>⚠️ Configuration Required</strong>
-          <p className="mb-2 mt-2">
-            Your current domain is <strong>{configError}</strong>, which is not authorized by Firebase.
-          </p>
-          <p>Compulsory Fix:</p>
-          <ol className="pl-5 text-sm" style={{ paddingLeft: '20px', lineHeight: '1.6' }}>
-            <li>Go to <strong>Firebase Console</strong> &gt; <strong>Authentication</strong> &gt; <strong>Settings</strong> &gt; <strong>Authorized Domains</strong>.</li>
-            <li>Click <strong>Add Domain</strong>.</li>
-            <li>Enter: <strong>{configError}</strong></li>
-            <li>Click Add. Wait 10 seconds. Try again.</li>
-          </ol>
-          <button onClick={() => setConfigError(null)} style={{ marginTop: '10px', padding: '5px 10px', border: '1px solid #b91c1c', background: 'transparent', color: '#b91c1c', borderRadius: '4px', cursor: 'pointer' }}>
-            Close
-          </button>
-        </div>
-      )}
-
       <div className="signup-container">
-        {/* Back Arrow Button */}
         <div onClick={handleBacktoLogin} className="back-arrow-btn">
           <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 0 24 24" width="36px" fill="#333">
             <path d="M0 0h24v24H0V0z" fill="none" />
@@ -116,42 +168,28 @@ export default function UpdateEmail({ handleBacktoLogin }) {
           </svg>
         </div>
 
-        {/* Header Section */}
         <div className="signup-header" style={{ marginTop: '20px' }}>
           <h1 className="welcome-text">Forgot Password?</h1>
-          <p className="subtitle">
-            No worries! Enter your phone number<br />
-            to recover your account.
-          </p>
+          <p className="subtitle">Recover your account</p>
         </div>
 
-        {/* Form Card */}
         <div className="signup-card">
+          {/* Phone Input */}
           <div className="input-group-styled">
-            <div className="input-icon-wrapper">
-              <svg viewBox="0 0 24 24">
-                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-              </svg>
-            </div>
             <input
               type="tel"
               placeholder="Phone number"
               value={phone}
               onChange={(e) => {
-                const val = e.target.value.replace(/\D/g, '');
-                if (val.length <= 10) setPhone(val);
+                const v = e.target.value.replace(/\D/g, '');
+                if (v.length <= 10) setPhone(v);
               }}
               className={`styled-input ${validationErrors.phone ? 'error-border' : ''}`}
             />
           </div>
-          {validationErrors.phone && <p className="validation-message" style={{ marginTop: '-10px' }}>{validationErrors.phone}</p>}
 
+          {/* Password Input */}
           <div className="input-group-styled">
-            <div className="input-icon-wrapper">
-              <svg viewBox="0 0 24 24">
-                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3 3.1-3 1.71 0 3.1 1.29 3.1 3v2z" />
-              </svg>
-            </div>
             <input
               type="password"
               placeholder="New Password"
@@ -164,61 +202,35 @@ export default function UpdateEmail({ handleBacktoLogin }) {
           <div style={{ marginTop: "10px", marginBottom: "10px" }}>
             {!otpSent ? (
               <div className="create-btn-container">
-                <button onClick={sendOtp} disabled={loading} className="create-btn">
-                  Send OTP
-                </button>
+                <button onClick={sendOtp} disabled={loading} className="create-btn">Send OTP</button>
               </div>
             ) : !otpVerified ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <div className="input-group-styled">
-                  <div className="input-icon-wrapper">
-                    <svg viewBox="0 0 24 24">
-                      <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Enter OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    className="styled-input"
-                  />
+                  <input type="text" placeholder="Enter OTP" value={otp} onChange={e => setOtp(e.target.value)} className="styled-input" />
                 </div>
                 <div className="create-btn-container">
-                  <button onClick={verifyOtp} disabled={loading} className="create-btn">
-                    Verify OTP
-                  </button>
+                  <button onClick={verifyOtp} disabled={loading} className="create-btn">Verify OTP</button>
                 </div>
               </div>
             ) : (
-              <div style={{ textAlign: 'center', margin: '15px 0' }}>
-                <span style={{ color: "green", fontWeight: "bold", fontSize: '1.1rem' }}>✅ Phone Verified</span>
-              </div>
+              <div style={{ textAlign: 'center', margin: '15px 0', color: 'green', fontWeight: 'bold' }}>✅ Phone Verified</div>
             )}
           </div>
 
           <div className="create-btn-container">
             <button
-              onClick={handleUpdateEmail}
+              onClick={handleUpdatePassword}
               disabled={!otpVerified || loading}
               className="create-btn"
-              style={{
-                opacity: otpVerified ? 1 : 0.6,
-                cursor: otpVerified ? "pointer" : "not-allowed",
-                width: '100%',
-                backgroundColor: '#1a1a1a',
-                color: '#fff',
-                marginTop: '10px'
-              }}
+              style={{ opacity: otpVerified ? 1 : 0.6, marginTop: '10px' }}
             >
               Reset Password
             </button>
           </div>
 
-          {result && <p style={{ marginTop: "10px", fontWeight: "bold", textAlign: 'center' }}>{result}</p>}
         </div>
       </div>
-
       <div id="recaptcha-forgot"></div>
     </div>
   );
