@@ -5,8 +5,10 @@ import { auth } from "../../../lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import Loading from '../loading/page';
 import './signup.css';
+import ErrorPopup from './ErrorPopup';
+import { showToast } from '../../toaster/page';
 
-export default function UpdateEmail() {
+export default function UpdateEmail({ handleBacktoLogin }) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [result, setResult] = useState(null);
@@ -16,6 +18,7 @@ export default function UpdateEmail() {
   const [loading, setLoading] = useState(false);
   const [configError, setConfigError] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
+  const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false });
 
   const recaptchaVerifierRef = useRef(null);
 
@@ -23,7 +26,7 @@ export default function UpdateEmail() {
   const initRecaptcha = () => {
     if (typeof window === "undefined") return null;
 
-    const container = document.getElementById("recaptcha-container");
+    const container = document.getElementById("recaptcha-forgot");
     if (!container) {
       console.error("Recaptcha container not found in DOM");
       return null;
@@ -43,7 +46,7 @@ export default function UpdateEmail() {
     try {
       const verifier = new RecaptchaVerifier(
         auth,
-        "recaptcha-container",
+        "recaptcha-forgot",
         {
           size: "invisible",
           callback: (response) => {
@@ -76,10 +79,29 @@ export default function UpdateEmail() {
 
     // Cleanup on unmount
     return () => {
+      // 1. Clear Instance
       if (window.recaptchaVerifier) {
         try { window.recaptchaVerifier.clear(); } catch (e) { }
         window.recaptchaVerifier = null;
         recaptchaVerifierRef.current = null;
+      }
+
+      // 2. Aggressive Cleanup
+      try {
+        // Remove badge/bubble
+        document.querySelectorAll('.grecaptcha-badge').forEach(el => el.remove());
+
+        // Remove challenge container iframes (often high z-index overlay)
+        document.querySelectorAll('iframe[src*="google.com/recaptcha"]').forEach(iframe => {
+          let current = iframe;
+          // Walk up to find the top-level container attached to body
+          while (current && current.parentElement !== document.body) {
+            current = current.parentElement;
+          }
+          if (current) current.remove();
+        });
+      } catch (e) {
+        console.warn("Cleanup error:", e);
       }
     };
   }, []);
@@ -101,7 +123,7 @@ export default function UpdateEmail() {
       console.log("Verifier missing, attempting re-init...");
       verifier = initRecaptcha();
       if (!verifier) {
-        alert("System Error: Could not initialize Recaptcha. Please refresh the page.");
+        setPopup({ show: true, message: "System Error: Could not initialize Recaptcha. Please refresh the page.", isSuccess: false });
         return;
       }
     }
@@ -118,7 +140,8 @@ export default function UpdateEmail() {
 
       window.confirmationResult = confirmationResult;
       setOtpSent(true);
-      alert("OTP sent! ✅");
+      // setPopup({ show: true, message: "OTP sent successfully! ✅", isSuccess: true });
+      showToast("OTP sent successfully! ✅", "success");
     } catch (error) {
       console.error("SMS Error:", error);
 
@@ -126,11 +149,11 @@ export default function UpdateEmail() {
         const hostname = window.location.hostname;
         setConfigError(hostname);
       } else if (error.code === 'auth/invalid-phone-number') {
-        alert("Invalid phone number format.");
+        setPopup({ show: true, message: "Invalid phone number format.", isSuccess: false });
       } else if (error.code === 'auth/invalid-app-credential') {
-        alert(`Security Error: The request was blocked by Firebase.\n\nPossible Causes:\n1. Domain mismatch (Authorized Domains).\n2. Using HTTP instead of HTTPS on a remote IP.\n3. Broken reCAPTCHA token.\n\nTry refreshing the page.`);
+        setPopup({ show: true, message: "Phone number invalid or try closing and reopening the application.", isSuccess: false });
       } else if (error.code === 'auth/internal-error') {
-        alert("Firebase Internal Error. This often happens if the Recaptcha is stale.\n\nWe are resetting the system. Please try clicking 'Send OTP' again.");
+        setPopup({ show: true, message: "Firebase Internal Error. This often happens if the Recaptcha is stale.\n\nWe are resetting the system. Please try clicking 'Send OTP' again.", isSuccess: false });
         // Force reset
         if (window.recaptchaVerifier) {
           try { window.recaptchaVerifier.clear(); } catch (e) { }
@@ -139,7 +162,7 @@ export default function UpdateEmail() {
         }
         initRecaptcha();
       } else {
-        alert(`Error sending OTP: ${error.message}`);
+        setPopup({ show: true, message: `Error sending OTP: ${error.message}`, isSuccess: false });
       }
     } finally {
       setLoading(false);
@@ -148,16 +171,16 @@ export default function UpdateEmail() {
 
   const verifyOtp = async (e) => {
     if (e) e.preventDefault();
-    if (!otp) return alert("Please enter the OTP");
+    if (!otp) return setPopup({ show: true, message: "Please enter the OTP", isSuccess: false });
 
     setLoading(true);
     try {
       await window.confirmationResult.confirm(otp);
       setOtpVerified(true);
-      alert("Phone number verified ✅");
+      setPopup({ show: true, message: "Phone number verified ✅", isSuccess: true });
     } catch (error) {
       console.error("OTP Verification Error:", error);
-      alert("Invalid OTP ❌");
+      setPopup({ show: true, message: "Invalid OTP ❌", isSuccess: false });
     } finally {
       setLoading(false);
     }
@@ -165,9 +188,9 @@ export default function UpdateEmail() {
 
   const handleUpdateEmail = async () => {
     if (!otpVerified) {
-      return alert("Please verify your phone number with OTP first!");
+      return setPopup({ show: true, message: "Please verify your phone number with OTP first!", isSuccess: false });
     }
-    if (!phone || !email) return alert("Enter phone and password");
+    if (!phone || !email) return setPopup({ show: true, message: "Enter phone and password", isSuccess: false });
 
     setLoading(true);
     let formattedPhone = phone.trim().replace(/\s+/g, '');
@@ -187,7 +210,7 @@ export default function UpdateEmail() {
 
       if (data.exists) {
         setResult("Password Updated Successfully 🎉");
-        alert("Password Updated Successfully 🎉");
+        setPopup({ show: true, message: "Password Updated Successfully 🎉", isSuccess: true });
       } else {
         setResult("User not found ❌");
       }
@@ -219,6 +242,15 @@ export default function UpdateEmail() {
         </div>
       )}
 
+      {/* Custom Popup */}
+      {popup.show && (
+        <ErrorPopup
+          message={popup.message}
+          isSuccess={popup.isSuccess}
+          onClose={() => setPopup({ ...popup, show: false })}
+        />
+      )}
+
       {/* Config Error Banner */}
       {configError && (
         <div style={{ backgroundColor: '#fee2e2', border: '1px solid #ef4444', padding: '15px', margin: '20px', borderRadius: '8px', color: '#b91c1c', zIndex: 9999, position: 'relative', fontFamily: 'sans-serif', maxWidth: '500px' }}>
@@ -240,8 +272,16 @@ export default function UpdateEmail() {
       )}
 
       <div className="signup-container">
+        {/* Back Arrow Button */}
+        <div onClick={handleBacktoLogin} className="back-arrow-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 0 24 24" width="36px" fill="#333">
+            <path d="M0 0h24v24H0V0z" fill="none" />
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+        </div>
+
         {/* Header Section */}
-        <div className="signup-header">
+        <div className="signup-header" style={{ marginTop: '20px' }}>
           <h1 className="welcome-text">Forgot Password?</h1>
           <p className="subtitle">
             No worries! Enter your phone number<br />
@@ -341,13 +381,9 @@ export default function UpdateEmail() {
 
           {result && <p style={{ marginTop: "10px", fontWeight: "bold", textAlign: 'center' }}>{result}</p>}
         </div>
-
-        <div onClick={() => window.location.href = './login'} className="back-link">
-          Back to Login
-        </div>
       </div>
 
-      <div id="recaptcha-container"></div>
+      <div id="recaptcha-forgot"></div>
     </div>
   );
 }

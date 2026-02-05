@@ -132,22 +132,7 @@ export default function UsersPage() {
       <div className="user-card">
         {/* Heading removed from here */}
 
-        {/* Phone Row (Read-only always, consistent look) */}
-        <div className="data-row">
-          <div className="data-icon">
-            <i className="fas fa-phone" style={{ transform: "rotate(90deg)" }}></i>
-          </div>
-          {isEditing ? (
-            <input
-              type="text"
-              className="input-field"
-              value={formData.phone}
-              readOnly
-            />
-          ) : (
-            <div className="data-text">{user.phone || "No phone number"}</div>
-          )}
-        </div>
+       
 
         {/* Name Row */}
         <div className="data-row">
@@ -164,6 +149,22 @@ export default function UsersPage() {
             />
           ) : (
             <div className="data-text">{user.name || "No Name"}</div>
+          )}
+        </div>
+         {/* Phone Row (Read-only always, consistent look) */}
+        <div className="data-row">
+          <div className="data-icon">
+            <i className="fas fa-phone" style={{ transform: "rotate(90deg)" }}></i>
+          </div>
+          {isEditing ? (
+            <input
+              type="text"
+              className="input-field"
+              value={formData.phone}
+              readOnly
+            />
+          ) : (
+            <div className="data-text">{user.phone || "No phone number"}</div>
           )}
         </div>
 

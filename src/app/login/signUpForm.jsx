@@ -7,6 +7,8 @@ import Loading from '../loading/page';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import './signup.css';
+import ErrorPopup from './ErrorPopup';
+import { showToast } from '../../toaster/page';
 
 export default function Home({ handleBacktoLogin }) {
   const [name, setName] = useState('');
@@ -22,6 +24,7 @@ export default function Home({ handleBacktoLogin }) {
   const [errors, setErrors] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [configError, setConfigError] = useState(null);
+  const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false, onConfirm: null });
 
   const recaptchaVerifierRef = useRef(null);
 
@@ -34,7 +37,7 @@ export default function Home({ handleBacktoLogin }) {
       try {
         window.recaptchaVerifier = new RecaptchaVerifier(
           auth,
-          "recaptcha-container",
+          "recaptcha-signup",
           {
             size: "invisible",
             callback: (response) => {
@@ -54,7 +57,37 @@ export default function Home({ handleBacktoLogin }) {
     }
 
     return () => {
-      // Cleanup handled by window singleton pattern for dev server stability
+      // 1. Clear Firebase Recaptcha Instance
+      if (window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (e) {
+          console.warn("Recaptcha clear error:", e);
+        }
+        window.recaptchaVerifier = null;
+        recaptchaVerifierRef.current = null;
+      }
+
+      // 2. Aggressive DOM Cleanup: Remove residual Recaptcha iframes/containers from body
+      // This is necessary because sometimes the invisible recaptcha leaves a transparent backdrop
+      try {
+        const badges = document.querySelectorAll('.grecaptcha-badge');
+        badges.forEach(badge => badge.remove());
+
+        const iframes = document.querySelectorAll('iframe[src*="google.com/recaptcha"]');
+        iframes.forEach(iframe => {
+          // Often wrapped in a div that is a direct child of body
+          let current = iframe;
+          while (current && current.parentElement !== document.body) {
+            current = current.parentElement;
+          }
+          if (current) {
+            current.remove();
+          }
+        });
+      } catch (err) {
+        console.error("Manual DOM cleanup failed:", err);
+      }
     };
   }, []);
 
@@ -129,16 +162,19 @@ export default function Home({ handleBacktoLogin }) {
 
       window.confirmationResult = confirmationResult;
       setOtpSent(true);
-      alert("OTP sent!");
+      // setPopup({ show: true, message: "OTP sent successfully! 📩", isSuccess: true });
+      showToast("OTP sent successfully! 📩", "success");
     } catch (error) {
       console.error("Error sending OTP:", error);
       if (error.code === 'auth/captcha-check-failed') {
         const hostname = window.location.hostname;
         setConfigError(hostname);
       } else if (error.code === 'auth/invalid-phone-number') {
-        alert("Invalid phone number format.");
+        setPopup({ show: true, message: "Invalid phone number format. Please check.", isSuccess: false });
+      } else if (error.code === 'auth/invalid-app-credential') {
+        setPopup({ show: true, message: "Phone number invalid or try closing and reopening the application.", isSuccess: false });
       } else {
-        alert("Error sending OTP: " + error.message);
+        setPopup({ show: true, message: "Error sending OTP: " + error.message, isSuccess: false });
       }
 
       // Force reset of recaptcha so user can try again
@@ -157,10 +193,10 @@ export default function Home({ handleBacktoLogin }) {
     try {
       const result = await window.confirmationResult.confirm(otp);
       setOtpVerified(true);
-      alert("OTP Verified! Please accept terms to complete registration.");
+      setPopup({ show: true, message: "OTP Verified! Please accept terms to complete registration. ✅", isSuccess: true });
     } catch (error) {
       console.error("Verification/DB Error:", error);
-      alert("Invalid OTP ❌");
+      setPopup({ show: true, message: "Invalid OTP. Please try again. ❌", isSuccess: false });
     } finally {
       setLoading(false);
     }
@@ -169,7 +205,10 @@ export default function Home({ handleBacktoLogin }) {
   // FINAL STEP: VERIFY OTP And SAVE TO DB
   const handleCreateAndRegister = async (e) => {
     e.preventDefault();
-    if (!termsAccepted) return alert("You must accept the Terms & Conditions to proceed.");
+    if (!termsAccepted) {
+      setPopup({ show: true, message: "You must accept the Terms & Conditions to proceed.", isSuccess: false });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -180,14 +219,20 @@ export default function Home({ handleBacktoLogin }) {
       const cleanPhone = phone; // Already just numbers
       await axios.post('/api/users', { name, email, password, phone: cleanPhone, dateOfBirth });
 
-      alert("Account created successfully! ✅");
-      window.location.href = "./";
+      setPopup({
+        show: true,
+        message: "Account created successfully! Welcome aboard! 🎉",
+        isSuccess: true,
+        onConfirm: () => {
+          if (handleBacktoLogin) handleBacktoLogin();
+        }
+      });
     } catch (error) {
       if (error.code === 'auth/invalid-verification-code') {
-        alert("Invalid OTP ❌");
+        setPopup({ show: true, message: "Invalid OTP ❌", isSuccess: false });
       } else {
         console.error("Error:", error);
-        alert("Registration failed. Please try again.");
+        setPopup({ show: true, message: "Registration failed. Please try again.", isSuccess: false });
       }
     } finally {
       setLoading(false);
@@ -197,6 +242,20 @@ export default function Home({ handleBacktoLogin }) {
   return (
     <div>
       {loading && <Loading />}
+
+      {/* Custom Popup */}
+      {popup.show && (
+        <ErrorPopup
+          message={popup.message}
+          isSuccess={popup.isSuccess}
+          onClose={() => {
+            if (popup.onConfirm) {
+              popup.onConfirm();
+            }
+            setPopup({ ...popup, show: false, onConfirm: null });
+          }}
+        />
+      )}
 
       {/* Config Error Banner */}
       {configError && (
@@ -230,6 +289,13 @@ export default function Home({ handleBacktoLogin }) {
             food<br />
             At your door
           </p>
+        </div>
+
+        <div onClick={handleBacktoLogin} className="back-arrow-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 0 24 24" width="36px" fill="#333">
+            <path d="M0 0h24v24H0V0z" fill="none" />
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
         </div>
 
         {/* Form Card */}
@@ -337,7 +403,7 @@ export default function Home({ handleBacktoLogin }) {
                   if (errors.dateOfBirth) setErrors(prev => ({ ...prev, dateOfBirth: false }));
                   if (validationErrors.dateOfBirth) setValidationErrors(prev => ({ ...prev, dateOfBirth: "" }));
                 }}
-                placeholderText={errors.dateOfBirth ? "This field is mandatory" : "DD/MM/YEAR"}
+                placeholderText={errors.dateOfBirth ? "This field is mandatory" : "DD/MM/YYYY"}
                 dateFormat="dd/MM/yyyy"
                 className={`styled-input custom-datepicker-input ${errors.dateOfBirth ? 'error-border' : ''}`}
                 disabled={otpVerified}
@@ -412,12 +478,10 @@ export default function Home({ handleBacktoLogin }) {
           </form>
         </div>
 
-        <div onClick={handleBacktoLogin} className="back-link">
-          Back to Login
-        </div>
+
       </div>
 
-      <div id="recaptcha-container"></div>
+      <div id="recaptcha-signup"></div>
     </div>
   );
 }
