@@ -10,7 +10,7 @@ import { showToast } from '../../toaster/page';
 
 export default function UpdateEmail({ handleBacktoLogin }) {
   const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [result, setResult] = useState(null);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -20,190 +20,26 @@ export default function UpdateEmail({ handleBacktoLogin }) {
   const [validationErrors, setValidationErrors] = useState({});
   const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false });
 
-  const recaptchaVerifierRef = useRef(null);
+  // ... (rest of the code)
 
-  // Helper to safely initialize Recaptcha
-  const initRecaptcha = () => {
-    if (typeof window === "undefined") return null;
-
-    const container = document.getElementById("recaptcha-forgot");
-    if (!container) {
-      console.error("Recaptcha container not found in DOM");
-      return null;
-    }
-
-    // Clear existing instance if any
-    if (window.recaptchaVerifier) {
-      try {
-        window.recaptchaVerifier.clear();
-      } catch (e) {
-        console.warn("Error clearing old recaptcha:", e);
-      }
-      window.recaptchaVerifier = null;
-    }
-
-    // Create new instance
-    try {
-      const verifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-forgot",
-        {
-          size: "invisible",
-          callback: (response) => {
-            console.log("reCAPTCHA verified");
-          },
-          "expired-callback": () => {
-            console.log("reCAPTCHA expired, resetting...");
-            // If expired, clear it so we re-init next time
-            if (window.recaptchaVerifier) {
-              try { window.recaptchaVerifier.clear(); } catch (e) { }
-              window.recaptchaVerifier = null;
-              recaptchaVerifierRef.current = null;
-            }
-          }
-        }
-      );
-
-      window.recaptchaVerifier = verifier;
-      recaptchaVerifierRef.current = verifier;
-      return verifier;
-    } catch (err) {
-      console.error("Recaptcha Init Error:", err);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-    // Init on mount
-    initRecaptcha();
-
-    // Cleanup on unmount
-    return () => {
-      // 1. Clear Instance
-      if (window.recaptchaVerifier) {
-        try { window.recaptchaVerifier.clear(); } catch (e) { }
-        window.recaptchaVerifier = null;
-        recaptchaVerifierRef.current = null;
-      }
-
-      // 2. Aggressive Cleanup
-      try {
-        // Remove badge/bubble
-        document.querySelectorAll('.grecaptcha-badge').forEach(el => el.remove());
-
-        // Remove challenge container iframes (often high z-index overlay)
-        document.querySelectorAll('iframe[src*="google.com/recaptcha"]').forEach(iframe => {
-          let current = iframe;
-          // Walk up to find the top-level container attached to body
-          while (current && current.parentElement !== document.body) {
-            current = current.parentElement;
-          }
-          if (current) current.remove();
-        });
-      } catch (e) {
-        console.warn("Cleanup error:", e);
-      }
-    };
-  }, []);
-
-  const sendOtp = async (e) => {
-    if (e) e.preventDefault();
-
-    // Validation
-    const errors = {};
-    if (!phone) errors.phone = "Phone number is required";
-    if (phone.length !== 10) errors.phone = "Phone valid 10-digit number";
-
-    setValidationErrors(errors);
-    if (Object.keys(errors).length > 0) return;
-
-    // Ensure we have a valid verifier
-    let verifier = recaptchaVerifierRef.current;
-    if (!verifier) {
-      console.log("Verifier missing, attempting re-init...");
-      verifier = initRecaptcha();
-      if (!verifier) {
-        setPopup({ show: true, message: "System Error: Could not initialize Recaptcha. Please refresh the page.", isSuccess: false });
-        return;
-      }
-    }
-
-    setLoading(true);
-    try {
-      const formattedPhone = `+91${phone}`;
-
-      const confirmationResult = await signInWithPhoneNumber(
-        auth,
-        formattedPhone,
-        verifier
-      );
-
-      window.confirmationResult = confirmationResult;
-      setOtpSent(true);
-      // setPopup({ show: true, message: "OTP sent successfully! ✅", isSuccess: true });
-      showToast("OTP sent successfully! ✅", "success");
-    } catch (error) {
-      console.error("SMS Error:", error);
-
-      if (error.code === 'auth/captcha-check-failed') {
-        const hostname = window.location.hostname;
-        setConfigError(hostname);
-      } else if (error.code === 'auth/invalid-phone-number') {
-        setPopup({ show: true, message: "Invalid phone number format.", isSuccess: false });
-      } else if (error.code === 'auth/invalid-app-credential') {
-        setPopup({ show: true, message: "Phone number invalid or try closing and reopening the application.", isSuccess: false });
-      } else if (error.code === 'auth/internal-error') {
-        setPopup({ show: true, message: "Firebase Internal Error. This often happens if the Recaptcha is stale.\n\nWe are resetting the system. Please try clicking 'Send OTP' again.", isSuccess: false });
-        // Force reset
-        if (window.recaptchaVerifier) {
-          try { window.recaptchaVerifier.clear(); } catch (e) { }
-          window.recaptchaVerifier = null;
-          recaptchaVerifierRef.current = null;
-        }
-        initRecaptcha();
-      } else {
-        setPopup({ show: true, message: `Error sending OTP: ${error.message}`, isSuccess: false });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const verifyOtp = async (e) => {
-    if (e) e.preventDefault();
-    if (!otp) return setPopup({ show: true, message: "Please enter the OTP", isSuccess: false });
-
-    setLoading(true);
-    try {
-      await window.confirmationResult.confirm(otp);
-      setOtpVerified(true);
-      setPopup({ show: true, message: "Phone number verified ✅", isSuccess: true });
-    } catch (error) {
-      console.error("OTP Verification Error:", error);
-      setPopup({ show: true, message: "Invalid OTP ❌", isSuccess: false });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // ... inside verifyOtp ...
+  // ...
 
   const handleUpdateEmail = async () => {
     if (!otpVerified) {
       return setPopup({ show: true, message: "Please verify your phone number with OTP first!", isSuccess: false });
     }
-    if (!phone || !email) return setPopup({ show: true, message: "Enter phone and password", isSuccess: false });
+    if (!phone || !password) return setPopup({ show: true, message: "Enter phone and password", isSuccess: false });
 
     setLoading(true);
-    let formattedPhone = phone.trim().replace(/\s+/g, '');
-    if (!formattedPhone.startsWith("+91")) {
-      formattedPhone = "+91" + formattedPhone;
-    }
+    // Send raw 10-digit phone number as stored in DB
+    let formattedPhone = phone.trim().replace(/\s+/g, '').replace('+91', '');
 
     try {
       const res = await fetch("/api/check-phone", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        // 'email' state is actually storing the new password based on input placeholder
-        body: JSON.stringify({ phone: formattedPhone, email }),
+        body: JSON.stringify({ phone: formattedPhone, password }),
       });
 
       const data = await res.json();
@@ -319,8 +155,8 @@ export default function UpdateEmail({ handleBacktoLogin }) {
             <input
               type="password"
               placeholder="New Password"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="styled-input"
             />
           </div>
