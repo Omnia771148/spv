@@ -38,6 +38,7 @@ export async function POST(request) {
       deliveryCharge: orderData.deliveryCharge,
       grandTotal: orderData.grandTotal,
       restaurantId: orderData.restaurantId,
+      restaurantName: orderData.restaurantName,
       aa: orderData.aa,
       // ✅ USER INFO
       userName: orderData.userName,
@@ -65,12 +66,12 @@ export async function POST(request) {
        TRIGGER NOTIFICATION TO RESTAURANT 
        We target the production URL for the Restaurant App.
     */
-    
+
     // ✅ Updated to point to your LIVE Vercel App
     const RESTAURANT_APP_URL = process.env.RESTAURANT_APP_URL || "https://newrest.vercel.app";
     try {
       console.log(`Attempting to send notification to: ${RESTAURANT_APP_URL}/api/send-notification`);
-      
+
       const notiResponse = await fetch(`${RESTAURANT_APP_URL}/api/send-notification`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

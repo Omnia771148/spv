@@ -304,6 +304,7 @@ export default function Cart() {
         userEmail: userEmail,
         userPhone: userPhone,
         aa: aa,
+        restaurantName: cartItems[0]?.restaurantName || "",
         location: {
           lat: latStr ? Number(latStr) : 0,
           lng: lngStr ? Number(lngStr) : 0,
