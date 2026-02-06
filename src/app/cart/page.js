@@ -21,6 +21,7 @@ export default function Cart() {
   const [flatNo, setFlatNo] = useState("");
   const [street, setStreet] = useState("");
   const [landmark, setLandmark] = useState("");
+  const [addressLabel, setAddressLabel] = useState("Home"); // Default label
   const [showAddressBox, setShowAddressBox] = useState(false);
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -103,6 +104,7 @@ export default function Cart() {
 
   // ✅ Check for active orders
   const [hasActiveOrder, setHasActiveOrder] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState([]);
 
   useEffect(() => {
     const checkActiveOrders = async () => {
@@ -120,6 +122,27 @@ export default function Cart() {
       }
     };
     checkActiveOrders();
+  }, []);
+
+  // ✅ Load Saved Addresses from DB on Mount
+  useEffect(() => {
+    const fetchSavedAddresses = async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      try {
+        const res = await fetch(`/api/users/address?userId=${userId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.addresses) {
+            setSavedAddresses(data.addresses);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching saved addresses:", error);
+      }
+    };
+    fetchSavedAddresses();
   }, []);
 
   useEffect(() => {
@@ -158,6 +181,88 @@ export default function Cart() {
       const newQty = (prev[id] || 1) + delta;
       return { ...prev, [id]: newQty > 0 ? newQty : 1 };
     });
+  };
+
+  const handleSaveAddress = async () => {
+    if (!flatNo.trim() || !street.trim()) {
+      showToast("Please enter Flat No and Street before saving.", "danger");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      showToast("Please login to save address", "danger");
+      return;
+    }
+
+    const latStr = localStorage.getItem("customerLat");
+    const lngStr = localStorage.getItem("customerLng");
+    const lat = latStr ? parseFloat(latStr) : null;
+    const lng = lngStr ? parseFloat(lngStr) : null;
+
+    const mapUrl = (lat && lng)
+      ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+      : "";
+
+    const addressData = {
+      label: addressLabel,
+      flatNo,
+      street,
+      landmark,
+      lat,
+      lng,
+      url: mapUrl
+    };
+
+    try {
+      const res = await axios.post('/api/users/address', {
+        userId,
+        address: addressData
+      });
+
+      if (res.data.success) {
+        setSavedAddresses(res.data.addresses);
+        showToast("Address saved to your profile!", "success");
+      } else {
+        showToast("Failed to save address", "danger");
+      }
+    } catch (error) {
+      console.error("Error saving address:", error);
+      showToast("Error saving address", "danger");
+    }
+  };
+
+  const loadSavedAddress = (addr) => {
+    if (addr) {
+      setFlatNo(addr.flatNo || "");
+      setStreet(addr.street || "");
+      setLandmark(addr.landmark || "");
+      setAddressLabel(addr.label || "Home");
+
+      if (addr.lat && addr.lng) {
+        localStorage.setItem("customerLat", addr.lat);
+        localStorage.setItem("customerLng", addr.lng);
+      }
+
+      showToast(`Address (${addr.label}) loaded!`, "success");
+    }
+  };
+
+  const handleDeleteAddress = async (e, addrId) => {
+    e.stopPropagation(); // Prevent loading the address when clicking delete
+    const userId = localStorage.getItem("userId");
+    if (!userId || addrId === 'legacy') return;
+
+    try {
+      const res = await axios.delete(`/api/users/address?userId=${userId}&addressId=${addrId}`);
+      if (res.data.success) {
+        setSavedAddresses(res.data.addresses);
+        showToast("Address removed", "success");
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      showToast("Failed to remove address", "danger");
+    }
   };
 
   const placeOrder = async () => {
@@ -236,6 +341,31 @@ export default function Cart() {
 
             if (verifyRes.data.success) {
               showToast('Order Placed Successfully!', 'success');
+
+              // ✅ Automatically save address to user's profile on success
+              try {
+                const currentLat = localStorage.getItem("customerLat");
+                const currentLng = localStorage.getItem("customerLng");
+                const currentUserId = localStorage.getItem("userId");
+
+                if (currentUserId && flatNo && street) {
+                  await axios.post('/api/users/address', {
+                    userId: currentUserId,
+                    address: {
+                      label: addressLabel || "Recent Order",
+                      flatNo: flatNo.trim(),
+                      street: street.trim(),
+                      landmark: landmark ? landmark.trim() : "",
+                      lat: currentLat ? parseFloat(currentLat) : null,
+                      lng: currentLng ? parseFloat(currentLng) : null,
+                      url: (currentLat && currentLng) ? `https://www.google.com/maps/search/?api=1&query=${currentLat},${currentLng}` : ""
+                    }
+                  });
+                }
+              } catch (addrErr) {
+                console.error("Silent error saving address on order:", addrErr);
+              }
+
               clear();
               router.push("/finalorderstatuses");
             } else {
@@ -383,6 +513,81 @@ export default function Cart() {
                 value={landmark}
                 onChange={(e) => setLandmark(e.target.value)}
               />
+
+              <div className="address-label-selector mb-3">
+                <span style={{ fontSize: '0.9rem', marginRight: '10px', color: '#666' }}>Save as:</span>
+                {['Home', 'Office', 'Apartment', 'Other'].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setAddressLabel(l)}
+                    className={`label-btn ${addressLabel === l ? 'active' : ''}`}
+                    style={{
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      border: '1px solid #ccc',
+                      marginRight: '8px',
+                      fontSize: '0.85rem',
+                      background: addressLabel === l ? '#1a1a1a' : 'transparent',
+                      color: addressLabel === l ? '#fff' : '#1a1a1a',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+                <button
+                  onClick={handleSaveAddress}
+                  className="beige-btn-outline"
+                  style={{ borderRadius: '15px', padding: '8px 15px', fontSize: '0.9rem' }}
+                >
+                  Save Address
+                </button>
+              </div>
+
+              {savedAddresses && savedAddresses.length > 0 && (
+                <div className="saved-addresses-list mt-3">
+                  <label className="address-label" style={{ fontSize: '0.9rem', color: '#666' }}>Use a saved address:</label>
+                  <div className="d-flex flex-wrap gap-2">
+                    {savedAddresses.map((addr, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => loadSavedAddress(addr)}
+                        className="beige-card saved-address-card"
+                        style={{
+                          cursor: 'pointer',
+                          border: '1px solid #ddd',
+                          padding: '10px',
+                          borderRadius: '12px',
+                          flex: '1 1 150px',
+                          maxWidth: '250px',
+                          fontSize: '0.85rem',
+                          position: 'relative'
+                        }}
+                      >
+                        {addr._id !== 'legacy' && (
+                          <div
+                            onClick={(e) => handleDeleteAddress(e, addr._id)}
+                            style={{ position: 'absolute', top: '5px', right: '8px', color: '#888', padding: '5px' }}
+                          >
+                            <i className="fas fa-times"></i>
+                          </div>
+                        )}
+                        <div style={{ fontWeight: 'bold', marginBottom: '3px', display: 'flex', alignItems: 'center' }}>
+                          <i className={`fas ${addr.label === 'Home' ? 'fa-home' : addr.label === 'Office' ? 'fa-building' : addr.label === 'Apartment' ? 'fa-city' : 'fa-map-marker-alt'}`} style={{ marginRight: '8px', color: '#1a1a1a' }}></i>
+                          {addr.label}
+                        </div>
+                        <div style={{ color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85%' }}>
+                          {addr.flatNo}, {addr.street}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={placeOrder}
                 className="confirm-btn"

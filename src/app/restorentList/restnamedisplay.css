@@ -167,3 +167,20 @@
         height: 100px;
     }
 }
+
+.distance-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #34495e;
+    border-radius: 12px;
+    padding: 2px 8px;
+    margin-bottom: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.distance-value {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}

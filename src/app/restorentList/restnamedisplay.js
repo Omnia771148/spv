@@ -40,6 +40,16 @@ export default function RestorentDisplay(props) {
                 <span className="rating-star">★</span>
                 <span className="rating-value">{item.rating}</span>
               </div>
+
+              {/* Display Distance if available */}
+              {(props.distance || item.distance) && (
+                <div className="distance-badge ms-2">
+                  <span className="distance-value">
+                    {props.distance || item.distance}
+                    {!isNaN(parseFloat(props.distance || item.distance)) ? ' km' : ''}
+                  </span>
+                </div>
+              )}
             </div>
 
 

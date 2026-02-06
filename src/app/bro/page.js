@@ -96,6 +96,17 @@ export default function Bro() {
     showToast("Added to cart successfully!");
   };
 
+  // ✅ Distance State
+  const [distance, setDistance] = useState(null);
+
+  useEffect(() => {
+    // Get distance from local storage
+    const storedDistance = localStorage.getItem("currentRestaurantDistance");
+    if (storedDistance) {
+      setDistance(storedDistance);
+    }
+  }, []);
+
   // ✅ Corrected Loading placement
   if (loading || buttonStatusLoading) return <Loading />;
 
@@ -103,7 +114,7 @@ export default function Bro() {
     <div className="restaurant-page-bg container mt-4">
       {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
-        <RestorentDisplay data={restuarents.find(r => r.id === 4)} className="col-12 mb-4" />
+        <RestorentDisplay data={restuarents.find(r => r.id === 4)} distance={distance} className="col-12 mb-4" />
 
         {statusLoading && (
           <div className="alert alert-warning mt-3">

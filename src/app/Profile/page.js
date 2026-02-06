@@ -28,6 +28,9 @@ export default function Profile() {
         // 2. Clear Local Storage (Disk)
         localStorage.clear();
 
+        // 3. Reset Location Prompt Flag (Session)
+        sessionStorage.removeItem("isAppLoaded");
+
         // 3. Redirect
         // We use replace to ensure history is clean and pathname is correct for hiding navbar
         router.replace("/");

@@ -54,13 +54,9 @@ export default function KushasMenuLite() {
     if (!user && !localStorage.getItem("userId")) {
       router.replace("/login");
     } else {
-      const savedDistances = localStorage.getItem("allRestaurantDistances");
-      if (savedDistances) {
-        const distanceMap = JSON.parse(savedDistances);
-        const distValue = distanceMap["Snow Field"];
-        if (distValue) {
-          setDistance(`${distValue} km`);
-        }
+      const storedDistance = localStorage.getItem("currentRestaurantDistance");
+      if (storedDistance) {
+        setDistance(storedDistance);
       }
       setLoading(false);
     }
@@ -95,12 +91,12 @@ export default function KushasMenuLite() {
     }
 
     if (
-       existingCart.some((cartItem) => cartItem.id >= 1&& cartItem.id <= 100) ||
+      existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 100) ||
       existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
       existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
       existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512) ||
-       existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
-       existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714) 
+      existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
+      existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714)
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;

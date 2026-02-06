@@ -72,15 +72,15 @@ export default function KushasMenuList() {
     }
 
     // ✅ One restaurant restriction
-       if (
-          existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
-          existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
-          existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
-          existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512)
-        ) {
-          showToast("You Can Select From Only One Restaurant", "danger");
-          return;
-        }
+    if (
+      existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
+      existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
+      existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
+      existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512)
+    ) {
+      showToast("You Can Select From Only One Restaurant", "danger");
+      return;
+    }
 
     item.restaurantName = "Kushas";
 
@@ -91,13 +91,24 @@ export default function KushasMenuList() {
     showToast("Added to cart successfully!");
   };
 
+  // ✅ Distance State
+  const [distance, setDistance] = useState(null);
+
+  useEffect(() => {
+    // Get distance from local storage
+    const storedDistance = localStorage.getItem("currentRestaurantDistance");
+    if (storedDistance) {
+      setDistance(storedDistance);
+    }
+  }, []);
+
   if (loading || buttonStatusLoading) return <Loading />;
 
   return (
     <div className="restaurant-page-bg container mt-4">
 
       {/* ✅ RESTAURANT CARD */}
-      <RestorentDisplay data={restuarents[2]} className="col-12 mb-4" />
+      <RestorentDisplay data={restuarents[2]} distance={distance} className="col-12 mb-4" />
 
       {statusLoading && (
         <div className="alert alert-warning mt-3">

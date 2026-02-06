@@ -103,6 +103,9 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
                     email: matchedUser.email
                 }));
 
+                // Reset location prompt so it asks again on fresh login
+                sessionStorage.removeItem("isAppLoaded");
+
                 // Directly go to restaurant list
                 window.location.href = "/mainRestorentList";
             }

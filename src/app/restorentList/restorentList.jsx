@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Carousel, Modal, Spinner } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading } from '../../../lib/features/restaurantSlice';
+import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses } from '../../../lib/features/restaurantSlice';
 
 import './restorentList.css';
 import { restList } from './restorentDtata';
@@ -10,20 +10,43 @@ import { Data } from '../data/page';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
-import { isPointInPolygon } from "geolib";
+import { isPointInPolygon, getDistance } from "geolib";
 import { getExactDistance } from '../actions/delivery';
 import Loading from "../loading/page";
 import { showToast } from '../../toaster/page';
 
+// Kurnool polygon boundary
+const kurnoolPolygon = [
+    { latitude: 15.845928, longitude: 78.012744 },
+    { latitude: 15.846311, longitude: 78.019729 },
+    { latitude: 15.839716, longitude: 78.027036 },
+    { latitude: 15.846872, longitude: 78.031149 },
+    { latitude: 15.84623, longitude: 78.034459 },
+    { latitude: 15.838115, longitude: 78.049654 },
+    { latitude: 15.82565, longitude: 78.056682 },
+    { latitude: 15.818905, longitude: 78.060495 },
+    { latitude: 15.815102, longitude: 78.065114 },
+    { latitude: 15.801613, longitude: 78.072318 },
+    { latitude: 15.798335, longitude: 78.078557 },
+    { latitude: 15.79411, longitude: 78.078435 },
+    { latitude: 15.786917, longitude: 78.078888 },
+    { latitude: 15.776939, longitude: 78.073002 },
+    { latitude: 15.772624, longitude: 78.057852 },
+    { latitude: 15.768974, longitude: 78.054399 },
+    { latitude: 15.765935, longitude: 78.049634 },
+    { latitude: 15.77651, longitude: 78.02883 },
+    { latitude: 15.813778, longitude: 77.996924 },
+    { latitude: 15.847026, longitude: 78.005964 }
+];
+
 export default function RestorentList() {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
     const [isRouting, setIsRouting] = useState(false);
     const [isCalculating, setIsCalculating] = useState(false);
-
 
     // Location modal states
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -40,38 +63,9 @@ export default function RestorentList() {
     // Location request tracking
     const hasRequestedThisMount = useRef(false);
 
-    // Kurnool polygon boundary
-    // Kurnool polygon boundary
-    /*
-    const kurnoolPolygon = [
-        { latitude: 15.845928, longitude: 78.012744 },
-        { latitude: 15.846311, longitude: 78.019729 },
-        { latitude: 15.839716, longitude: 78.027036 },
-        { latitude: 15.846872, longitude: 78.031149 },
-        { latitude: 15.84623, longitude: 78.034459 },
-        { latitude: 15.838115, longitude: 78.049654 },
-        { latitude: 15.82565, longitude: 78.056682 },
-        { latitude: 15.818905, longitude: 78.060495 },
-        { latitude: 15.815102, longitude: 78.065114 },
-        { latitude: 15.801613, longitude: 78.072318 },
-        { latitude: 15.798335, longitude: 78.078557 },
-        { latitude: 15.79411, longitude: 78.078435 },
-        { latitude: 15.786917, longitude: 78.078888 },
-        { latitude: 15.776939, longitude: 78.073002 },
-        { latitude: 15.772624, longitude: 78.057852 },
-        { latitude: 15.768974, longitude: 78.054399 },
-        { latitude: 15.765935, longitude: 78.049634 },
-        { latitude: 15.77651, longitude: 78.02883 },
-        { latitude: 15.813778, longitude: 77.996924 },
-        { latitude: 15.847026, longitude: 78.005964 }
-    ];
-    */
-
-    // Fetch distances function
     // Fetch distances function
     const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        /*
-        console.log("🌐 Hitting Route API...");
+        console.log("🌐 New Application Instance: Hitting Route API...");
         const results = {};
         await Promise.all(restList.map(async (item) => {
             try {
@@ -81,26 +75,39 @@ export default function RestorentList() {
                 );
                 if (data && data.km) {
                     results[item.name] = data.km;
+                } else {
+                    // Fallback to air distance if API fails
+                    console.warn(`⚠️ Falling back to air distance for ${item.name}`);
+                    const distMeters = getDistance(
+                        { latitude: parseFloat(uLat), longitude: parseFloat(uLng) },
+                        { latitude: item.lat, longitude: item.lng }
+                    );
+                    results[item.name] = (distMeters / 1000).toFixed(1);
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+                // Fallback on error
+                const distMeters = getDistance(
+                    { latitude: parseFloat(uLat), longitude: parseFloat(uLng) },
+                    { latitude: item.lat, longitude: item.lng }
+                );
+                results[item.name] = (distMeters / 1000).toFixed(1);
+            }
         }));
 
         setRoadDistances(results);
         distRef.current = results;
         localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
         sessionStorage.setItem("isAppLoaded", "true");
-        */
     }, []);
 
     // Request location function
-    // Request location function
     const requestLocation = useCallback(() => {
-        /*
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
         const savedDistances = localStorage.getItem("allRestaurantDistances");
 
         if (isAppLoaded === "true" && savedDistances) {
-            console.log("📦 Using cached data.");
+            console.log("📦 Route Change Detected: Using cached data.");
             const parsed = JSON.parse(savedDistances);
             setRoadDistances(parsed);
             distRef.current = parsed;
@@ -108,84 +115,49 @@ export default function RestorentList() {
             return;
         }
 
-        if (!navigator.geolocation) return;
+        if (!navigator.geolocation || hasRequestedThisMount.current) return;
+        hasRequestedThisMount.current = true;
 
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
                 console.log("✅ Location obtained:", { latitude, longitude });
+                localStorage.setItem("customerLat", latitude);
+                localStorage.setItem("customerLng", longitude);
 
                 // Check if user is inside the polygon
                 const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
 
-                if (!isInside) {
+                if (isInside) {
+                    await fetchAllDistances(latitude, longitude);
+                } else {
                     console.warn("🚫 User is outside the service area.");
                     setOutOfZone(true);
-                    setShowFetchingModal(false);
-                    setShowLocationModal(false);
-                    return;
+                    setError("❌ Outside Service Area");
                 }
-
-                localStorage.setItem("customerLat", latitude);
-                localStorage.setItem("customerLng", longitude);
-
-                await fetchAllDistances(latitude, longitude);
                 setShowFetchingModal(false);
                 setShowLocationModal(false);
             },
             (err) => {
-                console.error("🚫 Geolocation failed:", {
-                    code: err.code,
-                    message: err.message
-                });
-
-                let errorMessage = "⚠️ Location access failed. ";
-
-                switch (err.code) {
-                    case 1: // PERMISSION_DENIED
-                        errorMessage += "📱 Permission denied. Check browser settings.";
-                        // Check for insecure origin
-                        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                            errorMessage = "⚠️ Geolocation requires HTTPS. It won't work on HTTP (Mobile/LAN).";
-                        }
-                        break;
-                    case 2: // POSITION_UNAVAILABLE
-                        errorMessage += "📶 GPS Signal weak or disabled.";
-                        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                            errorMessage = "⚠️ Geolocation blocked on insecure network (HTTP). Use HTTPS or localhost.";
-                        }
-                        break;
-                    case 3:
-                        errorMessage += "⏰ Location timed out. Try outside.";
-                        break;
-                    default:
-                        errorMessage += "Please try again";
-                }
-
-                setError(errorMessage);
+                console.error("🚫 Geolocation failed:", err);
                 setLocationDenied(true);
                 setShowFetchingModal(false);
                 setShowLocationModal(false);
+                setError("⚠️ GPS access required.");
             },
             {
-                enableHighAccuracy: true, // Forces "Turn on Location" on many Androids
-                timeout: 45000,           // Increased timeout
-                maximumAge: 0             // Do not use cached position
+                enableHighAccuracy: true,
+                timeout: 10000
             }
         );
-        */
     }, [fetchAllDistances]);
 
     // Enable location handler
-    // Enable location handler
     const handleEnableLocation = () => {
-        /*
         setShowLocationModal(false);
         setShowFetchingModal(true);
         requestLocation();
-        */
     };
-
 
     const dispatch = useDispatch();
     // Get statuses from Redux store
@@ -195,59 +167,63 @@ export default function RestorentList() {
         setMounted(true);
 
         // Redux Auth Check
-        // We can just rely on the layout/AuthInitializer, but for safety:
         if (!localStorage.getItem("userId")) {
-            // Keeping the simple check here as RestorentList is the main landing.
-            // Converting this fully to Redux subscription might cause flicker if AuthInitializer is slow.
-            // But let's try to be consistent with the "Hybrid" approach I used in other files.
             router.replace("/login");
             return;
         }
-
-        setLoading(false);
 
         // Fetch restaurant statuses via Redux
         dispatch(fetchRestaurantStatuses());
         dispatch(fetchItemStatuses());
 
-        // ✅ AUTO-REFRESH STATUS EVERY 20 SECONDS (20000ms)
+        // Auto-refresh status
         const intervalId = setInterval(() => {
             console.log("🔄 Auto-refreshing restaurant data...");
             dispatch(fetchRestaurantStatuses());
             dispatch(fetchItemStatuses());
         }, 20000);
 
-        return () => clearInterval(intervalId);
-
-
-        // ALWAYS ask for location if not loaded, regardless of active orders
-        /*
+        // Location Logic: Check permission status before showing modal
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
-        
+        const savedDistances = localStorage.getItem("allRestaurantDistances");
+
         if (isAppLoaded === "true") {
-            // If app already loaded this session, try to request/use valid location silently
-            if (!hasRequestedThisMount.current) {
-                hasRequestedThisMount.current = true;
-                requestLocation();
+            if (savedDistances) {
+                const parsed = JSON.parse(savedDistances);
+                setRoadDistances(parsed);
+                distRef.current = parsed;
             }
+            setShowLocationModal(false);
         } else {
-            // Otherwise show modal to ask for location
-            setShowLocationModal(true);
+            // Check if permission is already granted
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+                    if (result.state === 'granted') {
+                        // Already granted: Skip modal, show fetching spinner, and get location
+                        setShowLocationModal(false);
+                        setShowFetchingModal(true);
+                        requestLocation();
+                    } else {
+                        // Not granted yet (prompt or denied): Show custom modal
+                        setShowLocationModal(true);
+                    }
+                }).catch((err) => {
+                    console.error("Permission query failed:", err);
+                    setShowLocationModal(true);
+                });
+            } else {
+                // Fallback for browsers without permissions API
+                setShowLocationModal(true);
+            }
         }
-        */
-    }, [dispatch, router]); // Dependency array updated
+        setLoading(false);
 
-
+        return () => clearInterval(intervalId);
+    }, [dispatch, router]); // requestLocation is intentionally omitted from dependency to run only on mount logic above
 
     const proceedToRoute = (name, distance) => {
         setIsRouting(true);
         setTimeout(() => setIsRouting(false), 2000);
-    };
-
-    const handleClick = (name) => {
-        // Using hardcoded distance since location is disabled - MODIFIED
-        const currentDistance = "0.0"; // distRef.current[name] || "0.0";
-        proceedToRoute(name, currentDistance);
     };
 
     const handleClicke = (name) => {
@@ -255,8 +231,6 @@ export default function RestorentList() {
         const restaurant = restList.find(r => r.name === name);
         if (restaurant && restaurant.id) {
             const isActive = restaurantStatuses[restaurant.id];
-            // Store status in localStorage to be used by the restaurant page immediately
-            // This prevents the need for a second fetch inside the restaurant page
             if (isActive !== undefined) {
                 localStorage.setItem("currentRestaurantStatus", isActive);
             }
@@ -288,9 +262,7 @@ export default function RestorentList() {
     return (
         <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
 
-
             {/* Location Modal */}
-            {/* 
             <Modal show={showLocationModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <div className="mb-3">
@@ -318,10 +290,8 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
-             */}
 
             {/* Fetching Modal */}
-            {/* 
             <Modal show={showFetchingModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
@@ -329,24 +299,20 @@ export default function RestorentList() {
                     <div className="text-muted small mt-1">Please wait</div>
                 </Modal.Body>
             </Modal>
-             */}
 
             {/* Location Denied Modal */}
-            {/* 
             <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
-                    <h6 className="fw-bold mb-3">Location Access</h6>
+                    <h6 className="fw-bold mb-3">Location Required</h6>
                     <p className="text-muted small mb-4">{error || "Please enable location for best experience"}</p>
                     <button className="btn btn-primary w-100" onClick={handleEnableLocation}>
                         📱 Try GPS Again
                     </button>
                 </Modal.Body>
             </Modal>
-             */}
 
             {/* Out of Zone Modal */}
-            {/* 
             <Modal show={outOfZone} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
@@ -364,25 +330,20 @@ export default function RestorentList() {
                     </button>
                 </Modal.Body>
             </Modal>
-             */}
 
-            {/* 
             <Modal show={isCalculating} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" size="sm" />
                     <div className="mt-3 fw-bold">Calculating Distance...</div>
                 </Modal.Body>
             </Modal>
-             */}
 
-            {/* 
             <Modal show={isRouting} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="grow" variant="success" size="sm" />
                     <div className="mt-2 fw-bold text-muted small">Entering Restaurant...</div>
                 </Modal.Body>
             </Modal>
-             */}
 
             <Carousel interval={3000} className='coroselmain'>
                 <Carousel.Item className='coroselmain2'>
@@ -499,6 +460,7 @@ export default function RestorentList() {
                 </div>
             </div>
             {/* Navbar Removed: Already handled in global layout */}
+            <Navbar />
         </div>
     );
 }

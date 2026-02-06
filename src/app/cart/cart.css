@@ -20,7 +20,6 @@ body {
     justify-content: center;
     align-items: center;
     margin-bottom: 5px;
-    border-bottom: 2px solid #000;
     padding-bottom: 5px;
 }
 
@@ -329,4 +328,37 @@ body {
     transform: translateY(-3px);
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
     background-color: #000;
+}
+
+/* Saved Address Styles */
+.address-label-selector {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.label-btn {
+    border: 1px solid #ccc;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+}
+
+.label-btn.active {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.saved-address-card {
+    background-color: #E6Dfc9;
+    transition: all 0.2s ease;
+}
+
+.saved-address-card:hover {
+    transform: translateY(-2px);
+    border-color: #1a1a1a !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.saved-address-card i {
+    font-size: 1.1rem;
 }
