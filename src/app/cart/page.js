@@ -267,6 +267,14 @@ export default function Cart() {
 
   const placeOrder = async () => {
     if (cartItems.length === 0) return alert("Cart is empty");
+
+    // ✅ Cached Service Check (No API Call)
+    const serviceStatus = localStorage.getItem("isServiceAvailable");
+    if (serviceStatus === "false") {
+      showToast("Service Unavailable: You are outside the service area.", "danger");
+      return;
+    }
+
     const deliveryAddress = `${flatNo}, ${street} ${landmark ? ', ' + landmark : ''}`;
     if (!flatNo.trim() || !street.trim()) return alert("Please enter Flat No and Street address.");
 
@@ -500,9 +508,13 @@ export default function Cart() {
                 setShowAddressBox(true);
               }}
               className="beige-btn-filled"
-              disabled={showAddressBox || hasActiveOrder}
-              title={hasActiveOrder ? "You have an active order" : "Place order"}
-              style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              disabled={showAddressBox || hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")}
+              title={
+                (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")
+                  ? "Service Unavailable: Outside Delivery Area"
+                  : (hasActiveOrder ? "You have an active order" : "Place order")
+              }
+              style={(hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
               {hasActiveOrder ? "Order in Progress" : "Place the order"}
             </button>
@@ -611,9 +623,13 @@ export default function Cart() {
               <button
                 onClick={placeOrder}
                 className="confirm-btn"
-                disabled={loading || hasActiveOrder}
-                title={hasActiveOrder ? "Cannot proceed with active order" : "Confirm Order"}
-                style={hasActiveOrder ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                disabled={loading || hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")}
+                title={
+                  (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")
+                    ? "Service Unavailable: Outside Delivery Area"
+                    : (hasActiveOrder ? "Cannot proceed with active order" : "Confirm Order")
+                }
+                style={(hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
               >
                 {hasActiveOrder
                   ? "Order already in progress"

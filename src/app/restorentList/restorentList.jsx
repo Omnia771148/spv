@@ -103,16 +103,32 @@ export default function RestorentList() {
 
     // Request location function
     const requestLocation = useCallback(() => {
-        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+        // ✅ Strict caching: If distances exist, NEVER fetch again in this session
         const savedDistances = localStorage.getItem("allRestaurantDistances");
 
-        if (isAppLoaded === "true" && savedDistances) {
-            console.log("📦 Route Change Detected: Using cached data.");
-            const parsed = JSON.parse(savedDistances);
-            setRoadDistances(parsed);
-            distRef.current = parsed;
-            setShowFetchingModal(false);
-            return;
+        if (savedDistances) {
+            console.log("📦 Distance Cache Found: Using stored data.");
+            try {
+                const parsed = JSON.parse(savedDistances);
+                setRoadDistances(parsed);
+                distRef.current = parsed;
+                setShowFetchingModal(false);
+                setShowLocationModal(false);
+
+                // Ensure service status is also synced if missing
+                if (!localStorage.getItem("isServiceAvailable") && localStorage.getItem("customerLat")) {
+                    // Re-verify polygon just in case, without API
+                    const lat = parseFloat(localStorage.getItem("customerLat"));
+                    const lng = parseFloat(localStorage.getItem("customerLng"));
+                    const isInside = isPointInPolygon({ latitude: lat, longitude: lng }, kurnoolPolygon);
+                    localStorage.setItem("isServiceAvailable", isInside ? "true" : "false");
+                }
+
+                return;
+            } catch (e) {
+                console.error("Cache parsing error, refetching...", e);
+                // If parse fails, proceed to fetch
+            }
         }
 
         if (!navigator.geolocation || hasRequestedThisMount.current) return;
@@ -129,9 +145,11 @@ export default function RestorentList() {
                 const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
 
                 if (isInside) {
+                    localStorage.setItem("isServiceAvailable", "true");
                     await fetchAllDistances(latitude, longitude);
                 } else {
                     console.warn("🚫 User is outside the service area.");
+                    localStorage.setItem("isServiceAvailable", "false");
                     setOutOfZone(true);
                     setError("❌ Outside Service Area");
                 }
@@ -139,11 +157,40 @@ export default function RestorentList() {
                 setShowLocationModal(false);
             },
             (err) => {
-                console.error("🚫 Geolocation failed:", err);
-                setLocationDenied(true);
-                setShowFetchingModal(false);
-                setShowLocationModal(false);
-                setError("⚠️ GPS access required.");
+                const userId = localStorage.getItem("userId");
+                if (userId) {
+                    // Check if user has active orders before forcing location
+                    fetch(`/api/check-user-active-order?userId=${userId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.hasActiveOrder) {
+                                console.log("📦 Active Order Found: Skipping location requirement.");
+                                setShowFetchingModal(false);
+                                setShowLocationModal(false);
+                                return;
+                            }
+                            // Otherwise show error
+                            console.error("🚫 Geolocation failed:", err);
+                            setLocationDenied(true);
+                            setShowFetchingModal(false);
+                            setShowLocationModal(false);
+                            setError("⚠️ GPS access required.");
+                        })
+                        .catch(() => {
+                            // Fallback on error
+                            console.error("🚫 Geolocation failed:", err);
+                            setLocationDenied(true);
+                            setShowFetchingModal(false);
+                            setShowLocationModal(false);
+                            setError("⚠️ GPS access required.");
+                        });
+                } else {
+                    console.error("🚫 Geolocation failed:", err);
+                    setLocationDenied(true);
+                    setShowFetchingModal(false);
+                    setShowLocationModal(false);
+                    setError("⚠️ GPS access required.");
+                }
             },
             {
                 enableHighAccuracy: true,
@@ -183,11 +230,64 @@ export default function RestorentList() {
             dispatch(fetchItemStatuses());
         }, 20000);
 
-        // Location Logic: Check permission status before showing modal
-        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+        // Location Logic: Aggressively prefer cached data
         const savedDistances = localStorage.getItem("allRestaurantDistances");
+        const userId = localStorage.getItem("userId");
+        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+
+        const checkActiveAndProceed = async () => {
+            // 1. Check for Active Orders FIRST
+            if (userId) {
+                try {
+                    const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
+                    const data = await res.json();
+                    if (data.hasActiveOrder) {
+                        console.log("🛑 Active Order Exists: Skipping ALL location APIS.");
+                        setShowLocationModal(false);
+                        return; // EXIT COMPLETELY
+                    }
+                } catch (err) {
+                    console.error("Failed to check active order", err);
+                }
+            }
+
+            // 2. Used Cached Data if No Active Order
+            if (savedDistances) {
+                console.log("📦 Mount: Using stored distances.");
+                try {
+                    const parsed = JSON.parse(savedDistances);
+                    setRoadDistances(parsed);
+                    distRef.current = parsed;
+                    setShowLocationModal(false);
+                } catch (e) {
+                    console.error("Mount cache error", e);
+                }
+            } else {
+                // 3. Only check permissions/fetch if NO data exists AND NO Active Order
+                if (navigator.permissions && navigator.permissions.query) {
+                    navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+                        if (result.state === 'granted') {
+                            // Already granted
+                            setShowLocationModal(false);
+                            setShowFetchingModal(true);
+                            requestLocation();
+                        } else {
+                            // Not granted
+                            setShowLocationModal(true);
+                        }
+                    }).catch((err) => {
+                        console.error("Permission query failed:", err);
+                        setShowLocationModal(true);
+                    });
+                } else {
+                    // Fallback
+                    setShowLocationModal(true);
+                }
+            }
+        };
 
         if (isAppLoaded === "true") {
+            // If app loaded in session, rely on cache or just skip
             if (savedDistances) {
                 const parsed = JSON.parse(savedDistances);
                 setRoadDistances(parsed);
@@ -195,26 +295,8 @@ export default function RestorentList() {
             }
             setShowLocationModal(false);
         } else {
-            // Check if permission is already granted
-            if (navigator.permissions && navigator.permissions.query) {
-                navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                    if (result.state === 'granted') {
-                        // Already granted: Skip modal, show fetching spinner, and get location
-                        setShowLocationModal(false);
-                        setShowFetchingModal(true);
-                        requestLocation();
-                    } else {
-                        // Not granted yet (prompt or denied): Show custom modal
-                        setShowLocationModal(true);
-                    }
-                }).catch((err) => {
-                    console.error("Permission query failed:", err);
-                    setShowLocationModal(true);
-                });
-            } else {
-                // Fallback for browsers without permissions API
-                setShowLocationModal(true);
-            }
+            // Fresh load: Check active order -> Cache -> New Fetch
+            checkActiveAndProceed();
         }
         setLoading(false);
 
@@ -313,20 +395,28 @@ export default function RestorentList() {
             </Modal>
 
             {/* Out of Zone Modal */}
-            <Modal show={outOfZone} centered backdrop="static" size="sm">
+            {/* Out of Zone Modal - Now Skippable */}
+            <Modal show={outOfZone} onHide={() => setOutOfZone(false)} centered backdrop={true} size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
                     <h5 className="fw-bold mb-3">Service Unavailable</h5>
                     <p className="text-muted small mb-4">
-                        Sorry, we do not deliver to your current location yet.
+                        We do not deliver to your current location yet.<br />
+                        You can still browse the menu.
                     </p>
                     <button
-                        className="btn btn-primary w-100"
+                        className="btn btn-primary w-100 mb-2"
                         onClick={() => {
                             window.location.reload();
                         }}
                     >
-                        🔄 Check Again
+                        🔄 Check Location Again
+                    </button>
+                    <button
+                        className="btn btn-outline-secondary w-100"
+                        onClick={() => setOutOfZone(false)}
+                    >
+                        Browse Anyway
                     </button>
                 </Modal.Body>
             </Modal>

@@ -73,8 +73,15 @@ export default function KushasMenuLite() {
 
   // Removed manual fetch button statuses useEffect
 
-  // ✅ ADD TO CART (WITH STATUS BLOCK)
+  // ✅ ADD TO CART
   const addToCart = (item) => {
+    // ✅ Cached Service Check (No API Call)
+    const serviceStatus = localStorage.getItem("isServiceAvailable");
+    if (serviceStatus === "false") {
+      showToast("Service Unavailable: You are outside the service area.", "danger");
+      return;
+    }
+
     if (!restaurantActive) {
       showToast("Restaurant is currently not accepting orders", "danger");
       return;
