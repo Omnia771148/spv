@@ -21,7 +21,8 @@ export async function POST(request) {
       deliveryAddress,
       userName,
       userEmail,
-      userPhone
+      userPhone,
+      restaurantName
     } = await request.json();
 
     if (!userId || !items || !restaurantId) {
@@ -42,6 +43,7 @@ export async function POST(request) {
       deliveryCharge,
       grandTotal,
       restaurantId,
+      restaurantName,
       aa,
       orderId,
       flatNo: flatNo || "",
