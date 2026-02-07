@@ -281,6 +281,25 @@ export default function Cart() {
         ? `https://www.google.com/maps/search/?api=1&query=${latStr},${lngStr}`
         : "";
 
+      // Determine the correct numeric restaurantId based on Item ID ranges
+      // We check the ID range for ALL orders to ensure we always get the correct numeric ID (1-7)
+      let restaurantId = String(cartItems[0].restid || "");
+      const firstItemId = Number(cartItems[0].id || 0);
+
+      // Always try to map based on ID first, as this is the most reliable source
+      if (firstItemId >= 1 && firstItemId <= 100) restaurantId = "1";
+      else if (firstItemId >= 101 && firstItemId <= 205) restaurantId = "2";
+      else if (firstItemId >= 206 && firstItemId <= 310) restaurantId = "3";
+      else if (firstItemId >= 311 && firstItemId <= 411) restaurantId = "4";
+      else if (firstItemId >= 412 && firstItemId <= 512) restaurantId = "5";
+      else if (firstItemId >= 513 && firstItemId <= 613) restaurantId = "6";
+      else if (firstItemId >= 614 && firstItemId <= 714) restaurantId = "7";
+
+      // Fallback: If no ID range matched (unlikely for valid items), keep the original value
+      if (!restaurantId || restaurantId === "undefined") {
+        restaurantId = String(cartItems[0].restid || cartItems[0].restaurantName);
+      }
+
       const orderPayload = {
         userId: localStorage.getItem('userId'),
         items: cartItems.map(item => ({
@@ -289,7 +308,7 @@ export default function Cart() {
           price: Number(item.price),
           quantity: Number(quantities[item.id] || 1)
         })),
-        restaurantId: String(cartItems[0].restid || cartItems[0].restaurantName),
+        restaurantId: restaurantId,
         totalCount: cartItems.length,
         totalPrice: Number(totalPrice),
         gst: Number(gstAmount),
