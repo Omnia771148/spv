@@ -65,12 +65,12 @@ export async function POST(request) {
        TRIGGER NOTIFICATION TO RESTAURANT 
        We target the production URL for the Restaurant App.
     */
-    
+
     // ✅ Updated to point to your LIVE Vercel App
-    const RESTAURANT_APP_URL = process.env.RESTAURANT_APP_URL || "https://newrest.vercel.app";
+    const RESTAURANT_APP_URL = process.env.RESTAURANT_APP_URL || "https://restuarentapplication25-01-2026.vercel.app";
     try {
       console.log(`Attempting to send notification to: ${RESTAURANT_APP_URL}/api/send-notification`);
-      
+
       const notiResponse = await fetch(`${RESTAURANT_APP_URL}/api/send-notification`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -99,29 +99,5 @@ export async function POST(request) {
       { success: false, error: error.message },
       { status: 500 }
     );
-  }
-}
-
-// Helper function to send notification to the Restaurant App
-async function sendNotificationToRestaurant(restaurantId, orderId) {
-  // ⚠️ Ensure this URL matches your deployed Restaurant App URL
-  const RESTAURANT_APP_URL = "https://restuaredappcolabtoday28-12-25.vercel.app";
-  try {
-    const response = await fetch(`${RESTAURANT_APP_URL}/api/send-notification`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        restId: restaurantId, // ✅ Sent as restId to match Restaurant users DB
-        restaurantId: restaurantId,
-        title: "New Order Handlers! 🍔",
-        body: `Order #${orderId} has just been placed. Check it out!`,
-      }),
-    });
-    const data = await response.json();
-    console.log("Notification sent:", data);
-  } catch (error) {
-    console.error("Failed to send notification:", error);
   }
 }

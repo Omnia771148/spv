@@ -579,8 +579,8 @@ export default function Cart() {
                           <i className={`fas ${addr.label === 'Home' ? 'fa-home' : addr.label === 'Office' ? 'fa-building' : addr.label === 'Apartment' ? 'fa-city' : 'fa-map-marker-alt'}`} style={{ marginRight: '8px', color: '#1a1a1a' }}></i>
                           {addr.label}
                         </div>
-                        <div style={{ color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '85%' }}>
-                          {addr.flatNo}, {addr.street}
+                        <div style={{ color: '#555', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '90%' }}>
+                          {addr.flatNo}, {addr.street}{addr.landmark ? `, ${addr.landmark}` : ""}
                         </div>
                       </div>
                     ))}
