@@ -102,12 +102,13 @@ export default function RestorentList() {
     }, []);
 
     // Request location function
-    const requestLocation = useCallback(() => {
+    const requestLocation = useCallback((force = false) => {
         // Cache check removed to allow re-verification of location on startup
         // This ensures the browser permission prompt handles the allow/block logic
 
 
-        if (!navigator.geolocation || hasRequestedThisMount.current) return;
+        if (!navigator.geolocation) return;
+        if (!force && hasRequestedThisMount.current) return;
         hasRequestedThisMount.current = true;
 
         navigator.geolocation.getCurrentPosition(
@@ -207,7 +208,7 @@ export default function RestorentList() {
     const handleEnableLocation = () => {
         setShowLocationModal(false);
         setShowFetchingModal(true);
-        requestLocation();
+        requestLocation(true); // Allow retries
     };
 
     const dispatch = useDispatch();
