@@ -145,8 +145,15 @@ export default function RestorentList() {
                                 console.log("📦 Active Order Found: Skipping location requirement.");
                                 setShowFetchingModal(false);
                                 setShowLocationModal(false);
+                                console.log("📦 Active Order Found: Skipping location requirement.");
+                                setShowFetchingModal(false);
+                                setShowLocationModal(false);
                                 return;
                             }
+
+                            // IF USER SKIPPED, DO NOT SHOW ERROR MODAL
+                            if (sessionStorage.getItem("locationSkipped") === "true") return;
+
                             // Otherwise show error
                             console.error("🚫 Geolocation failed:", err);
                             setLocationDenied(true);
@@ -198,17 +205,20 @@ export default function RestorentList() {
                 }
             },
             {
-                enableHighAccuracy: true,
-                timeout: 10000
+                enableHighAccuracy: true, // Turn on high accuracy to force GPS prompt on mobile
+                timeout: 15000,
+                maximumAge: 0
             }
         );
     }, [fetchAllDistances]);
 
-    // Enable location handler
+    // Enable location handler - DIRECT CALL to bypass any state/ref logic
     const handleEnableLocation = () => {
         setShowLocationModal(false);
         setShowFetchingModal(true);
-        requestLocation(true); // Allow retries
+        // Directly call requestLocation with force=true
+        // But to be absolutely safe against closure issues, we can just trigger the same logic logic via the function
+        requestLocation(true);
     };
 
     const dispatch = useDispatch();
@@ -292,12 +302,11 @@ export default function RestorentList() {
             if (navigator.permissions && navigator.permissions.query) {
                 navigator.permissions.query({ name: 'geolocation' }).then((result) => {
                     if (result.state === 'granted') {
-                        // Already granted
+                        // Already granted: Auto-request
                         setShowLocationModal(false);
-                        setShowFetchingModal(true);
                         requestLocation();
                     } else {
-                        // Not granted
+                        // Prompt or Denied: Show Modal so user can click "Turn On" or "Skip"
                         setShowLocationModal(true);
                     }
                 }).catch((err) => {
@@ -305,7 +314,7 @@ export default function RestorentList() {
                     setShowLocationModal(true);
                 });
             } else {
-                // Fallback
+                // Fallback for browsers without permissions API
                 setShowLocationModal(true);
             }
         };
@@ -376,19 +385,24 @@ export default function RestorentList() {
                     <button
                         className="btn btn-outline-secondary w-100"
                         onClick={() => {
+                            // 1. Close all modals immediately
                             setShowLocationModal(false);
-                            setLocationDenied(false); // Do not trigger error modal
+                            setShowFetchingModal(false);
+                            setLocationDenied(false);
+                            setOutOfZone(false);
+
+                            // 2. Set flags to prevent future prompts in this session
                             sessionStorage.setItem("isAppLoaded", "true");
                             sessionStorage.setItem("locationSkipped", "true");
 
-                            // CLEAR OLD LOCATION DATA
+                            // 3. Clear location-related data to ensure clean state
                             localStorage.removeItem("allRestaurantDistances");
                             localStorage.removeItem("customerLat");
                             localStorage.removeItem("customerLng");
                             localStorage.removeItem("currentRestaurantDistance");
                             localStorage.removeItem("currentRestaurantName");
 
-                            // Wipe state so UI updates immediately
+                            // 4. Reset component state
                             setRoadDistances({});
                             distRef.current = {};
                         }}
@@ -583,6 +597,6 @@ export default function RestorentList() {
             </div>
             {/* Navbar Removed: Already handled in global layout */}
             <Navbar />
-        </div>
+        </div >
     );
 }
