@@ -1,7 +1,10 @@
 import withPWA from 'next-pwa';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode : true,
+  reactStrictMode: true,
+  experimental: {
+    allowedOrigins: ["172.20.202.192", "localhost:3000"]
+  },
 
 
 

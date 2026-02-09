@@ -25,7 +25,8 @@ const userSchema = new mongoose.Schema({
     lat: { type: Number },
     lng: { type: Number },
     url: { type: String }
-  }
+  },
+  coins: { type: Number, default: 0 }
 });
 
 // Force re-registering the model with the updated schema in development

@@ -3,6 +3,7 @@ import crypto from "crypto";
 import connectionToDatabase from "../../../../lib/mongoose";
 import Order from "../../../../models/Order";
 import OrderStatus from "../../../../models/OrderStatus";
+import User from "../../../../models/User";
 import { generateOrderId } from "../../../../lib/generateOrderId";
 export async function POST(request) {
   try {
@@ -61,6 +62,27 @@ export async function POST(request) {
       status: "Pending",
       createdAt: new Date()
     });
+
+    // 5️⃣ ADD COINS TO USER REWARDS
+    let coinsAwarded = 0;
+    if (orderDoc.grandTotal > 300) {
+      coinsAwarded = 15;
+    } else if (orderDoc.grandTotal > 200) {
+      coinsAwarded = 10;
+    }
+
+    if (coinsAwarded > 0) {
+      try {
+        await User.findByIdAndUpdate(
+          orderDoc.userId,
+          { $inc: { coins: coinsAwarded } },
+          { new: true }
+        );
+        console.log(`✅ Awarded ${coinsAwarded} coins to user ${orderDoc.userId}`);
+      } catch (coinError) {
+        console.error("Failed to update user coins:", coinError);
+      }
+    }
     // 5️⃣ SEND NOTIFICATION TO RESTAURANT APP
     /* 
        TRIGGER NOTIFICATION TO RESTAURANT 
