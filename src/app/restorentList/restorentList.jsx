@@ -116,7 +116,7 @@ export default function RestorentList() {
                 console.log("✅ Location obtained:", { latitude, longitude });
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
-                localStorage.removeItem("locationSkipped"); // Clear skipped flag on success
+                sessionStorage.removeItem("locationSkipped"); // Clear skipped flag on success
 
                 // Check if user is inside the polygon
                 const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
@@ -152,21 +152,48 @@ export default function RestorentList() {
                             setShowFetchingModal(false);
                             setShowLocationModal(false);
                             setError("⚠️ GPS access required.");
+
+                            // CLEAR OLD LOCATION DATA - Active Order Check Failed w/o Active Order
+                            localStorage.removeItem("allRestaurantDistances");
+                            localStorage.removeItem("customerLat");
+                            localStorage.removeItem("customerLng");
+                            localStorage.removeItem("currentRestaurantDistance");
+                            localStorage.removeItem("currentRestaurantName");
+                            setRoadDistances({});
+                            distRef.current = {};
                         })
                         .catch(() => {
                             // Fallback on error
-                            console.error("🚫 Geolocation failed:", err);
+                            console.error("🚫 Geolocation failed (Check Error):", err);
                             setLocationDenied(true);
                             setShowFetchingModal(false);
                             setShowLocationModal(false);
                             setError("⚠️ GPS access required.");
+
+                            // CLEAR OLD LOCATION DATA ON CHECK ERROR
+                            localStorage.removeItem("allRestaurantDistances");
+                            localStorage.removeItem("customerLat");
+                            localStorage.removeItem("customerLng");
+                            localStorage.removeItem("currentRestaurantDistance");
+                            localStorage.removeItem("currentRestaurantName");
+                            setRoadDistances({});
+                            distRef.current = {};
                         });
                 } else {
-                    console.error("🚫 Geolocation failed:", err);
+                    console.error("🚫 Geolocation failed (No Active Order):", err);
                     setLocationDenied(true);
                     setShowFetchingModal(false);
                     setShowLocationModal(false);
                     setError("⚠️ GPS access required.");
+
+                    // CLEAR OLD LOCATION DATA ON ERROR/DENIAL
+                    localStorage.removeItem("allRestaurantDistances");
+                    localStorage.removeItem("customerLat");
+                    localStorage.removeItem("customerLng");
+                    localStorage.removeItem("currentRestaurantDistance");
+                    localStorage.removeItem("currentRestaurantName");
+                    setRoadDistances({});
+                    distRef.current = {};
                 }
             },
             {
@@ -225,6 +252,13 @@ export default function RestorentList() {
                         console.error("Cache parse error", e);
                     }
                 }
+                setShowLocationModal(false);
+                return;
+            }
+
+            // Check if location was previously skipped
+            if (sessionStorage.getItem("locationSkipped") === "true") {
+                console.log("⏭️ Location skipped by user.");
                 setShowLocationModal(false);
                 return;
             }
@@ -342,9 +376,20 @@ export default function RestorentList() {
                         className="btn btn-outline-secondary w-100"
                         onClick={() => {
                             setShowLocationModal(false);
-                            setLocationDenied(true);
+                            setLocationDenied(false); // Do not trigger error modal
                             sessionStorage.setItem("isAppLoaded", "true");
-                            localStorage.setItem("locationSkipped", "true");
+                            sessionStorage.setItem("locationSkipped", "true");
+
+                            // CLEAR OLD LOCATION DATA
+                            localStorage.removeItem("allRestaurantDistances");
+                            localStorage.removeItem("customerLat");
+                            localStorage.removeItem("customerLng");
+                            localStorage.removeItem("currentRestaurantDistance");
+                            localStorage.removeItem("currentRestaurantName");
+
+                            // Wipe state so UI updates immediately
+                            setRoadDistances({});
+                            distRef.current = {};
                         }}
                     >
                         Skip for now
@@ -361,14 +406,21 @@ export default function RestorentList() {
                 </Modal.Body>
             </Modal>
 
-            {/* Location Denied Modal */}
-            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" size="sm">
+            {/* Location Denied / Error Modal */}
+            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} onHide={() => setLocationDenied(false)} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
-                    <h6 className="fw-bold mb-3">Location Required</h6>
-                    <p className="text-muted small mb-4">{error || "Please enable location for best experience"}</p>
-                    <button className="btn btn-primary w-100" onClick={handleEnableLocation}>
-                        📱 Try GPS Again
+                    <h6 className="fw-bold mb-3">Location Access Needed</h6>
+                    <p className="text-muted small mb-4">{error || "Please enable location in your browser settings to continue."}</p>
+
+                    <button className="btn btn-primary w-100 mb-2" onClick={handleEnableLocation}>
+                        📱 Retry GPS
+                    </button>
+                    <button
+                        className="btn btn-outline-secondary w-100"
+                        onClick={() => setLocationDenied(false)}
+                    >
+                        Dismiss
                     </button>
                 </Modal.Body>
             </Modal>

@@ -109,10 +109,9 @@ export default function Cart() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const skipped = localStorage.getItem("locationSkipped") === "true";
-      const hasDistances = localStorage.getItem("allRestaurantDistances");
-      // Only block if skipped AND we don't have any distance data
-      setIsLocationSkipped(skipped && !hasDistances);
+      const skipped = sessionStorage.getItem("locationSkipped") === "true";
+      // Block if skipped, regardless of whether we have old distances
+      setIsLocationSkipped(skipped);
     }
   }, []);
 
