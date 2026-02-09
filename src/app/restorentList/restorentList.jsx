@@ -103,33 +103,9 @@ export default function RestorentList() {
 
     // Request location function
     const requestLocation = useCallback(() => {
-        // ✅ Strict caching: If distances exist, NEVER fetch again in this session
-        const savedDistances = localStorage.getItem("allRestaurantDistances");
+        // Cache check removed to allow re-verification of location on startup
+        // This ensures the browser permission prompt handles the allow/block logic
 
-        if (savedDistances) {
-            console.log("📦 Distance Cache Found: Using stored data.");
-            try {
-                const parsed = JSON.parse(savedDistances);
-                setRoadDistances(parsed);
-                distRef.current = parsed;
-                setShowFetchingModal(false);
-                setShowLocationModal(false);
-
-                // Ensure service status is also synced if missing
-                if (!localStorage.getItem("isServiceAvailable") && localStorage.getItem("customerLat")) {
-                    // Re-verify polygon just in case, without API
-                    const lat = parseFloat(localStorage.getItem("customerLat"));
-                    const lng = parseFloat(localStorage.getItem("customerLng"));
-                    const isInside = isPointInPolygon({ latitude: lat, longitude: lng }, kurnoolPolygon);
-                    localStorage.setItem("isServiceAvailable", isInside ? "true" : "false");
-                }
-
-                return;
-            } catch (e) {
-                console.error("Cache parsing error, refetching...", e);
-                // If parse fails, proceed to fetch
-            }
-        }
 
         if (!navigator.geolocation || hasRequestedThisMount.current) return;
         hasRequestedThisMount.current = true;
@@ -140,6 +116,7 @@ export default function RestorentList() {
                 console.log("✅ Location obtained:", { latitude, longitude });
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
+                localStorage.removeItem("locationSkipped"); // Clear skipped flag on success
 
                 // Check if user is inside the polygon
                 const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
@@ -236,7 +213,23 @@ export default function RestorentList() {
         const isAppLoaded = sessionStorage.getItem("isAppLoaded");
 
         const checkActiveAndProceed = async () => {
-            // 1. Check for Active Orders FIRST
+            // 1. If app is already loaded in this session, skip ALL checks and use cache
+            if (isAppLoaded === "true") {
+                console.log("✅ App already loaded in session: Using cache.");
+                if (savedDistances) {
+                    try {
+                        const parsed = JSON.parse(savedDistances);
+                        setRoadDistances(parsed);
+                        distRef.current = parsed;
+                    } catch (e) {
+                        console.error("Cache parse error", e);
+                    }
+                }
+                setShowLocationModal(false);
+                return;
+            }
+
+            // 2. Check for Active Orders FIRST - ALWAYS RUN THIS
             if (userId) {
                 try {
                     const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
@@ -244,6 +237,15 @@ export default function RestorentList() {
                     if (data.hasActiveOrder) {
                         console.log("🛑 Active Order Exists: Skipping ALL location APIS.");
                         setShowLocationModal(false);
+                        // If active order exists, we CAN and SHOULD use the cache to avoid disruption/loading
+                        if (savedDistances) {
+                            try {
+                                const parsed = JSON.parse(savedDistances);
+                                setRoadDistances(parsed);
+                                distRef.current = parsed;
+                            } catch (e) { console.error("Active order cache load error", e) }
+                        }
+                        sessionStorage.setItem("isAppLoaded", "true"); // Mark as loaded
                         return; // EXIT COMPLETELY
                     }
                 } catch (err) {
@@ -251,53 +253,29 @@ export default function RestorentList() {
                 }
             }
 
-            // 2. Used Cached Data if No Active Order
-            if (savedDistances) {
-                console.log("📦 Mount: Using stored distances.");
-                try {
-                    const parsed = JSON.parse(savedDistances);
-                    setRoadDistances(parsed);
-                    distRef.current = parsed;
-                    setShowLocationModal(false);
-                } catch (e) {
-                    console.error("Mount cache error", e);
-                }
-            } else {
-                // 3. Only check permissions/fetch if NO data exists AND NO Active Order
-                if (navigator.permissions && navigator.permissions.query) {
-                    navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                        if (result.state === 'granted') {
-                            // Already granted
-                            setShowLocationModal(false);
-                            setShowFetchingModal(true);
-                            requestLocation();
-                        } else {
-                            // Not granted
-                            setShowLocationModal(true);
-                        }
-                    }).catch((err) => {
-                        console.error("Permission query failed:", err);
+            // 3. fresh fetch needed
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+                    if (result.state === 'granted') {
+                        // Already granted
+                        setShowLocationModal(false);
+                        setShowFetchingModal(true);
+                        requestLocation();
+                    } else {
+                        // Not granted
                         setShowLocationModal(true);
-                    });
-                } else {
-                    // Fallback
+                    }
+                }).catch((err) => {
+                    console.error("Permission query failed:", err);
                     setShowLocationModal(true);
-                }
+                });
+            } else {
+                // Fallback
+                setShowLocationModal(true);
             }
         };
 
-        if (isAppLoaded === "true") {
-            // If app loaded in session, rely on cache or just skip
-            if (savedDistances) {
-                const parsed = JSON.parse(savedDistances);
-                setRoadDistances(parsed);
-                distRef.current = parsed;
-            }
-            setShowLocationModal(false);
-        } else {
-            // Fresh load: Check active order -> Cache -> New Fetch
-            checkActiveAndProceed();
-        }
+        checkActiveAndProceed();
         setLoading(false);
 
         return () => clearInterval(intervalId);
@@ -366,6 +344,7 @@ export default function RestorentList() {
                             setShowLocationModal(false);
                             setLocationDenied(true);
                             sessionStorage.setItem("isAppLoaded", "true");
+                            localStorage.setItem("locationSkipped", "true");
                         }}
                     >
                         Skip for now

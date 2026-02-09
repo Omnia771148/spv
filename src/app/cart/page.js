@@ -105,6 +105,16 @@ export default function Cart() {
   // ✅ Check for active orders
   const [hasActiveOrder, setHasActiveOrder] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
+  const [isLocationSkipped, setIsLocationSkipped] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const skipped = localStorage.getItem("locationSkipped") === "true";
+      const hasDistances = localStorage.getItem("allRestaurantDistances");
+      // Only block if skipped AND we don't have any distance data
+      setIsLocationSkipped(skipped && !hasDistances);
+    }
+  }, []);
 
   useEffect(() => {
     const checkActiveOrders = async () => {
@@ -445,7 +455,7 @@ export default function Cart() {
       {cartItems.length === 0 ? (
         <div className="empty-orders-container">
           <div className="empty-orders-icon-wrapper">
-            <i className="fas fa-utensils empty-orders-icon"></i>
+            <i className="fas fa-shopping-cart empty-orders-icon"></i>
           </div>
           <h3 className="empty-orders-title">No items in the cart</h3>
           <p className="empty-orders-subtitle">Your cart is quiet right now. Let&apos;s fix that with some delicious food!</p>
@@ -501,6 +511,10 @@ export default function Cart() {
             <button onClick={clear} className="beige-btn-outline">Clear all</button>
             <button
               onClick={() => {
+                if (isLocationSkipped) {
+                  showToast("Location is required to calculate delivery charges and place order.", "danger");
+                  return;
+                }
                 if (hasActiveOrder) {
                   showToast("Order already exists. Please finish it first.", "danger");
                   return;
@@ -508,15 +522,17 @@ export default function Cart() {
                 setShowAddressBox(true);
               }}
               className="beige-btn-filled"
-              disabled={showAddressBox || hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")}
+              disabled={showAddressBox || hasActiveOrder || isLocationSkipped || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")}
               title={
-                (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")
-                  ? "Service Unavailable: Outside Delivery Area"
-                  : (hasActiveOrder ? "You have an active order" : "Place order")
+                isLocationSkipped
+                  ? "Location required to place order"
+                  : (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")
+                    ? "Service Unavailable: Outside Delivery Area"
+                    : (hasActiveOrder ? "You have an active order" : "Place order")
               }
-              style={(hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              style={(hasActiveOrder || isLocationSkipped || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             >
-              {hasActiveOrder ? "Order in Progress" : "Place the order"}
+              {hasActiveOrder ? "Order in Progress" : (isLocationSkipped ? "Location Required" : "Place the order")}
             </button>
           </div>
 
@@ -623,13 +639,15 @@ export default function Cart() {
               <button
                 onClick={placeOrder}
                 className="confirm-btn"
-                disabled={loading || hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")}
+                disabled={loading || hasActiveOrder || isLocationSkipped || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")}
                 title={
-                  (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")
-                    ? "Service Unavailable: Outside Delivery Area"
-                    : (hasActiveOrder ? "Cannot proceed with active order" : "Confirm Order")
+                  isLocationSkipped
+                    ? "Location required to place order"
+                    : (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")
+                      ? "Service Unavailable: Outside Delivery Area"
+                      : (hasActiveOrder ? "Cannot proceed with active order" : "Confirm Order")
                 }
-                style={(hasActiveOrder || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                style={(hasActiveOrder || isLocationSkipped || (typeof window !== 'undefined' && localStorage.getItem("isServiceAvailable") === "false")) ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
               >
                 {hasActiveOrder
                   ? "Order already in progress"
