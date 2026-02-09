@@ -323,7 +323,8 @@ export default function RestorentList() {
         setLoading(false);
 
         return () => clearInterval(intervalId);
-    }, [dispatch, router]); // requestLocation is intentionally omitted from dependency to run only on mount logic above
+    }, [dispatch, router]);
+    
 
     const proceedToRoute = (name, distance) => {
         setIsRouting(true);
