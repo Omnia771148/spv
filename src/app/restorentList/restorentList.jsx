@@ -314,7 +314,7 @@ export default function RestorentList() {
                     setShowLocationModal(true);
                 });
             } else {
-                // Fallback for browsers without permissions API
+
                 setShowLocationModal(true);
             }
         };
