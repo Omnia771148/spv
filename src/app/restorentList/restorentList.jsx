@@ -212,13 +212,60 @@ export default function RestorentList() {
         );
     }, [fetchAllDistances]);
 
-    // Enable location handler - DIRECT CALL to bypass any state/ref logic
+    // Enable location handler - DIRECT SYNCHRONOUS CALL for maximum mobile compatibility
     const handleEnableLocation = () => {
         setShowLocationModal(false);
         setShowFetchingModal(true);
-        // Directly call requestLocation with force=true
-        // But to be absolutely safe against closure issues, we can just trigger the same logic logic via the function
-        requestLocation(true);
+
+        if (!navigator.geolocation) {
+            setError("Geolocation is not supported by your browser");
+            setLocationDenied(true);
+            setShowFetchingModal(false);
+            return;
+        }
+
+        // Direct call without wrapper function to ensure user gesture is preserved
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const { latitude, longitude } = pos.coords;
+                console.log("✅ Location obtained:", { latitude, longitude });
+                localStorage.setItem("customerLat", latitude);
+                localStorage.setItem("customerLng", longitude);
+                sessionStorage.removeItem("locationSkipped");
+
+                const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
+
+                if (isInside) {
+                    localStorage.setItem("isServiceAvailable", "true");
+                    await fetchAllDistances(latitude, longitude);
+                } else {
+                    console.warn("🚫 User is outside the service area.");
+                    localStorage.setItem("isServiceAvailable", "false");
+                    setOutOfZone(true);
+                    setError("❌ Outside Service Area");
+                }
+                setShowFetchingModal(false);
+                setShowLocationModal(false);
+            },
+            (err) => {
+                console.error("🚫 Geolocation failed:", err);
+                // On error/denial, we show the error modal
+                setLocationDenied(true);
+                setShowFetchingModal(false);
+                setShowLocationModal(false);
+                setError("⚠️ GPS access required.");
+
+                // Clear any partial data
+                localStorage.removeItem("allRestaurantDistances");
+                localStorage.removeItem("customerLat");
+                localStorage.removeItem("customerLng");
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
     };
 
     const dispatch = useDispatch();
@@ -324,7 +371,7 @@ export default function RestorentList() {
 
         return () => clearInterval(intervalId);
     }, [dispatch, router]);
-    
+
 
     const proceedToRoute = (name, distance) => {
         setIsRouting(true);
@@ -434,7 +481,30 @@ export default function RestorentList() {
                     </button>
                     <button
                         className="btn btn-outline-secondary w-100"
-                        onClick={() => setLocationDenied(false)}
+                        onClick={() => {
+                            // Dismiss behaves EXACTLY like Skip for now
+
+                            // 1. Close all modals
+                            setShowLocationModal(false);
+                            setShowFetchingModal(false);
+                            setLocationDenied(false);
+                            setOutOfZone(false);
+
+                            // 2. Set flags to block ordering
+                            sessionStorage.setItem("isAppLoaded", "true");
+                            sessionStorage.setItem("locationSkipped", "true");
+
+                            // 3. Clear location data
+                            localStorage.removeItem("allRestaurantDistances");
+                            localStorage.removeItem("customerLat");
+                            localStorage.removeItem("customerLng");
+                            localStorage.removeItem("currentRestaurantDistance");
+                            localStorage.removeItem("currentRestaurantName");
+
+                            // 4. Reset component state
+                            setRoadDistances({});
+                            distRef.current = {};
+                        }}
                     >
                         Dismiss
                     </button>
