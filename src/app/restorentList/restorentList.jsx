@@ -212,16 +212,19 @@ export default function RestorentList() {
         );
     }, [fetchAllDistances]);
 
-    // Enable location handler - CRITICAL: Call API FIRST before any React updates
+    // Enable location handler - DIRECT SYNCHRONOUS CALL for maximum mobile compatibility
     const handleEnableLocation = () => {
-        console.log("📍 User clicked 'Turn On Location' - Requesting Geolocation API...");
+        setShowLocationModal(false);
+        setShowFetchingModal(true);
 
         if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
+            setError("Geolocation is not supported by your browser");
+            setLocationDenied(true);
+            setShowFetchingModal(false);
             return;
         }
 
-        // 1. CALL API IMMEDIATELY (Preserve User Gesture)
+        // Direct call without wrapper function to ensure user gesture is preserved
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
@@ -246,18 +249,11 @@ export default function RestorentList() {
             },
             (err) => {
                 console.error("🚫 Geolocation failed:", err);
-
-                // If user denied it (Permission Denied = 1), Chrome won't ask again.
-                // We show specific help text or just the standard error modal.
-                if (err.code === 1) {
-                    setError("⚠️ Permission blocked. Please reset site permissions in browser settings.");
-                } else {
-                    setError("⚠️ GPS error. Ensure device location is on.");
-                }
-
+                // On error/denial, we show the error modal
                 setLocationDenied(true);
                 setShowFetchingModal(false);
                 setShowLocationModal(false);
+                setError("⚠️ GPS access required.");
 
                 // Clear any partial data
                 localStorage.removeItem("allRestaurantDistances");
@@ -265,15 +261,11 @@ export default function RestorentList() {
                 localStorage.removeItem("customerLng");
             },
             {
-                enableHighAccuracy: true, // Forces GPS toggle on Android
-                timeout: 20000,
+                enableHighAccuracy: true,
+                timeout: 10000,
                 maximumAge: 0
             }
         );
-
-        // 2. NOW Update UI (After triggering the browser API)
-        setShowLocationModal(false);
-        setShowFetchingModal(true);
     };
 
     const dispatch = useDispatch();
