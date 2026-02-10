@@ -13,7 +13,6 @@ import Navbar from '@/navigation/page';
 import { isPointInPolygon, getDistance } from "geolib";
 import { getExactDistance } from '../actions/delivery';
 import Loading from "../loading/page";
-import { showToast } from '../../toaster/page';
 
 // Kurnool polygon boundary
 const kurnoolPolygon = [
@@ -46,7 +45,6 @@ export default function RestorentList() {
     const [mounted, setMounted] = useState(false);
     const [error, setError] = useState(null);
     const [isRouting, setIsRouting] = useState(false);
-    const [isCalculating, setIsCalculating] = useState(false);
 
     // Location modal states
     const [showLocationModal, setShowLocationModal] = useState(false);
@@ -101,23 +99,27 @@ export default function RestorentList() {
         sessionStorage.setItem("isAppLoaded", "true");
     }, []);
 
-    // Request location function
+    // Request location function - SIMPLIFIED
     const requestLocation = useCallback((force = false) => {
-        // Cache check removed to allow re-verification of location on startup
-        // This ensures the browser permission prompt handles the allow/block logic
-
-
-        if (!navigator.geolocation) return;
+        if (!navigator.geolocation) {
+            setError("Geolocation is not supported by your browser");
+            setLocationDenied(true);
+            return;
+        }
+        
         if (!force && hasRequestedThisMount.current) return;
         hasRequestedThisMount.current = true;
 
+        setShowFetchingModal(true);
+        
+        // DIRECT CALL to getCurrentPosition - This will trigger Chrome's permission prompt
         navigator.geolocation.getCurrentPosition(
             async (pos) => {
                 const { latitude, longitude } = pos.coords;
                 console.log("✅ Location obtained:", { latitude, longitude });
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
-                sessionStorage.removeItem("locationSkipped"); // Clear skipped flag on success
+                sessionStorage.removeItem("locationSkipped");
 
                 // Check if user is inside the polygon
                 const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
@@ -153,7 +155,6 @@ export default function RestorentList() {
 
                 const userId = localStorage.getItem("userId");
                 if (userId) {
-                    // Check if user has active orders before forcing location
                     fetch(`/api/check-user-active-order?userId=${userId}`)
                         .then(res => res.json())
                         .then(data => {
@@ -164,20 +165,15 @@ export default function RestorentList() {
                                 return;
                             }
 
-                            // IF USER SKIPPED, DO NOT SHOW ERROR MODAL
                             if (sessionStorage.getItem("locationSkipped") === "true") return;
 
-                            // Otherwise show error
                             console.error("🚫 Geolocation failed:", err);
 
-                            // If explicit denial, show error. If just unavailable/timeout (likely GPS off), show friendly modal to retry with gesture.
-                            if (err.code === 1) { // PERMISSION_DENIED
+                            if (err.code === 1) {
                                 setLocationDenied(true);
                                 setShowLocationModal(false);
                                 setError(errorMsg);
                             } else {
-                                // POSITION_UNAVAILABLE (2) or TIMEOUT (3) -> Likely GPS off or weird state
-                                // Show friendly modal to force a user gesture which helps trigger the native prompt
                                 setLocationDenied(false);
                                 setShowLocationModal(true);
                             }
@@ -193,7 +189,6 @@ export default function RestorentList() {
                             distRef.current = {};
                         })
                         .catch(() => {
-                            // Fallback on error (Network issue etc)
                             console.error("🚫 Geolocation failed (Check Error):", err);
                             if (err.code === 1) {
                                 setLocationDenied(true);
@@ -222,7 +217,6 @@ export default function RestorentList() {
                         setShowLocationModal(false);
                         setError(errorMsg);
                     } else {
-                        // For GPS off/Timeout, reopen the main modal so clicking "Turn On" acts as the gesture
                         setLocationDenied(false);
                         setShowLocationModal(true);
                     }
@@ -246,17 +240,13 @@ export default function RestorentList() {
         );
     }, [fetchAllDistances]);
 
-    // Enable location handler - DIRECT CALL to bypass any state/ref logic
+    // Enable location handler
     const handleEnableLocation = () => {
         setShowLocationModal(false);
-        setShowFetchingModal(true);
-        // Directly call requestLocation with force=true
-        // But to be absolutely safe against closure issues, we can just trigger the same logic logic via the function
         requestLocation(true);
     };
 
     const dispatch = useDispatch();
-    // Get statuses from Redux store
     const restaurantStatuses = useSelector(selectAllStatuses);
 
     useEffect(() => {
@@ -279,15 +269,11 @@ export default function RestorentList() {
             dispatch(fetchItemStatuses());
         }, 20000);
 
-        // Location Logic: Aggressively prefer cached data
+        // Location Logic
         const savedDistances = localStorage.getItem("allRestaurantDistances");
         const userId = localStorage.getItem("userId");
-        // const isAppLoaded = sessionStorage.getItem("isAppLoaded"); // Removed to force check on reload
 
         const checkActiveAndProceed = async () => {
-            // 1. App Loaded Check REMOVED to satisfy "Ask on every load" requirement if needed, 
-            // and simply rely on permissions/active order logic.
-
             // Check if location was previously skipped
             if (sessionStorage.getItem("locationSkipped") === "true") {
                 console.log("⏭️ Location skipped by user.");
@@ -295,7 +281,7 @@ export default function RestorentList() {
                 return;
             }
 
-            // 2. Check for Active Orders FIRST - ALWAYS RUN THIS
+            // Check for Active Orders FIRST
             if (userId) {
                 try {
                     const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
@@ -303,7 +289,6 @@ export default function RestorentList() {
                     if (data.hasActiveOrder) {
                         console.log("🛑 Active Order Exists: Skipping ALL location APIS.");
                         setShowLocationModal(false);
-                        // If active order exists, we CAN and SHOULD use the cache to avoid disruption/loading
                         if (savedDistances) {
                             try {
                                 const parsed = JSON.parse(savedDistances);
@@ -311,17 +296,16 @@ export default function RestorentList() {
                                 distRef.current = parsed;
                             } catch (e) { console.error("Active order cache load error", e) }
                         }
-                        sessionStorage.setItem("isAppLoaded", "true"); // Mark as loaded
-                        return; // EXIT COMPLETELY
+                        sessionStorage.setItem("isAppLoaded", "true");
+                        return;
                     }
                 } catch (err) {
                     console.error("Failed to check active order", err);
                 }
             }
 
-            // 3. fresh fetch needed - Just request location directly to trigger Browser Prompt
-            // This satisfies "Chrome should definitely ask... to allow or deny"
-            requestLocation();
+            // SHOW MODAL FIRST, then user will click to trigger Chrome's permission prompt
+            setShowLocationModal(true);
         };
 
         checkActiveAndProceed();
@@ -330,14 +314,7 @@ export default function RestorentList() {
         return () => clearInterval(intervalId);
     }, [dispatch, router]);
 
-
-    const proceedToRoute = (name, distance) => {
-        setIsRouting(true);
-        setTimeout(() => setIsRouting(false), 2000);
-    };
-
     const handleClicke = (name) => {
-        // Find the restaurant to get its ID
         const restaurant = restList.find(r => r.name === name);
         if (restaurant && restaurant.id) {
             const isActive = restaurantStatuses[restaurant.id];
@@ -381,6 +358,10 @@ export default function RestorentList() {
                     <h5 className="fw-bold mb-3">Enable Location Access</h5>
                     <p className="text-muted small mb-4">
                         Turn on your location to find nearby restaurants in Kurnool
+                        <br /><br />
+                        <strong>Chrome will ask:</strong> "Allow this site to use your location?"
+                        <br />
+                        Click <strong>Allow</strong> to continue.
                     </p>
                     <button
                         className="btn btn-primary w-100 mb-2"
@@ -391,24 +372,20 @@ export default function RestorentList() {
                     <button
                         className="btn btn-outline-secondary w-100"
                         onClick={() => {
-                            // 1. Close all modals immediately
                             setShowLocationModal(false);
                             setShowFetchingModal(false);
                             setLocationDenied(false);
                             setOutOfZone(false);
 
-                            // 2. Set flags to prevent future prompts in this session
                             sessionStorage.setItem("isAppLoaded", "true");
                             sessionStorage.setItem("locationSkipped", "true");
 
-                            // 3. Clear location-related data to ensure clean state
                             localStorage.removeItem("allRestaurantDistances");
                             localStorage.removeItem("customerLat");
                             localStorage.removeItem("customerLng");
                             localStorage.removeItem("currentRestaurantDistance");
                             localStorage.removeItem("currentRestaurantName");
 
-                            // 4. Reset component state
                             setRoadDistances({});
                             distRef.current = {};
                         }}
@@ -447,7 +424,6 @@ export default function RestorentList() {
             </Modal>
 
             {/* Out of Zone Modal */}
-            {/* Out of Zone Modal - Now Skippable */}
             <Modal show={outOfZone} onHide={() => setOutOfZone(false)} centered backdrop={true} size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
@@ -473,13 +449,6 @@ export default function RestorentList() {
                 </Modal.Body>
             </Modal>
 
-            <Modal show={isCalculating} centered backdrop="static" size="sm">
-                <Modal.Body className="text-center py-4">
-                    <Spinner animation="border" variant="primary" size="sm" />
-                    <div className="mt-3 fw-bold">Calculating Distance...</div>
-                </Modal.Body>
-            </Modal>
-
             <Modal show={isRouting} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="grow" variant="success" size="sm" />
@@ -500,7 +469,6 @@ export default function RestorentList() {
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-                {/* Search and Filter Section */}
                 <div className="filter-section mb-4">
                     <div className="search-input-group">
                         <i className="fa-solid fa-magnifying-glass search-icon"></i>
@@ -514,7 +482,6 @@ export default function RestorentList() {
                     </div>
 
                     <div className="toggle-group d-flex align-items-center">
-                        {/* All Button */}
                         <button
                             className={`toggle-btn ${typeFilter === '' ? 'active-all' : ''}`}
                             onClick={() => setTypeFilter('')}
@@ -523,7 +490,6 @@ export default function RestorentList() {
                             <span style={{ fontSize: '14px', fontWeight: 'bold' }}>All</span>
                         </button>
 
-                        {/* Veg Button */}
                         <button
                             className={`toggle-btn veg-btn ${typeFilter === 'veg' ? 'active-veg' : ''}`}
                             onClick={() => setTypeFilter('veg')}
@@ -532,7 +498,6 @@ export default function RestorentList() {
                             <i className="fa-solid fa-leaf"></i>
                         </button>
 
-                        {/* Non-Veg Button */}
                         <button
                             className={`toggle-btn nonveg-btn ${typeFilter === 'non-veg' ? 'active-nonveg' : ''}`}
                             onClick={() => setTypeFilter('non-veg')}
@@ -546,18 +511,12 @@ export default function RestorentList() {
                 <div className="mt-4">
                     {restList
                         .filter(restaurant => {
-                            // 1. Type Filter
                             if (typeFilter && restaurant.type !== typeFilter) return false;
-
-                            // 2. Search Filter
                             if (!search) return true;
 
                             const lowerSearch = search.toLowerCase();
-
-                            // Check Restaurant Name
                             if (restaurant.name.toLowerCase().includes(lowerSearch)) return true;
 
-                            // Check Items in Restaurant
                             let startId = 0;
                             let endId = 0;
 
@@ -593,7 +552,7 @@ export default function RestorentList() {
                                         image={item.image}
                                         rating={item.rating || "4.2"}
                                         distance={roadDistances[item.name] ? `${roadDistances[item.name]} km` : "..."}
-                                        isActive={restaurantStatuses[item.id] !== false} // Default to true if undefined to avoid flashing closed on load, or handle loading state
+                                        isActive={restaurantStatuses[item.id] !== false}
                                     />
                                 </button>
                             </div>
@@ -601,7 +560,6 @@ export default function RestorentList() {
                     }
                 </div>
             </div>
-            {/* Navbar Removed: Already handled in global layout */}
             <Navbar />
         </div >
     );
