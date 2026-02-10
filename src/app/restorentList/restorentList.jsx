@@ -315,6 +315,19 @@ export default function RestorentList() {
 
             // 3. fresh fetch needed - Just request location directly to trigger Browser Prompt
             // This satisfies "Chrome should definitely ask... to allow or deny"
+
+            // CRITICAL FIX: Load cached distances FIRST so user sees data immediately while we refresh location
+            if (savedDistances) {
+                try {
+                    const parsed = JSON.parse(savedDistances);
+                    console.log("💾 Loading distances from cache for immediate display:", parsed);
+                    setRoadDistances(parsed);
+                    distRef.current = parsed;
+                } catch (e) {
+                    console.error("Cache parse error", e);
+                }
+            }
+
             requestLocation();
         };
 
