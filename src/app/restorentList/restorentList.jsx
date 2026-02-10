@@ -60,6 +60,20 @@ export default function RestorentList() {
 
     const router = useRouter();
 
+    // IMMEDIATE: Load cached distances on mount to prevent "..." flash
+    useEffect(() => {
+        const saved = localStorage.getItem("allRestaurantDistances");
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                setRoadDistances(parsed);
+                distRef.current = parsed;
+            } catch (e) {
+                console.error("Failed to load initial cache", e);
+            }
+        }
+    }, []);
+
     // Location request tracking
     const hasRequestedThisMount = useRef(false);
 
@@ -119,8 +133,11 @@ export default function RestorentList() {
                 localStorage.setItem("customerLng", longitude);
                 sessionStorage.removeItem("locationSkipped"); // Clear skipped flag on success
 
-                // Show Fetching Modal immediately after getting location
-                setShowFetchingModal(true);
+                // Only show blocking modal if this is the first load of the session
+                const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+                if (!isAppLoaded) {
+                    setShowFetchingModal(true);
+                }
                 setShowLocationModal(false);
 
                 // Check if user is inside the polygon
@@ -135,7 +152,10 @@ export default function RestorentList() {
                     setOutOfZone(true);
                     setError("❌ Outside Service Area");
                 }
-                setShowFetchingModal(false);
+
+                if (!isAppLoaded) {
+                    setShowFetchingModal(false);
+                }
             },
             (err) => {
                 let errorMsg = "⚠️ GPS access required.";
@@ -289,38 +309,7 @@ export default function RestorentList() {
         // const isAppLoaded = sessionStorage.getItem("isAppLoaded"); // Removed to force check on reload
 
         const checkActiveAndProceed = async () => {
-            // 1. App Loaded Check REMOVED to satisfy "Ask on every load" requirement if needed, 
-            // and simply rely on permissions/active order logic.
-
-
-            // 2. Check for Active Orders FIRST - ALWAYS RUN THIS
-            if (userId) {
-                try {
-                    const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
-                    const data = await res.json();
-                    if (data.hasActiveOrder) {
-                        console.log("🛑 Active Order Exists: Skipping ALL location APIS.");
-                        setShowLocationModal(false);
-                        // If active order exists, we CAN and SHOULD use the cache to avoid disruption/loading
-                        if (savedDistances) {
-                            try {
-                                const parsed = JSON.parse(savedDistances);
-                                setRoadDistances(parsed);
-                                distRef.current = parsed;
-                            } catch (e) { console.error("Active order cache load error", e) }
-                        }
-                        sessionStorage.setItem("isAppLoaded", "true"); // Mark as loaded
-                        return; // EXIT COMPLETELY
-                    }
-                } catch (err) {
-                    console.error("Failed to check active order", err);
-                }
-            }
-
-            // 3. fresh fetch needed - Just request location directly to trigger Browser Prompt
-            // This satisfies "Chrome should definitely ask... to allow or deny"
-
-            // CRITICAL FIX: Load cached distances FIRST so user sees data immediately while we refresh location
+            // 1. Load cached distances FIRST so user sees data immediately while we refresh location
             if (savedDistances) {
                 try {
                     const parsed = JSON.parse(savedDistances);
@@ -332,6 +321,9 @@ export default function RestorentList() {
                 }
             }
 
+            // 2. Request Location IMMEDIATELY (No waiting for APIs)
+            // We removed the blocking active order pre-check to ensure the location prompt appears ASAP.
+            // If location fails, the error handler in requestLocation will check for active orders.
             requestLocation();
         };
 
