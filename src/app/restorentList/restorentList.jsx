@@ -29,101 +29,123 @@ export default function RestorentList() {
     const dispatch = useDispatch();
     const restaurantStatuses = useSelector(selectAllStatuses);
 
-    // SIMPLE FUNCTION TO TRIGGER CHROME PERMISSION DIALOG
-    const triggerChromePermission = () => {
-        console.log("🎯 Triggering Chrome location permission...");
+    // FORCE CHROME TO SHOW PERMISSION DIALOG
+    const forceChromePermissionDialog = useCallback(() => {
+        console.log("🚀 FORCING Chrome permission dialog...");
         
-        // Close first modal, show fetching modal
         setShowLocationModal(false);
         setShowFetchingModal(true);
         
-        // THIS WILL TRIGGER CHROME'S NATIVE PERMISSION DIALOG
-        if (!navigator.geolocation) {
-            console.error("Geolocation not supported");
-            setShowFetchingModal(false);
-            return;
+        // Clear any cached permission state
+        if (navigator.permissions && navigator.permissions.query) {
+            // This resets the permission prompt state
+            navigator.permissions.query({ name: 'geolocation' })
+                .then(permissionStatus => {
+                    console.log("Current permission state:", permissionStatus.state);
+                })
+                .catch(() => {});
         }
         
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                console.log("✅ Chrome permission GRANTED!");
-                const { latitude, longitude } = position.coords;
-                
-                // Save coordinates
-                localStorage.setItem("customerLat", latitude);
-                localStorage.setItem("customerLng", longitude);
-                
-                // Calculate distances for ALL restaurants
-                console.log("📍 Calculating distances...");
-                const distances = {};
-                
-                for (const restaurant of restList) {
-                    try {
-                        // Use your exact distance API
-                        const data = await getExactDistance(
-                            { lat: latitude, lng: longitude },
-                            { lat: restaurant.lat, lng: restaurant.lng }
-                        );
-                        
-                        if (data && data.km) {
-                            distances[restaurant.name] = data.km;
-                        } else {
-                            // Fallback to direct distance
+        // Use a timeout to ensure UI updates before permission request
+        setTimeout(() => {
+            if (!navigator.geolocation) {
+                alert("Geolocation not supported");
+                setShowFetchingModal(false);
+                return;
+            }
+            
+            // THIS IS THE KEY: Use VERY specific options
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    console.log("✅ SUCCESS: Chrome permission GRANTED!");
+                    const { latitude, longitude } = position.coords;
+                    
+                    localStorage.setItem("customerLat", latitude.toString());
+                    localStorage.setItem("customerLng", longitude.toString());
+                    
+                    // Calculate distances
+                    console.log("📍 Calculating distances...");
+                    const distances = {};
+                    
+                    // Use Promise.all for parallel requests
+                    const promises = restList.map(async (restaurant) => {
+                        try {
+                            const data = await getExactDistance(
+                                { lat: latitude, lng: longitude },
+                                { lat: restaurant.lat, lng: restaurant.lng }
+                            );
+                            
+                            if (data && data.km) {
+                                distances[restaurant.name] = data.km;
+                            } else {
+                                const directDistance = getDistance(
+                                    { latitude, longitude },
+                                    { latitude: restaurant.lat, longitude: restaurant.lng }
+                                );
+                                distances[restaurant.name] = (directDistance / 1000).toFixed(1);
+                            }
+                        } catch (error) {
                             const directDistance = getDistance(
                                 { latitude, longitude },
                                 { latitude: restaurant.lat, longitude: restaurant.lng }
                             );
                             distances[restaurant.name] = (directDistance / 1000).toFixed(1);
                         }
-                    } catch (error) {
-                        console.error(`Error calculating distance for ${restaurant.name}:`, error);
-                        // Fallback distance
-                        const directDistance = getDistance(
-                            { latitude, longitude },
-                            { latitude: restaurant.lat, longitude: restaurant.lng }
-                        );
-                        distances[restaurant.name] = (directDistance / 1000).toFixed(1);
+                    });
+                    
+                    await Promise.all(promises);
+                    
+                    setRoadDistances(distances);
+                    localStorage.setItem("allRestaurantDistances", JSON.stringify(distances));
+                    console.log("📊 Distances:", distances);
+                    
+                    setShowFetchingModal(false);
+                },
+                (error) => {
+                    console.log("❌ PERMISSION ERROR:", error.code, error.message);
+                    setShowFetchingModal(false);
+                    
+                    // IMPORTANT: Show the exact error
+                    switch (error.code) {
+                        case 1:
+                            // PERMISSION_DENIED - User clicked Block
+                            alert("You clicked 'Block' in Chrome's permission dialog. Please allow location access.");
+                            // Clear any cached blocked state
+                            localStorage.removeItem("customerLat");
+                            localStorage.removeItem("customerLng");
+                            break;
+                        case 2:
+                            // POSITION_UNAVAILABLE - GPS might be off
+                            alert("GPS/Location service is off. Please turn on location/GPS on your device.");
+                            break;
+                        case 3:
+                            // TIMEOUT
+                            alert("Location request timed out. Please try again.");
+                            break;
+                        default:
+                            alert("Location error: " + error.message);
                     }
+                },
+                {
+                    // THESE SETTINGS ARE CRITICAL FOR MOBILE
+                    enableHighAccuracy: true,  // Forces GPS usage
+                    timeout: 15000,           // 15 second timeout
+                    maximumAge: 0             // No cached position
                 }
-                
-                // Save and show distances
-                setRoadDistances(distances);
-                localStorage.setItem("allRestaurantDistances", JSON.stringify(distances));
-                console.log("📊 Distances calculated:", distances);
-                
-                // Close modal
-                setShowFetchingModal(false);
-            },
-            (error) => {
-                console.log("❌ Chrome permission result:", error.message);
-                setShowFetchingModal(false);
-                
-                if (error.code === 1) {
-                    // User clicked BLOCK in Chrome dialog
-                    alert("You blocked location access. Please allow location in Chrome settings to see distances.");
-                } else {
-                    // Other error (GPS off, timeout, etc.)
-                    alert("Could not get location. Please ensure GPS is enabled and try again.");
-                }
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            }
-        );
-    };
+            );
+        }, 100); // Small delay to ensure modal shows
+    }, []);
 
-    // Handle "Turn On Location" button click
+    // Handle "Allow Location" button
     const handleEnableLocation = () => {
-        console.log("🖱️ Button clicked - Calling Chrome permission...");
-        triggerChromePermission();
+        console.log("🖱️ User clicked Allow Location");
+        forceChromePermissionDialog();
     };
 
     useEffect(() => {
         setMounted(true);
 
-        // Check if user is logged in
+        // Auth check
         if (!localStorage.getItem("userId")) {
             router.replace("/login");
             return;
@@ -133,35 +155,73 @@ export default function RestorentList() {
         dispatch(fetchRestaurantStatuses());
         dispatch(fetchItemStatuses());
 
-        // Auto-refresh status every 20 seconds
+        // Auto-refresh
         const intervalId = setInterval(() => {
             dispatch(fetchRestaurantStatuses());
             dispatch(fetchItemStatuses());
         }, 20000);
 
-        // Check if we already have distances cached
+        // Check for cached distances
         const savedDistances = localStorage.getItem("allRestaurantDistances");
         
         if (savedDistances) {
             try {
                 const parsed = JSON.parse(savedDistances);
                 setRoadDistances(parsed);
-                console.log("✅ Using cached distances:", parsed);
+                console.log("✅ Using cached distances");
             } catch (e) {
                 console.error("Error loading cached distances:", e);
             }
             setLoading(false);
         } else {
-            // No cached distances - show location modal
-            console.log("📱 No cached distances - showing location modal");
-            setTimeout(() => {
-                setShowLocationModal(true);
-                setLoading(false);
-            }, 500);
+            // No cached data - show location modal
+            console.log("📱 No cached data - showing location modal");
+            
+            // Check if permission was previously denied
+            const checkPermissionState = () => {
+                if (navigator.permissions && navigator.permissions.query) {
+                    navigator.permissions.query({ name: 'geolocation' })
+                        .then(permissionStatus => {
+                            console.log("Permission state on load:", permissionStatus.state);
+                            
+                            if (permissionStatus.state === 'denied') {
+                                // Already denied - don't show modal
+                                console.log("❌ Permission already denied");
+                                setLoading(false);
+                            } else if (permissionStatus.state === 'granted') {
+                                // Already granted - get location automatically
+                                console.log("✅ Permission already granted");
+                                forceChromePermissionDialog();
+                                setLoading(false);
+                            } else {
+                                // 'prompt' state or unknown - show modal
+                                setTimeout(() => {
+                                    setShowLocationModal(true);
+                                    setLoading(false);
+                                }, 500);
+                            }
+                        })
+                        .catch(() => {
+                            // Permissions API not available
+                            setTimeout(() => {
+                                setShowLocationModal(true);
+                                setLoading(false);
+                            }, 500);
+                        });
+                } else {
+                    // Permissions API not available
+                    setTimeout(() => {
+                        setShowLocationModal(true);
+                        setLoading(false);
+                    }, 500);
+                }
+            };
+            
+            checkPermissionState();
         }
 
         return () => clearInterval(intervalId);
-    }, [dispatch, router]);
+    }, [dispatch, router, forceChromePermissionDialog]);
 
     const handleClicke = (name) => {
         const restaurant = restList.find(r => r.name === name);
@@ -198,7 +258,7 @@ export default function RestorentList() {
     return (
         <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
 
-            {/* SIMPLE LOCATION MODAL */}
+            {/* LOCATION MODAL */}
             <Modal show={showLocationModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <div className="mb-3">
@@ -206,15 +266,16 @@ export default function RestorentList() {
                     </div>
                     <h5 className="fw-bold mb-3">Allow Location Access</h5>
                     <p className="text-muted small mb-4">
-                        We need your location to show restaurant distances.
+                        <strong>Chrome will show:</strong> "Allow this site to use your location?"
                         <br /><br />
-                        <strong>Chrome will ask:</strong> "Allow this site to use your location?"
+                        Click <strong>Allow</strong> to see restaurant distances.
                     </p>
                     <button
                         className="btn btn-primary w-100 mb-3"
                         onClick={handleEnableLocation}
+                        style={{ fontSize: '16px', padding: '12px' }}
                     >
-                        🔐 Allow Location
+                        🔐 ALLOW LOCATION ACCESS
                     </button>
                     <button
                         className="btn btn-outline-secondary w-100"
@@ -223,7 +284,7 @@ export default function RestorentList() {
                             localStorage.setItem("locationSkipped", "true");
                         }}
                     >
-                        Skip
+                        Skip for now
                     </button>
                 </Modal.Body>
             </Modal>
@@ -232,8 +293,12 @@ export default function RestorentList() {
             <Modal show={showFetchingModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
-                    <div className="mt-3 fw-bold">Requesting Location...</div>
-                    <div className="text-muted small mt-1">Chrome is asking for permission</div>
+                    <div className="mt-3 fw-bold">Requesting Location Access</div>
+                    <div className="text-muted small mt-1">
+                        Chrome is asking for permission...
+                        <br />
+                        Look for Chrome's popup!
+                    </div>
                 </Modal.Body>
             </Modal>
 
