@@ -135,6 +135,22 @@ export default function RestorentList() {
                 setShowLocationModal(false);
             },
             (err) => {
+                let errorMsg = "⚠️ GPS access required.";
+
+                switch (err.code) {
+                    case 1: // PERMISSION_DENIED
+                        errorMsg = "❌ Location permission denied. Please allow site access in browser settings.";
+                        break;
+                    case 2: // POSITION_UNAVAILABLE
+                        errorMsg = "⚠️ Location unavailable. Please turn on your Device Location/GPS.";
+                        break;
+                    case 3: // TIMEOUT
+                        errorMsg = "⚠️ Location request timed out. Please retry.";
+                        break;
+                    default:
+                        errorMsg = "⚠️ GPS access failed: " + (err.message || "Unknown error");
+                }
+
                 const userId = localStorage.getItem("userId");
                 if (userId) {
                     // Check if user has active orders before forcing location
@@ -142,9 +158,6 @@ export default function RestorentList() {
                         .then(res => res.json())
                         .then(data => {
                             if (data.hasActiveOrder) {
-                                console.log("📦 Active Order Found: Skipping location requirement.");
-                                setShowFetchingModal(false);
-                                setShowLocationModal(false);
                                 console.log("📦 Active Order Found: Skipping location requirement.");
                                 setShowFetchingModal(false);
                                 setShowLocationModal(false);
@@ -156,12 +169,21 @@ export default function RestorentList() {
 
                             // Otherwise show error
                             console.error("🚫 Geolocation failed:", err);
-                            setLocationDenied(true);
-                            setShowFetchingModal(false);
-                            setShowLocationModal(false);
-                            setError("⚠️ GPS access required.");
 
-                            // CLEAR OLD LOCATION DATA - Active Order Check Failed w/o Active Order
+                            // If explicit denial, show error. If just unavailable/timeout (likely GPS off), show friendly modal to retry with gesture.
+                            if (err.code === 1) { // PERMISSION_DENIED
+                                setLocationDenied(true);
+                                setShowLocationModal(false);
+                                setError(errorMsg);
+                            } else {
+                                // POSITION_UNAVAILABLE (2) or TIMEOUT (3) -> Likely GPS off or weird state
+                                // Show friendly modal to force a user gesture which helps trigger the native prompt
+                                setLocationDenied(false);
+                                setShowLocationModal(true);
+                            }
+                            setShowFetchingModal(false);
+
+                            // CLEAR OLD LOCATION DATA
                             localStorage.removeItem("allRestaurantDistances");
                             localStorage.removeItem("customerLat");
                             localStorage.removeItem("customerLng");
@@ -171,14 +193,19 @@ export default function RestorentList() {
                             distRef.current = {};
                         })
                         .catch(() => {
-                            // Fallback on error
+                            // Fallback on error (Network issue etc)
                             console.error("🚫 Geolocation failed (Check Error):", err);
-                            setLocationDenied(true);
+                            if (err.code === 1) {
+                                setLocationDenied(true);
+                                setShowLocationModal(false);
+                                setError(errorMsg);
+                            } else {
+                                setLocationDenied(false);
+                                setShowLocationModal(true);
+                            }
                             setShowFetchingModal(false);
-                            setShowLocationModal(false);
-                            setError("⚠️ GPS access required.");
 
-                            // CLEAR OLD LOCATION DATA ON CHECK ERROR
+                            // CLEAR OLD LOCATION DATA
                             localStorage.removeItem("allRestaurantDistances");
                             localStorage.removeItem("customerLat");
                             localStorage.removeItem("customerLng");
@@ -189,12 +216,19 @@ export default function RestorentList() {
                         });
                 } else {
                     console.error("🚫 Geolocation failed (No Active Order):", err);
-                    setLocationDenied(true);
-                    setShowFetchingModal(false);
-                    setShowLocationModal(false);
-                    setError("⚠️ GPS access required.");
 
-                    // CLEAR OLD LOCATION DATA ON ERROR/DENIAL
+                    if (err.code === 1) {
+                        setLocationDenied(true);
+                        setShowLocationModal(false);
+                        setError(errorMsg);
+                    } else {
+                        // For GPS off/Timeout, reopen the main modal so clicking "Turn On" acts as the gesture
+                        setLocationDenied(false);
+                        setShowLocationModal(true);
+                    }
+                    setShowFetchingModal(false);
+
+                    // CLEAR OLD LOCATION DATA
                     localStorage.removeItem("allRestaurantDistances");
                     localStorage.removeItem("customerLat");
                     localStorage.removeItem("customerLng");
@@ -205,8 +239,8 @@ export default function RestorentList() {
                 }
             },
             {
-                enableHighAccuracy: true, // Turn on high accuracy to force GPS prompt on mobile
-                timeout: 15000,
+                enableHighAccuracy: true,
+                timeout: 20000,
                 maximumAge: 0
             }
         );
@@ -248,24 +282,11 @@ export default function RestorentList() {
         // Location Logic: Aggressively prefer cached data
         const savedDistances = localStorage.getItem("allRestaurantDistances");
         const userId = localStorage.getItem("userId");
-        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+        // const isAppLoaded = sessionStorage.getItem("isAppLoaded"); // Removed to force check on reload
 
         const checkActiveAndProceed = async () => {
-            // 1. If app is already loaded in this session, skip ALL checks and use cache
-            if (isAppLoaded === "true") {
-                console.log("✅ App already loaded in session: Using cache.");
-                if (savedDistances) {
-                    try {
-                        const parsed = JSON.parse(savedDistances);
-                        setRoadDistances(parsed);
-                        distRef.current = parsed;
-                    } catch (e) {
-                        console.error("Cache parse error", e);
-                    }
-                }
-                setShowLocationModal(false);
-                return;
-            }
+            // 1. App Loaded Check REMOVED to satisfy "Ask on every load" requirement if needed, 
+            // and simply rely on permissions/active order logic.
 
             // Check if location was previously skipped
             if (sessionStorage.getItem("locationSkipped") === "true") {
@@ -298,25 +319,9 @@ export default function RestorentList() {
                 }
             }
 
-            // 3. fresh fetch needed
-            if (navigator.permissions && navigator.permissions.query) {
-                navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                    if (result.state === 'granted') {
-                        // Already granted: Auto-request
-                        setShowLocationModal(false);
-                        requestLocation();
-                    } else {
-                        // Prompt or Denied: Show Modal so user can click "Turn On" or "Skip"
-                        setShowLocationModal(true);
-                    }
-                }).catch((err) => {
-                    console.error("Permission query failed:", err);
-                    setShowLocationModal(true);
-                });
-            } else {
-
-                setShowLocationModal(true);
-            }
+            // 3. fresh fetch needed - Just request location directly to trigger Browser Prompt
+            // This satisfies "Chrome should definitely ask... to allow or deny"
+            requestLocation();
         };
 
         checkActiveAndProceed();
