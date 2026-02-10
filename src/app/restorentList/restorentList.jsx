@@ -119,6 +119,10 @@ export default function RestorentList() {
                 localStorage.setItem("customerLng", longitude);
                 sessionStorage.removeItem("locationSkipped"); // Clear skipped flag on success
 
+                // Show Fetching Modal immediately after getting location
+                setShowFetchingModal(true);
+                setShowLocationModal(false);
+
                 // Check if user is inside the polygon
                 const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
 
@@ -132,7 +136,6 @@ export default function RestorentList() {
                     setError("❌ Outside Service Area");
                 }
                 setShowFetchingModal(false);
-                setShowLocationModal(false);
             },
             (err) => {
                 let errorMsg = "⚠️ GPS access required.";
@@ -163,9 +166,6 @@ export default function RestorentList() {
                                 setShowLocationModal(false);
                                 return;
                             }
-
-                            // IF USER SKIPPED, DO NOT SHOW ERROR MODAL
-                            if (sessionStorage.getItem("locationSkipped") === "true") return;
 
                             // Otherwise show error
                             console.error("🚫 Geolocation failed:", err);
@@ -380,14 +380,14 @@ export default function RestorentList() {
         <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
 
             {/* Location Modal */}
-            <Modal show={showLocationModal} centered backdrop="static" size="sm">
+            <Modal show={showLocationModal} centered backdrop="static" keyboard={false} size="sm">
                 <Modal.Body className="text-center py-4">
                     <div className="mb-3">
                         <i className="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
                     </div>
                     <h5 className="fw-bold mb-3">Enable Location Access</h5>
                     <p className="text-muted small mb-4">
-                        Turn on your location to find nearby restaurants in Kurnool
+                        Turn on your location to enter the app. We only serve in Kurnool.
                     </p>
                     <button
                         className="btn btn-primary w-100 mb-2"
@@ -395,73 +395,41 @@ export default function RestorentList() {
                     >
                         🔐 Turn On Location
                     </button>
-                    <button
-                        className="btn btn-outline-secondary w-100"
-                        onClick={() => {
-                            // 1. Close all modals immediately
-                            setShowLocationModal(false);
-                            setShowFetchingModal(false);
-                            setLocationDenied(false);
-                            setOutOfZone(false);
-
-                            // 2. Set flags to prevent future prompts in this session
-                            sessionStorage.setItem("isAppLoaded", "true");
-                            sessionStorage.setItem("locationSkipped", "true");
-
-                            // 3. Clear location-related data to ensure clean state
-                            localStorage.removeItem("allRestaurantDistances");
-                            localStorage.removeItem("customerLat");
-                            localStorage.removeItem("customerLng");
-                            localStorage.removeItem("currentRestaurantDistance");
-                            localStorage.removeItem("currentRestaurantName");
-
-                            // 4. Reset component state
-                            setRoadDistances({});
-                            distRef.current = {};
-                        }}
-                    >
-                        Skip for now
-                    </button>
+                    {/* Skip button removed - Location is mandatory */}
                 </Modal.Body>
             </Modal>
 
             {/* Fetching Modal */}
-            <Modal show={showFetchingModal} centered backdrop="static" size="sm">
+            <Modal show={showFetchingModal} centered backdrop="static" keyboard={false} size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
                     <div className="mt-3 fw-bold">Fetching Location...</div>
-                    <div className="text-muted small mt-1">Please wait</div>
+                    <div className="text-muted small mt-1">Checking if you are in Kurnool</div>
                 </Modal.Body>
             </Modal>
 
             {/* Location Denied / Error Modal */}
-            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} onHide={() => setLocationDenied(false)} centered backdrop="static" size="sm">
+            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" keyboard={false} size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
-                    <h6 className="fw-bold mb-3">Location Access Needed</h6>
-                    <p className="text-muted small mb-4">{error || "Please enable location in your browser settings to continue."}</p>
+                    <h6 className="fw-bold mb-3">Location Access Required</h6>
+                    <p className="text-muted small mb-4">{error || "You must enable location and be in Kurnool to use this app."}</p>
 
                     <button className="btn btn-primary w-100 mb-2" onClick={handleEnableLocation}>
                         📱 Retry GPS
                     </button>
-                    <button
-                        className="btn btn-outline-secondary w-100"
-                        onClick={() => setLocationDenied(false)}
-                    >
-                        Dismiss
-                    </button>
+                    {/* Dismiss button removed */}
                 </Modal.Body>
             </Modal>
 
             {/* Out of Zone Modal */}
-            {/* Out of Zone Modal - Now Skippable */}
-            <Modal show={outOfZone} onHide={() => setOutOfZone(false)} centered backdrop={true} size="sm">
+            <Modal show={outOfZone} centered backdrop="static" keyboard={false} size="sm">
                 <Modal.Body className="text-center py-4">
                     <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
                     <h5 className="fw-bold mb-3">Service Unavailable</h5>
                     <p className="text-muted small mb-4">
-                        We do not deliver to your current location yet.<br />
-                        You can still browse the menu.
+                        Sorry, we are currently only operational in <b>Kurnool</b>.<br />
+                        You are outside our service area.
                     </p>
                     <button
                         className="btn btn-primary w-100 mb-2"
@@ -471,12 +439,7 @@ export default function RestorentList() {
                     >
                         🔄 Check Location Again
                     </button>
-                    <button
-                        className="btn btn-outline-secondary w-100"
-                        onClick={() => setOutOfZone(false)}
-                    >
-                        Browse Anyway
-                    </button>
+                    {/* Browse Anyway button removed */}
                 </Modal.Body>
             </Modal>
 
