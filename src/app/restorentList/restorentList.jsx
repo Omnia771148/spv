@@ -321,9 +321,32 @@ export default function RestorentList() {
                 }
             }
 
-            // 2. Request Location IMMEDIATELY (No waiting for APIs)
-            // We removed the blocking active order pre-check to ensure the location prompt appears ASAP.
-            // If location fails, the error handler in requestLocation will check for active orders.
+            // 2. Request Location Logic
+            // If app is already loaded in this session, DO NOT request location again.
+            // This prevents asking for permission or recalculating distances on simple route changes.
+            const isAppLoaded = sessionStorage.getItem("isAppLoaded");
+            if (isAppLoaded) {
+                console.log("⚡ App cached in session: Skipping location request.");
+                return;
+            }
+
+            // 3. Check for Active Orders BEFORE Requesting Location (API Cost Optimization)
+            if (userId) {
+                try {
+                    const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
+                    const data = await res.json();
+                    if (data.hasActiveOrder) {
+                        console.log("📦 Active Order Found: Skipping Google Route API & Location check.");
+                        sessionStorage.setItem("isAppLoaded", "true"); // Mark as loaded so we don't check again
+                        return; // EXIT COMPLETELY - Save Money!
+                    }
+                } catch (err) {
+                    console.error("Failed to check active order", err);
+                    // Fall through to request location if check fails
+                }
+            }
+
+            // 4. First time in session & No Active Order: Request Location
             requestLocation();
         };
 
