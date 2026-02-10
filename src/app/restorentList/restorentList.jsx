@@ -248,10 +248,14 @@ export default function RestorentList() {
 
     // Enable location handler - DIRECT CALL to bypass any state/ref logic
     const handleEnableLocation = () => {
+        // Reset all error states so we can try again cleanly
+        setLocationDenied(false);
+        setOutOfZone(false);
+        setError(null);
         setShowLocationModal(false);
         setShowFetchingModal(true);
+
         // Directly call requestLocation with force=true
-        // But to be absolutely safe against closure issues, we can just trigger the same logic logic via the function
         requestLocation(true);
     };
 
