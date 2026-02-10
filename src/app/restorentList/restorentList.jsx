@@ -10,264 +10,160 @@ import { Data } from '../data/page';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
 import Navbar from '@/navigation/page';
-import { isPointInPolygon, getDistance } from "geolib";
+import { getDistance } from "geolib";
 import { getExactDistance } from '../actions/delivery';
 import Loading from "../loading/page";
-import { showToast } from '../../toaster/page';
-
-// Kurnool polygon boundary
-const kurnoolPolygon = [
-    { latitude: 15.845928, longitude: 78.012744 },
-    { latitude: 15.846311, longitude: 78.019729 },
-    { latitude: 15.839716, longitude: 78.027036 },
-    { latitude: 15.846872, longitude: 78.031149 },
-    { latitude: 15.84623, longitude: 78.034459 },
-    { latitude: 15.838115, longitude: 78.049654 },
-    { latitude: 15.82565, longitude: 78.056682 },
-    { latitude: 15.818905, longitude: 78.060495 },
-    { latitude: 15.815102, longitude: 78.065114 },
-    { latitude: 15.801613, longitude: 78.072318 },
-    { latitude: 15.798335, longitude: 78.078557 },
-    { latitude: 15.79411, longitude: 78.078435 },
-    { latitude: 15.786917, longitude: 78.078888 },
-    { latitude: 15.776939, longitude: 78.073002 },
-    { latitude: 15.772624, longitude: 78.057852 },
-    { latitude: 15.768974, longitude: 78.054399 },
-    { latitude: 15.765935, longitude: 78.049634 },
-    { latitude: 15.77651, longitude: 78.02883 },
-    { latitude: 15.813778, longitude: 77.996924 },
-    { latitude: 15.847026, longitude: 78.005964 }
-];
 
 export default function RestorentList() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
     const [mounted, setMounted] = useState(false);
-    const [error, setError] = useState(null);
-    const [isRouting, setIsRouting] = useState(false);
-    const [isCalculating, setIsCalculating] = useState(false);
-
-    // Location modal states
+    
+    // SIMPLE STATES
     const [showLocationModal, setShowLocationModal] = useState(false);
     const [showFetchingModal, setShowFetchingModal] = useState(false);
-    const [locationDenied, setLocationDenied] = useState(false);
-    const [outOfZone, setOutOfZone] = useState(false);
-
-    // Location distance states
     const [roadDistances, setRoadDistances] = useState({});
-    const distRef = useRef({});
 
     const router = useRouter();
+    const dispatch = useDispatch();
+    const restaurantStatuses = useSelector(selectAllStatuses);
 
-    // Location request tracking
-    const hasRequestedThisMount = useRef(false);
-
-    // Fetch distances function
-    const fetchAllDistances = useCallback(async (uLat, uLng) => {
-        console.log("🌐 New Application Instance: Hitting Route API...");
-        const results = {};
-        await Promise.all(restList.map(async (item) => {
-            try {
-                const data = await getExactDistance(
-                    { lat: parseFloat(uLat), lng: parseFloat(uLng) },
-                    { lat: item.lat, lng: item.lng }
-                );
-                if (data && data.km) {
-                    results[item.name] = data.km;
-                } else {
-                    // Fallback to air distance if API fails
-                    console.warn(`⚠️ Falling back to air distance for ${item.name}`);
-                    const distMeters = getDistance(
-                        { latitude: parseFloat(uLat), longitude: parseFloat(uLng) },
-                        { latitude: item.lat, longitude: item.lng }
-                    );
-                    results[item.name] = (distMeters / 1000).toFixed(1);
-                }
-            } catch (err) {
-                console.error(err);
-                // Fallback on error
-                const distMeters = getDistance(
-                    { latitude: parseFloat(uLat), longitude: parseFloat(uLng) },
-                    { latitude: item.lat, longitude: item.lng }
-                );
-                results[item.name] = (distMeters / 1000).toFixed(1);
-            }
-        }));
-
-        setRoadDistances(results);
-        distRef.current = results;
-        localStorage.setItem("allRestaurantDistances", JSON.stringify(results));
-        sessionStorage.setItem("isAppLoaded", "true");
-    }, []);
-
-    // SIMPLE LOCATION REQUEST FUNCTION - This WILL trigger Chrome's dialog
-    const triggerChromeLocationPrompt = useCallback(() => {
-        console.log("🎯 Triggering Chrome's location permission dialog...");
+    // SIMPLE FUNCTION TO TRIGGER CHROME PERMISSION DIALOG
+    const triggerChromePermission = () => {
+        console.log("🎯 Triggering Chrome location permission...");
         
-        // Clear any previous permission state
-        sessionStorage.removeItem("locationSkipped");
-        hasRequestedThisMount.current = false;
-        
-        // Show fetching modal
-        setShowFetchingModal(true);
+        // Close first modal, show fetching modal
         setShowLocationModal(false);
+        setShowFetchingModal(true);
         
-        // DIRECT CALL to getCurrentPosition - This triggers Chrome's permission dialog
+        // THIS WILL TRIGGER CHROME'S NATIVE PERMISSION DIALOG
+        if (!navigator.geolocation) {
+            console.error("Geolocation not supported");
+            setShowFetchingModal(false);
+            return;
+        }
+        
         navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-                console.log("✅ Chrome permission GRANTED, location obtained");
-                const { latitude, longitude } = pos.coords;
+            async (position) => {
+                console.log("✅ Chrome permission GRANTED!");
+                const { latitude, longitude } = position.coords;
                 
+                // Save coordinates
                 localStorage.setItem("customerLat", latitude);
                 localStorage.setItem("customerLng", longitude);
                 
-                // Check if user is inside the polygon
-                const isInside = isPointInPolygon({ latitude, longitude }, kurnoolPolygon);
-                console.log("📍 Inside polygon:", isInside);
-
-                if (isInside) {
-                    localStorage.setItem("isServiceAvailable", "true");
-                    await fetchAllDistances(latitude, longitude);
-                    console.log("📊 Distances calculated successfully");
-                } else {
-                    console.warn("🚫 User is outside the service area.");
-                    localStorage.setItem("isServiceAvailable", "false");
-                    setOutOfZone(true);
-                    setError("❌ Outside Service Area");
+                // Calculate distances for ALL restaurants
+                console.log("📍 Calculating distances...");
+                const distances = {};
+                
+                for (const restaurant of restList) {
+                    try {
+                        // Use your exact distance API
+                        const data = await getExactDistance(
+                            { lat: latitude, lng: longitude },
+                            { lat: restaurant.lat, lng: restaurant.lng }
+                        );
+                        
+                        if (data && data.km) {
+                            distances[restaurant.name] = data.km;
+                        } else {
+                            // Fallback to direct distance
+                            const directDistance = getDistance(
+                                { latitude, longitude },
+                                { latitude: restaurant.lat, longitude: restaurant.lng }
+                            );
+                            distances[restaurant.name] = (directDistance / 1000).toFixed(1);
+                        }
+                    } catch (error) {
+                        console.error(`Error calculating distance for ${restaurant.name}:`, error);
+                        // Fallback distance
+                        const directDistance = getDistance(
+                            { latitude, longitude },
+                            { latitude: restaurant.lat, longitude: restaurant.lng }
+                        );
+                        distances[restaurant.name] = (directDistance / 1000).toFixed(1);
+                    }
                 }
+                
+                // Save and show distances
+                setRoadDistances(distances);
+                localStorage.setItem("allRestaurantDistances", JSON.stringify(distances));
+                console.log("📊 Distances calculated:", distances);
+                
+                // Close modal
                 setShowFetchingModal(false);
             },
-            (err) => {
-                console.log("❌ Chrome permission result:", err);
+            (error) => {
+                console.log("❌ Chrome permission result:", error.message);
                 setShowFetchingModal(false);
                 
-                if (err.code === 1) {
-                    // PERMISSION_DENIED - Chrome's "Block" was clicked
-                    console.log("🚫 User clicked BLOCK in Chrome dialog");
-                    setLocationDenied(true);
-                    setError("Location permission denied. Please allow in Chrome settings.");
-                } else if (err.code === 2 || err.code === 3) {
-                    // POSITION_UNAVAILABLE or TIMEOUT - GPS might be off
-                    console.log("⚠️ GPS/Location service unavailable");
-                    setLocationDenied(true);
-                    setError("Unable to get location. Please ensure GPS/Location is turned on.");
+                if (error.code === 1) {
+                    // User clicked BLOCK in Chrome dialog
+                    alert("You blocked location access. Please allow location in Chrome settings to see distances.");
+                } else {
+                    // Other error (GPS off, timeout, etc.)
+                    alert("Could not get location. Please ensure GPS is enabled and try again.");
                 }
-                
-                // Clear old data
-                localStorage.removeItem("allRestaurantDistances");
-                localStorage.removeItem("customerLat");
-                localStorage.removeItem("customerLng");
-                setRoadDistances({});
             },
             {
                 enableHighAccuracy: true,
-                timeout: 15000,
+                timeout: 10000,
                 maximumAge: 0
             }
         );
-    }, [fetchAllDistances]);
-
-    // Enable location handler - This button triggers Chrome's dialog
-    const handleEnableLocation = () => {
-        console.log("🖱️ User clicked 'Turn On Location'");
-        triggerChromeLocationPrompt();
     };
 
-    const dispatch = useDispatch();
-    // Get statuses from Redux store
-    const restaurantStatuses = useSelector(selectAllStatuses);
+    // Handle "Turn On Location" button click
+    const handleEnableLocation = () => {
+        console.log("🖱️ Button clicked - Calling Chrome permission...");
+        triggerChromePermission();
+    };
 
     useEffect(() => {
         setMounted(true);
 
-        // Redux Auth Check
+        // Check if user is logged in
         if (!localStorage.getItem("userId")) {
             router.replace("/login");
             return;
         }
 
-        // Fetch restaurant statuses via Redux
+        // Fetch restaurant statuses
         dispatch(fetchRestaurantStatuses());
         dispatch(fetchItemStatuses());
 
-        // Auto-refresh status
+        // Auto-refresh status every 20 seconds
         const intervalId = setInterval(() => {
-            console.log("🔄 Auto-refreshing restaurant data...");
             dispatch(fetchRestaurantStatuses());
             dispatch(fetchItemStatuses());
         }, 20000);
 
-        // Location Logic
+        // Check if we already have distances cached
         const savedDistances = localStorage.getItem("allRestaurantDistances");
-        const userId = localStorage.getItem("userId");
-        const isAppLoaded = sessionStorage.getItem("isAppLoaded");
-
-        const checkActiveAndProceed = async () => {
-            // 1. App Loaded Check - if app already loaded, use cached data
-            if (isAppLoaded === "true") {
-                console.log("✅ App already loaded, using cached location data");
-                if (savedDistances) {
-                    try {
-                        const parsed = JSON.parse(savedDistances);
-                        setRoadDistances(parsed);
-                        distRef.current = parsed;
-                    } catch (e) { console.error("Cache load error", e) }
-                }
-                setShowLocationModal(false);
-                return;
+        
+        if (savedDistances) {
+            try {
+                const parsed = JSON.parse(savedDistances);
+                setRoadDistances(parsed);
+                console.log("✅ Using cached distances:", parsed);
+            } catch (e) {
+                console.error("Error loading cached distances:", e);
             }
-
-            // Check if location was previously skipped
-            if (sessionStorage.getItem("locationSkipped") === "true") {
-                console.log("⏭️ Location skipped by user.");
-                setShowLocationModal(false);
-                return;
-            }
-
-            // 2. Check for Active Orders FIRST - ALWAYS RUN THIS
-            if (userId) {
-                try {
-                    const res = await fetch(`/api/check-user-active-order?userId=${userId}`);
-                    const data = await res.json();
-                    if (data.hasActiveOrder) {
-                        console.log("🛑 Active Order Exists: Skipping ALL location APIS.");
-                        setShowLocationModal(false);
-                        // If active order exists, use cache
-                        if (savedDistances) {
-                            try {
-                                const parsed = JSON.parse(savedDistances);
-                                setRoadDistances(parsed);
-                                distRef.current = parsed;
-                            } catch (e) { console.error("Active order cache load error", e) }
-                        }
-                        sessionStorage.setItem("isAppLoaded", "true");
-                        return;
-                    }
-                } catch (err) {
-                    console.error("Failed to check active order", err);
-                }
-            }
-
-            // 3. Show modal to user FIRST
-            console.log("📱 Showing location request modal to user");
-            setShowLocationModal(true);
-        };
-
-        checkActiveAndProceed();
-        setLoading(false);
+            setLoading(false);
+        } else {
+            // No cached distances - show location modal
+            console.log("📱 No cached distances - showing location modal");
+            setTimeout(() => {
+                setShowLocationModal(true);
+                setLoading(false);
+            }, 500);
+        }
 
         return () => clearInterval(intervalId);
     }, [dispatch, router]);
 
-
-    const proceedToRoute = (name, distance) => {
-        setIsRouting(true);
-        setTimeout(() => setIsRouting(false), 2000);
-    };
-
     const handleClicke = (name) => {
-        // Find the restaurant to get its ID
         const restaurant = restList.find(r => r.name === name);
         if (restaurant && restaurant.id) {
             const isActive = restaurantStatuses[restaurant.id];
@@ -302,108 +198,42 @@ export default function RestorentList() {
     return (
         <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
 
-            {/* Location Modal */}
+            {/* SIMPLE LOCATION MODAL */}
             <Modal show={showLocationModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <div className="mb-3">
                         <i className="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
                     </div>
-                    <h5 className="fw-bold mb-3">Enable Location Access</h5>
+                    <h5 className="fw-bold mb-3">Allow Location Access</h5>
                     <p className="text-muted small mb-4">
-                        <strong>Chrome will ask:</strong> "Allow this site to use your location?"
+                        We need your location to show restaurant distances.
                         <br /><br />
-                        Click <strong>Allow</strong> to see restaurant distances near you.
+                        <strong>Chrome will ask:</strong> "Allow this site to use your location?"
                     </p>
                     <button
-                        className="btn btn-primary w-100 mb-2"
+                        className="btn btn-primary w-100 mb-3"
                         onClick={handleEnableLocation}
                     >
-                        🔐 Allow Location Access
+                        🔐 Allow Location
                     </button>
                     <button
                         className="btn btn-outline-secondary w-100"
                         onClick={() => {
-                            // Skip location
                             setShowLocationModal(false);
-                            sessionStorage.setItem("isAppLoaded", "true");
-                            sessionStorage.setItem("locationSkipped", "true");
-                            localStorage.removeItem("allRestaurantDistances");
-                            localStorage.removeItem("customerLat");
-                            localStorage.removeItem("customerLng");
-                            setRoadDistances({});
+                            localStorage.setItem("locationSkipped", "true");
                         }}
                     >
-                        Skip for now
+                        Skip
                     </button>
                 </Modal.Body>
             </Modal>
 
-            {/* Fetching Modal */}
+            {/* FETCHING MODAL */}
             <Modal show={showFetchingModal} centered backdrop="static" size="sm">
                 <Modal.Body className="text-center py-4">
                     <Spinner animation="border" variant="primary" />
-                    <div className="mt-3 fw-bold">Waiting for Chrome Permission...</div>
-                    <div className="text-muted small mt-1">Chrome is asking for location access</div>
-                </Modal.Body>
-            </Modal>
-
-            {/* Location Denied / Error Modal */}
-            <Modal show={locationDenied} onHide={() => setLocationDenied(false)} centered backdrop="static" size="sm">
-                <Modal.Body className="text-center py-4">
-                    <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
-                    <h6 className="fw-bold mb-3">Location Access Needed</h6>
-                    <p className="text-muted small mb-4">
-                        {error || "Please allow location access in Chrome to see restaurant distances."}
-                    </p>
-                    <button className="btn btn-primary w-100 mb-2" onClick={handleEnableLocation}>
-                        🔄 Try Again
-                    </button>
-                    <button
-                        className="btn btn-outline-secondary w-100"
-                        onClick={() => setLocationDenied(false)}
-                    >
-                        Browse Without Location
-                    </button>
-                </Modal.Body>
-            </Modal>
-
-            {/* Out of Zone Modal */}
-            <Modal show={outOfZone} onHide={() => setOutOfZone(false)} centered backdrop={true} size="sm">
-                <Modal.Body className="text-center py-4">
-                    <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
-                    <h5 className="fw-bold mb-3">Service Unavailable</h5>
-                    <p className="text-muted small mb-4">
-                        We do not deliver to your current location yet.<br />
-                        You can still browse the menu.
-                    </p>
-                    <button
-                        className="btn btn-primary w-100 mb-2"
-                        onClick={() => {
-                            window.location.reload();
-                        }}
-                    >
-                        🔄 Check Location Again
-                    </button>
-                    <button
-                        className="btn btn-outline-secondary w-100"
-                        onClick={() => setOutOfZone(false)}
-                    >
-                        Browse Anyway
-                    </button>
-                </Modal.Body>
-            </Modal>
-
-            <Modal show={isCalculating} centered backdrop="static" size="sm">
-                <Modal.Body className="text-center py-4">
-                    <Spinner animation="border" variant="primary" size="sm" />
-                    <div className="mt-3 fw-bold">Calculating Distance...</div>
-                </Modal.Body>
-            </Modal>
-
-            <Modal show={isRouting} centered backdrop="static" size="sm">
-                <Modal.Body className="text-center py-4">
-                    <Spinner animation="grow" variant="success" size="sm" />
-                    <div className="mt-2 fw-bold text-muted small">Entering Restaurant...</div>
+                    <div className="mt-3 fw-bold">Requesting Location...</div>
+                    <div className="text-muted small mt-1">Chrome is asking for permission</div>
                 </Modal.Body>
             </Modal>
 
@@ -420,7 +250,6 @@ export default function RestorentList() {
             </Carousel>
 
             <div style={{ padding: '20px' }}>
-                {/* Search and Filter Section */}
                 <div className="filter-section mb-4">
                     <div className="search-input-group">
                         <i className="fa-solid fa-magnifying-glass search-icon"></i>
@@ -434,7 +263,6 @@ export default function RestorentList() {
                     </div>
 
                     <div className="toggle-group d-flex align-items-center">
-                        {/* All Button */}
                         <button
                             className={`toggle-btn ${typeFilter === '' ? 'active-all' : ''}`}
                             onClick={() => setTypeFilter('')}
@@ -443,7 +271,6 @@ export default function RestorentList() {
                             <span style={{ fontSize: '14px', fontWeight: 'bold' }}>All</span>
                         </button>
 
-                        {/* Veg Button */}
                         <button
                             className={`toggle-btn veg-btn ${typeFilter === 'veg' ? 'active-veg' : ''}`}
                             onClick={() => setTypeFilter('veg')}
@@ -452,7 +279,6 @@ export default function RestorentList() {
                             <i className="fa-solid fa-leaf"></i>
                         </button>
 
-                        {/* Non-Veg Button */}
                         <button
                             className={`toggle-btn nonveg-btn ${typeFilter === 'non-veg' ? 'active-nonveg' : ''}`}
                             onClick={() => setTypeFilter('non-veg')}
@@ -466,18 +292,12 @@ export default function RestorentList() {
                 <div className="mt-4">
                     {restList
                         .filter(restaurant => {
-                            // 1. Type Filter
                             if (typeFilter && restaurant.type !== typeFilter) return false;
-
-                            // 2. Search Filter
                             if (!search) return true;
 
                             const lowerSearch = search.toLowerCase();
-
-                            // Check Restaurant Name
                             if (restaurant.name.toLowerCase().includes(lowerSearch)) return true;
 
-                            // Check Items in Restaurant
                             let startId = 0;
                             let endId = 0;
 
@@ -522,6 +342,6 @@ export default function RestorentList() {
                 </div>
             </div>
             <Navbar />
-        </div >
+        </div>
     );
 }
