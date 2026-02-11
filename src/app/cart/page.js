@@ -6,6 +6,7 @@ import axios from 'axios';
 import Script from 'next/script';
 import Loading from '../loading/page';
 import { showToast } from '../../toaster/page';
+import { getCoinsEarned } from '@/lib/coinConfig';
 import './cart.css';
 
 export default function Cart() {
@@ -502,6 +503,14 @@ export default function Cart() {
             <div className="grand-total-row">
               <span>Grand total</span>
               <span>₹{grandTotal.toFixed(0)}</span>
+            </div>
+
+            <div className="coin-row">
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                <i className="fas fa-coins coin-icon"></i>
+                Coins you will earn
+              </span>
+              <span className="coin-value">+{getCoinsEarned(grandTotal)}</span>
             </div>
           </div>
 

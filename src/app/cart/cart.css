@@ -362,3 +362,30 @@ body {
 .saved-address-card i {
     font-size: 1.1rem;
 }
+
+/* Coins Display */
+.coin-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    color: #28a745;
+    /* Green to match success/money */
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    margin-top: 5px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.coin-icon {
+    color: #FFD700;
+    /* Gold color for the coin icon */
+    margin-right: 8px;
+    filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.1));
+}
+
+.coin-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+}

@@ -5,6 +5,7 @@ import Order from "../../../../models/Order";
 import OrderStatus from "../../../../models/OrderStatus";
 import User from "../../../../models/User";
 import { generateOrderId } from "../../../../lib/generateOrderId";
+import { getCoinsEarned } from "@/lib/coinConfig";
 export async function POST(request) {
   try {
     await connectionToDatabase();
@@ -64,12 +65,7 @@ export async function POST(request) {
     });
 
     // 5️⃣ ADD COINS TO USER REWARDS
-    let coinsAwarded = 0;
-    if (orderDoc.grandTotal > 300) {
-      coinsAwarded = 15;
-    } else if (orderDoc.grandTotal > 200) {
-      coinsAwarded = 10;
-    }
+    const coinsAwarded = getCoinsEarned(orderDoc.grandTotal);
 
     if (coinsAwarded > 0) {
       try {
