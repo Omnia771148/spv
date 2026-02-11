@@ -20,6 +20,7 @@ export default function KushasMenuLite() {
   const router = useRouter();
 
   const [search, setSearch] = useState('');
+  const [isListening, setIsListening] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,6 +154,62 @@ export default function KushasMenuLite() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <i
+            className={`fa-solid fa-microphone search-icon ${isListening ? 'text-danger' : ''}`}
+            onClick={() => {
+              const runSpeechRecog = () => {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                  const recognition = new SpeechRecognition();
+                  recognition.lang = 'en-US';
+                  recognition.interimResults = false;
+                  recognition.maxAlternatives = 1;
+
+                  recognition.onstart = () => {
+                    setIsListening(true);
+                    setSearch('');
+                  };
+
+                  recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    setSearch(transcript);
+                    setIsListening(false);
+                  };
+
+                  recognition.onerror = (event) => {
+                    console.error("Speech recognition error", event.error);
+                    setIsListening(false);
+                    if (event.error === 'not-allowed') {
+                      alert("Microphone access denied. Please check your browser settings.");
+                    }
+                  };
+
+                  recognition.onend = () => {
+                    setIsListening(false);
+                  };
+
+                  recognition.start();
+                } else {
+                  alert("Voice search is not supported in this browser.");
+                }
+              };
+
+              if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                  .then(function (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    runSpeechRecog();
+                  })
+                  .catch(function (err) {
+                    console.error("Error accessing microphone:", err);
+                    runSpeechRecog();
+                  });
+              } else {
+                runSpeechRecog();
+              }
+            }}
+            style={{ cursor: 'pointer', marginLeft: '10px', color: isListening ? 'red' : 'inherit' }}
+          ></i>
         </div>
 
         <div className="toggle-group d-flex align-items-center">
