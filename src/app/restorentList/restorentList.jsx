@@ -400,17 +400,17 @@ export default function RestorentList() {
         <div className="restaurant-list-page" style={{ paddingBottom: '100px' }}>
 
             {/* Location Modal */}
-            <Modal show={showLocationModal} centered backdrop="static" keyboard={false} size="sm">
+            <Modal show={showLocationModal} centered backdrop="static" keyboard={false} size="sm" contentClassName="location-modal-content">
                 <Modal.Body className="text-center py-4">
-                    <div className="mb-3">
-                        <i className="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                    <div className="location-modal-icon-container">
+                        <i className="fas fa-map-marker-alt location-modal-icon"></i>
                     </div>
-                    <h5 className="fw-bold mb-3">Enable Location Access</h5>
-                    <p className="text-muted small mb-4">
+                    <h5 className="location-modal-title">Enable Location Access</h5>
+                    <p className="location-modal-text">
                         Turn on your location to enter the app. We only serve in Kurnool.
                     </p>
                     <button
-                        className="btn btn-primary w-100 mb-2"
+                        className="location-modal-btn primary-btn"
                         onClick={handleEnableLocation}
                     >
                         🔐 Turn On Location
@@ -420,22 +420,26 @@ export default function RestorentList() {
             </Modal>
 
             {/* Fetching Modal */}
-            <Modal show={showFetchingModal} centered backdrop="static" keyboard={false} size="sm">
+            <Modal show={showFetchingModal} centered backdrop="static" keyboard={false} size="sm" contentClassName="location-modal-content">
                 <Modal.Body className="text-center py-4">
-                    <Spinner animation="border" variant="primary" />
-                    <div className="mt-3 fw-bold">Fetching Location...</div>
-                    <div className="text-muted small mt-1">Checking if you are in Kurnool</div>
+                    <div className="location-loader">
+                        <Spinner animation="border" />
+                    </div>
+                    <div className="location-modal-title mt-3">Fetching Location...</div>
+                    <div className="location-modal-text">Checking if you are in Kurnool</div>
                 </Modal.Body>
             </Modal>
 
             {/* Location Denied / Error Modal */}
-            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" keyboard={false} size="sm">
+            <Modal show={locationDenied && Object.keys(roadDistances).length === 0} centered backdrop="static" keyboard={false} size="sm" contentClassName="location-modal-content">
                 <Modal.Body className="text-center py-4">
-                    <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
-                    <h6 className="fw-bold mb-3">Location Access Required</h6>
-                    <p className="text-muted small mb-4">{error || "You must enable location and be in Kurnool to use this app."}</p>
+                    <div className="location-modal-icon-container warning">
+                        <i className="fas fa-exclamation-triangle location-modal-icon"></i>
+                    </div>
+                    <h6 className="location-modal-title">Location Access Required</h6>
+                    <p className="location-modal-text">{error || "You must enable location and be in Kurnool to use this app."}</p>
 
-                    <button className="btn btn-primary w-100 mb-2" onClick={handleEnableLocation}>
+                    <button className="location-modal-btn primary-btn" onClick={handleEnableLocation}>
                         📱 Retry GPS
                     </button>
                     {/* Dismiss button removed */}
@@ -443,16 +447,18 @@ export default function RestorentList() {
             </Modal>
 
             {/* Out of Zone Modal */}
-            <Modal show={outOfZone} centered backdrop="static" keyboard={false} size="sm">
+            <Modal show={outOfZone} centered backdrop="static" keyboard={false} size="sm" contentClassName="location-modal-content">
                 <Modal.Body className="text-center py-4">
-                    <i className="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
-                    <h5 className="fw-bold mb-3">Service Unavailable</h5>
-                    <p className="text-muted small mb-4">
+                    <div className="location-modal-icon-container danger">
+                        <i className="fas fa-map-marked-alt location-modal-icon"></i>
+                    </div>
+                    <h5 className="location-modal-title">Service Unavailable</h5>
+                    <p className="location-modal-text">
                         Sorry, we are currently only operational in <b>Kurnool</b>.<br />
                         You are outside our service area.
                     </p>
                     <button
-                        className="btn btn-primary w-100 mb-2"
+                        className="location-modal-btn danger-btn"
                         onClick={() => {
                             window.location.reload();
                         }}
@@ -463,17 +469,21 @@ export default function RestorentList() {
                 </Modal.Body>
             </Modal>
 
-            <Modal show={isCalculating} centered backdrop="static" size="sm">
+            <Modal show={isCalculating} centered backdrop="static" size="sm" contentClassName="location-modal-content">
                 <Modal.Body className="text-center py-4">
-                    <Spinner animation="border" variant="primary" size="sm" />
-                    <div className="mt-3 fw-bold">Calculating Distance...</div>
+                    <div className="location-loader">
+                        <Spinner animation="border" />
+                    </div>
+                    <div className="location-modal-title mt-3">Calculating Distance...</div>
                 </Modal.Body>
             </Modal>
 
-            <Modal show={isRouting} centered backdrop="static" size="sm">
+            <Modal show={isRouting} centered backdrop="static" size="sm" contentClassName="location-modal-content">
                 <Modal.Body className="text-center py-4">
-                    <Spinner animation="grow" variant="success" size="sm" />
-                    <div className="mt-2 fw-bold text-muted small">Entering Restaurant...</div>
+                    <div className="location-loader">
+                        <Spinner animation="grow" variant="success" />
+                    </div>
+                    <div className="location-modal-title mt-2">Entering Restaurant...</div>
                 </Modal.Body>
             </Modal>
 

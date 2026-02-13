@@ -342,3 +342,109 @@ body {
     align-items: center;
     gap: 5px;
 }
+
+/* --- Premium Location Modal Styles --- */
+.location-modal-content {
+    background-color: #F8F5EB !important;
+    border-radius: 35px !important;
+    border: none !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+}
+
+.location-modal-icon-container {
+    width: 100px;
+    height: 100px;
+    background-color: rgba(46, 125, 50, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    border: 2px solid rgba(46, 125, 50, 0.2);
+    box-shadow: inset 0 0 15px rgba(46, 125, 50, 0.05);
+}
+
+.location-modal-icon-container.warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    border: 2px solid rgba(255, 193, 7, 0.2);
+    box-shadow: inset 0 0 15px rgba(255, 193, 7, 0.05);
+}
+
+.location-modal-icon-container.danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 2px solid rgba(220, 53, 69, 0.2);
+    box-shadow: inset 0 0 15px rgba(220, 53, 69, 0.05);
+}
+
+.location-modal-icon {
+    font-size: 3rem;
+    color: #2E7D32;
+}
+
+.warning .location-modal-icon {
+    color: #ffc107;
+}
+
+.danger .location-modal-icon {
+    color: #dc3545;
+}
+
+.location-modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.location-modal-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.location-modal-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 50px;
+    border: none;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.primary-btn {
+    background-color: #2E7D32;
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #1B5E20;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(46, 125, 50, 0.3);
+}
+
+.danger-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.danger-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(220, 53, 69, 0.3);
+}
+
+.location-loader {
+    margin-bottom: 20px;
+}
+
+.location-loader .spinner-border {
+    width: 60px;
+    height: 60px;
+    border-width: 5px;
+    color: #2E7D32;
+}
