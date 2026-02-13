@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Loading from "../loading/page";
 import "./userdetails.css"; // Import the custom styles
 
 export default function UsersPage() {
+  const router = useRouter();
   // Store only the single logged-in user
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -118,7 +120,7 @@ export default function UsersPage() {
     <div className="user-details-container">
       {/* Header - Matching My Orders style */}
       <div className="orders-header">
-        <button className="back-button-svg" onClick={() => window.history.back()}>
+        <button className="back-button-svg" onClick={() => router.back()}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6" />
           </svg>
@@ -132,7 +134,7 @@ export default function UsersPage() {
       <div className="user-card">
         {/* Heading removed from here */}
 
-       
+
 
         {/* Name Row */}
         <div className="data-row">
@@ -151,7 +153,7 @@ export default function UsersPage() {
             <div className="data-text">{user.name || "No Name"}</div>
           )}
         </div>
-         {/* Phone Row (Read-only always, consistent look) */}
+        {/* Phone Row (Read-only always, consistent look) */}
         <div className="data-row">
           <div className="data-icon">
             <i className="fas fa-phone" style={{ transform: "rotate(90deg)" }}></i>
