@@ -9,7 +9,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     /* Modern soft shadow */
     border: 1px solid rgba(255, 255, 255, 0.4);
-    /* Subtle glass border */
+   
     display: flex;
     flex-direction: column;
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
