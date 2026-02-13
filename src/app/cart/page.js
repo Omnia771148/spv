@@ -380,29 +380,7 @@ export default function Cart() {
             if (verifyRes.data.success) {
               showToast('Order Placed Successfully!', 'success');
 
-              // ✅ Automatically save address to user's profile on success
-              try {
-                const currentLat = localStorage.getItem("customerLat");
-                const currentLng = localStorage.getItem("customerLng");
-                const currentUserId = localStorage.getItem("userId");
-
-                if (currentUserId && flatNo && street) {
-                  await axios.post('/api/users/address', {
-                    userId: currentUserId,
-                    address: {
-                      label: addressLabel || "Recent Order",
-                      flatNo: flatNo.trim(),
-                      street: street.trim(),
-                      landmark: landmark ? landmark.trim() : "",
-                      lat: currentLat ? parseFloat(currentLat) : null,
-                      lng: currentLng ? parseFloat(currentLng) : null,
-                      url: (currentLat && currentLng) ? `https://www.google.com/maps/search/?api=1&query=${currentLat},${currentLng}` : ""
-                    }
-                  });
-                }
-              } catch (addrErr) {
-                console.error("Silent error saving address on order:", addrErr);
-              }
+              // Auto-save removed as per request
 
               clear();
               router.push("/finalorderstatuses");
