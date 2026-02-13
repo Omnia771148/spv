@@ -550,7 +550,7 @@ export default function Cart() {
               />
 
               <div className="address-label-selector mb-3">
-                <span style={{ fontSize: '0.9rem', marginRight: '10px', color: '#666' }}>Save as:</span>
+
                 {['Home', 'Office', 'Apartment', 'Other'].map((l) => (
                   <button
                     key={l}
@@ -626,18 +626,19 @@ export default function Cart() {
                       onClick={() => setExpandAddresses(!expandAddresses)}
                       style={{
                         cursor: 'pointer',
-                        padding: '8px',
+                        padding: '10px',
                         textAlign: 'center',
-                        color: '#555',
-                        background: '#f0f0f0',
+                        color: '#000',
+                        background: '#f5cb5c',
                         borderRadius: '8px',
-                        marginTop: '8px',
-                        fontSize: '0.85rem',
-                        fontWeight: '500',
+                        marginTop: '12px',
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '5px'
+                        gap: '5px',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                       }}
                     >
                       {expandAddresses ? (
