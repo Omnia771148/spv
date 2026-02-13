@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Loading from "../../loading/page";
 
 export default function InvoicePage() {
   const { id } = useParams();
+  const router = useRouter();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -38,7 +39,12 @@ export default function InvoicePage() {
   };
 
   const handleClose = () => {
-    window.history.back();
+    // Check if there is history, otherwise go to finalorders
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/finalorders');
+    }
   };
 
   // Format currency
