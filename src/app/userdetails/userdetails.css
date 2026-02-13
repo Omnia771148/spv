@@ -17,17 +17,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     position: relative;
     width: 100%;
-    max-width: 400px;
+    padding: 0 10px;
 }
 
 .orders-header-pill {
     background-color: #fff;
     padding: 8px 20px;
     border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -35,19 +35,19 @@
 
 .orders-header h2 {
     margin: 0;
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', sans-serif;
     font-size: 20px;
-    color: #000;
+    color: #1a1a1a;
     font-weight: 600;
 }
 
 .header-icon {
-    font-size: 24px;
+    font-size: 18px;
 }
 
 .back-button-svg {
     position: absolute;
-    left: 0;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
@@ -60,6 +60,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    z-index: 10;
 }
 
 .back-button-svg:hover {
@@ -67,33 +68,41 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* User Card (Restored the beige/tan theme) */
+/* User Card - Professional Mobile View */
 .user-card {
     background-color: #E2D7C1;
-    border-radius: 25px;
-    padding: 25px 20px;
+    border-radius: 35px;
+    padding: 20px;
     width: 100%;
-    max-width: 380px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    max-width: 500px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
-/* Data Row Pills */
+@media (max-width: 480px) {
+    .user-card {
+        padding: 16px;
+        border-radius: 30px;
+        max-width: 100%;
+    }
+}
+
+/* Data Row - Clean and Standard */
 .data-row {
-    background-color: white;
-    border-radius: 12px;
-    padding: 10px 15px;
+    background-color: #ffffff;
+    border-radius: 50px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
-    min-height: 55px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    min-height: 52px;
+    border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .data-icon {
-    font-size: 1.2rem;
-    color: #1a1a1a;
+    font-size: 1.1rem;
+    color: #333;
     min-width: 35px;
     display: flex;
     justify-content: center;
@@ -102,10 +111,8 @@
 
 .data-text {
     font-size: 0.95rem;
-    color: #2D3436;
+    color: #1a1a1a;
     font-weight: 500;
-    word-break: break-all;
-    width: 100%;
 }
 
 /* Input Field Styling */
@@ -117,39 +124,30 @@
     color: #1a1a1a;
     background: transparent;
     font-family: 'Poppins', sans-serif;
-    font-weight: 500;
 }
 
 .input-field::placeholder {
-    color: #bbb;
+    color: #aaa;
 }
 
-/* Read-only input styling */
-.input-field:read-only {
-    color: #666;
-    cursor: not-allowed;
-}
-
-/* Edit Button (Bottom) Highlighted */
+/* Edit Button (Bottom) */
 .card-bottom-btn {
-    background-color: white;
-    border-radius: 12px;
+    background-color: #ffffff;
+    border-radius: 50px;
     padding: 12px 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
     width: 100%;
     margin-top: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
-    border: none;
 }
 
 .card-bottom-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+    background-color: #fcfcfc;
 }
 
 .edit-icon-box {
@@ -166,15 +164,15 @@
 
 .btn-text {
     font-size: 0.95rem;
-    color: #1a1a1a;
     font-weight: 600;
+    color: #1a1a1a;
 }
 
-/* Save/Cancel Buttons */
+/* Action Buttons */
 .action-buttons {
     display: flex;
-    gap: 12px;
-    margin-top: 15px;
+    gap: 10px;
+    margin-top: 10px;
     width: 100%;
 }
 
@@ -184,33 +182,22 @@
     background-color: #1a1a1a;
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 15px;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.save-btn:hover {
-    background-color: #000;
-    transform: translateY(-2px);
 }
 
 .cancel-btn {
     flex: 1;
     padding: 12px;
-    background-color: #eee;
+    background-color: #f5f5f5;
     color: #333;
     border: none;
-    border-radius: 10px;
+    border-radius: 15px;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.cancel-btn:hover {
-    background-color: #ddd;
 }
 
 /* DatePicker Styling */
@@ -220,10 +207,8 @@
 
 .react-datepicker {
     border: none !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
-    font-family: 'Poppins', sans-serif !important;
-    border-radius: 20px !important;
-    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 12px !important;
 }
 
 .react-datepicker__header {
