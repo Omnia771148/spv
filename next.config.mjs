@@ -3,7 +3,9 @@ import withPWA from 'next-pwa';
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    allowedOrigins: ["172.20.202.192", "localhost:3000"]
+    serverActions: {
+      allowedOrigins: ["172.20.202.192", "localhost:3000"]
+    }
   },
 
 

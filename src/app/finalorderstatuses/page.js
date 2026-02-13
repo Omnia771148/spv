@@ -160,28 +160,16 @@ export default function FinalOrderStatuses() {
                   <span className="savior-value">{order.deliveryBoyName || "Not Assigned"}</span>
                 </div>
                 {order.deliveryBoyPhone ? (
-                  <>
-                    <div className="savior-row">
-                      <a href={`tel:${order.deliveryBoyPhone}`} className="call-btn">
-                        <i className="fa-solid fa-phone"></i> Call Savior
-                      </a>
-                    </div>
-                    <div className="savior-row" style={{ marginTop: '5px' }}>
-                      <span className="savior-label">Delivery Charges</span>
-                      <span className="savior-value">₹ {order.deliveryCharge || 0}</span>
-                    </div>
-                  </>
+                  <div className="savior-row">
+                    <a href={`tel:${order.deliveryBoyPhone}`} className="call-btn">
+                      <i className="fa-solid fa-phone"></i> Call Savior
+                    </a>
+                  </div>
                 ) : (
-                  <>
-                    <div className="savior-row">
-                      <span className="savior-label">Phone</span>
-                      <span className="savior-value">Pending</span>
-                    </div>
-                    <div className="savior-row" style={{ marginTop: '5px' }}>
-                      <span className="savior-label">Delivery Charges</span>
-                      <span className="savior-value">₹ {order.deliveryCharge || 0}</span>
-                    </div>
-                  </>
+                  <div className="savior-row">
+                    <span className="savior-label">Phone</span>
+                    <span className="savior-value">Pending</span>
+                  </div>
                 )}
               </div>
             </div>
