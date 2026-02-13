@@ -29,6 +29,7 @@ export default function Cart() {
   const [userPhone, setUserPhone] = useState("");
 
   const aa = "gg";
+  const [expandAddresses, setExpandAddresses] = useState(false);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -584,10 +585,10 @@ export default function Cart() {
               {savedAddresses && savedAddresses.length > 0 && (
                 <div className="saved-addresses-list mt-3">
                   <label className="address-label" style={{ fontSize: '0.9rem', color: '#666' }}>Use a saved address:</label>
-                  <div className="d-flex flex-wrap gap-2">
-                    {savedAddresses.map((addr, idx) => (
+                  <div className="d-flex flex-column gap-2">
+                    {(expandAddresses ? savedAddresses : savedAddresses.slice(0, 1)).map((addr, idx) => (
                       <div
-                        key={idx}
+                        key={addr._id || idx}
                         onClick={() => loadSavedAddress(addr)}
                         className="beige-card saved-address-card"
                         style={{
@@ -595,10 +596,10 @@ export default function Cart() {
                           border: '1px solid #ddd',
                           padding: '10px',
                           borderRadius: '12px',
-                          flex: '1 1 150px',
-                          maxWidth: '250px',
+                          width: '100%',
                           fontSize: '0.85rem',
-                          position: 'relative'
+                          position: 'relative',
+                          background: '#fff'
                         }}
                       >
                         {addr._id !== 'legacy' && (
@@ -619,6 +620,33 @@ export default function Cart() {
                       </div>
                     ))}
                   </div>
+
+                  {savedAddresses.length > 1 && (
+                    <div
+                      onClick={() => setExpandAddresses(!expandAddresses)}
+                      style={{
+                        cursor: 'pointer',
+                        padding: '8px',
+                        textAlign: 'center',
+                        color: '#555',
+                        background: '#f0f0f0',
+                        borderRadius: '8px',
+                        marginTop: '8px',
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px'
+                      }}
+                    >
+                      {expandAddresses ? (
+                        <>Show Less <i className="fas fa-chevron-up"></i></>
+                      ) : (
+                        <>View {savedAddresses.length - 1} more addresses <i className="fas fa-chevron-down"></i></>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
