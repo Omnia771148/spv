@@ -301,6 +301,13 @@
     margin-bottom: 2px;
 }
 
+.delivery-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
 .gst-row {
     display: flex;
     justify-content: space-between;

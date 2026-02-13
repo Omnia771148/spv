@@ -178,7 +178,7 @@ export default function FinalOrderStatuses() {
                       <span className="savior-value">Pending</span>
                     </div>
                     <div className="savior-row" style={{ marginTop: '5px' }}>
-                      <span className="savior-label">Delivery Ch.</span>
+                      <span className="savior-label">Delivery Charges</span>
                       <span className="savior-value">₹ {order.deliveryCharge || 0}</span>
                     </div>
                   </>
@@ -219,6 +219,10 @@ export default function FinalOrderStatuses() {
               <div className="subtotal-row">
                 <span>Sub Total</span>
                 <span>₹ {order.totalPrice}</span>
+              </div>
+              <div className="delivery-row">
+                <span>Delivery Charges</span>
+                <span>₹ {order.deliveryCharge || 0}</span>
               </div>
               {order.gst > 0 && (
                 <div className="gst-row">
