@@ -31,12 +31,12 @@
 }
 
 body {
-    background-color: #E6DDBF !important;
+    background-color: #F8F5EB !important;
     min-height: 100vh;
 }
 
 .restaurant-list-page {
-    background-color: #E6DDBF;
+    background-color: #F8F5EB;
     min-height: 100vh;
 }
 
@@ -69,8 +69,8 @@ body {
 
 /* Filter Section Styles */
 .filter-section {
-    background-color: #F8F5EB;
-    /* Light contrast for input */
+    background-color: #EBE5D5;
+    /* Beige background to match cards */
     border-radius: 12px;
     padding: 8px 16px;
     display: flex;
@@ -108,8 +108,8 @@ body {
 
 .toggle-group {
     display: flex;
-    background-color: rgba(0, 0, 0, 0.05);
-    /* Subtle depth */
+    background-color: #E0DAC8;
+    /* Slightly darker beige for toggle track */
     border-radius: 20px;
     padding: 4px;
     position: relative;
@@ -274,8 +274,8 @@ body {
 /* --- Unique Modern Card Design --- */
 /* --- Unique Modern Card Design --- */
 .rest-card-unique {
-    background-color: #F8F5EB;
-    /* Light contrast background */
+    background-color: #E6DDBF;
+    /* Navbar Color (#E6DDBF) */
     border-radius: 20px;
     padding: 12px;
     margin-bottom: 25px;
