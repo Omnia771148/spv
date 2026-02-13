@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import connectionToDatabase from "../../../../../lib/mongoose";
+import connectionToDatabase from "lib/mongoose";
 import OrderStatus from "../../../../../models/OrderStatus";
 
 export async function DELETE(request, { params }) {

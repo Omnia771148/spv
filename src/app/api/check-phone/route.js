@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import User from "../../../../models/User";
-import connectionToDatabase from "../../../../lib/mongoose";
+import connectionToDatabase from "lib/mongoose";
 
 import crypto from "crypto";
 

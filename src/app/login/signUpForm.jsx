@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { auth } from "../../../lib/firebase";
+import { auth } from "lib/firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import Loading from '../loading/page';
 import DatePicker from "react-datepicker";

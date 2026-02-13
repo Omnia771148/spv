@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
-import { selectUser } from '../../../lib/features/userSlice';
+import { selectUser } from 'lib/features/userSlice';
 
 export default function MyOrders() {
   const router = useRouter();

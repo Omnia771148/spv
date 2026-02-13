@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import connectionToDatabase from "../../../../lib/mongoose";
+import connectionToDatabase from "lib/mongoose";
 import Order from "../../../../models/Order";
 import OrderStatus from "../../../../models/OrderStatus";
 import User from "../../../../models/User";
-import { generateOrderId } from "../../../../lib/generateOrderId";
-import { getCoinsEarned } from "@/lib/coinConfig";
+import { generateOrderId } from "lib/generateOrderId";
+import { getCoinsEarned } from "lib/coinConfig";
 export async function POST(request) {
   try {
     await connectionToDatabase();

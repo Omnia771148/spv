@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectionToDatabase from "../../../../../lib/mongoose"; // adjust path to your db connection
+import connectionToDatabase from "lib/mongoose"; // adjust path to your db connection
 import User from "../../../../../models/User";
 
 export async function PUT(req, { params }) {

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import './login.css';
 import { useDispatch } from "react-redux";
-import { setUser } from "../../../lib/features/userSlice";
+import { setUser } from "lib/features/userSlice";
 import Loading from '../loading/page';
 import ErrorPopup from './ErrorPopup';
 

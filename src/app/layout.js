@@ -3,8 +3,8 @@ import "./globals.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import Navbar from '@/navigation/page';
-import StoreProvider from '../../lib/StoreProvider';
-import AuthInitializer from '../../lib/AuthInitializer';
+import StoreProvider from 'lib/StoreProvider';
+import AuthInitializer from 'lib/AuthInitializer';
 
 
 const geistSans = Geist({

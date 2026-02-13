@@ -12,8 +12,8 @@ import Navbar from "@/navigation/page";
 // ✅ Fixed Import: Capitalized 'Loading'
 import Loading from '../loading/page';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from '../../../lib/features/restaurantSlice';
-import { selectUser } from '../../../lib/features/userSlice';
+import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from 'lib/features/restaurantSlice';
+import { selectUser } from 'lib/features/userSlice';
 
 import './knlrest.css';
 

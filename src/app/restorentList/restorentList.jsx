@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Carousel, Modal, Spinner } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses } from '../../../lib/features/restaurantSlice';
+import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses } from 'lib/features/restaurantSlice';
 
 import './restorentList.css';
 import { restList } from './restorentDtata';

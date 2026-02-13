@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import connectionToDatabase from "../../../../lib/mongoose";
+import connectionToDatabase from "lib/mongoose";
 import Order from "../../../../models/Order";
-import { generateOrderId } from "../../../../lib/generateOrderId";
+import { generateOrderId } from "lib/generateOrderId";
 
 export async function POST(request) {
   try {

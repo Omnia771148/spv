@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectionToDatabase from "../../../../lib/mongoose";
+import connectionToDatabase from "lib/mongoose";
 import ButtonStatus from "../../../../models/ButtonStatus";
 
 export async function GET() {

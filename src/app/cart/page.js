@@ -6,7 +6,7 @@ import axios from 'axios';
 import Script from 'next/script';
 import Loading from '../loading/page';
 import { showToast } from '../../toaster/page';
-import { getCoinsEarned } from '@/lib/coinConfig';
+import { getCoinsEarned } from 'lib/coinConfig';
 import './cart.css';
 
 export default function Cart() {
