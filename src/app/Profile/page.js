@@ -12,14 +12,31 @@ export default function Profile() {
     const router = useRouter();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(true);
+    const [userCoins, setUserCoins] = useState(0);
 
     useEffect(() => {
-        // Simple artificial delay to show the cool loader
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, []);
+        const fetchUserData = async () => {
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                router.replace("/login");
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/users/${userId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setUserCoins(data.coins || 0);
+                }
+            } catch (err) {
+                console.error("Failed to fetch user data", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, [router]);
 
     const handleLogout = () => {
         // 1. Clear Redux State (Memory)
@@ -55,6 +72,20 @@ export default function Profile() {
                     <span className="header-icon"><i className="fas fa-cog"></i></span>
                     <h2>Profile</h2>
                 </div>
+            </div>
+
+            {/* Coins Section - New Field */}
+            <div className="coin-balance-card">
+                <div className="coin-balance-info">
+                    <div className="coin-icon-wrapper-large">
+                        <i className="fas fa-coins"></i>
+                    </div>
+                    <div className="coin-details">
+                        <span className="coin-title">Available Coins</span>
+                        <span className="coin-amount">{userCoins}</span>
+                    </div>
+                </div>
+                <div className="coin-shine"></div>
             </div>
 
             {/* Menu Card */}
