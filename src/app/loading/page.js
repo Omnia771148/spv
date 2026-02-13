@@ -100,7 +100,7 @@ const styles = {
   overlay: {
     height: '100vh',
     width: '100vw',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#F8F5EB',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

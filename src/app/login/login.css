@@ -17,7 +17,7 @@ html {
 .login-container {
     min-height: 100vh;
     width: 100%;
-    background: linear-gradient(90deg, #FDFBF7 50%, #DCD4C3 50%);
+    background: linear-gradient(90deg, #F8F5EB 50%, #DCD4C3 50%);
     display: flex;
     flex-direction: column;
     align-items: center;

@@ -35,6 +35,11 @@ body {
     min-height: 100vh;
 }
 
+.restaurant-list-page {
+    background-color: #F8F5EB;
+    min-height: 100vh;
+}
+
 
 /*mobile view */
 @media (max-width: 768px) {

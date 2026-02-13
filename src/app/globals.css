@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+body {
+    background-color: #F8F5EB !important;
+    margin: 0;
+    padding: 0;
+}
+
 /* Custom Toast Styles */
 .toast-pill {
     background-color: #6BCB77;

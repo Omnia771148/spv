@@ -6,7 +6,7 @@ import Loading from '../loading/page';
 export default function RazorpayItemsPage() {
   const [orders, setOrders] = useState([]);
 
-const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -30,21 +30,21 @@ const [loading, setLoading] = useState(true);
           totalPrice: o.totalPrice,
         }));
 
-      setOrders(foatted);
+      setOrders(formatted);
       setLoading(false);
     };
 
     fetchOrders();
   }, []);
-if (loading) {
+  if (loading) {
     return <Loading />;
   }
 
   if (orders.length === 0)
-    return <p className="p-4">No paid orders found</p>;
+    return <p className="p-4" style={{ backgroundColor: '#F8F5EB', minHeight: '100vh' }}>No paid orders found</p>;
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4" style={{ backgroundColor: '#F8F5EB', minHeight: '100vh' }}>
       <h2 className="text-xl font-bold">
         Orders & Payment References
       </h2>

@@ -5,11 +5,11 @@ import RestorentList from '../restorentList/restorentList';
 
 
 
-export default function Maindisplay(){
-    return (<div>
-        
-    <RestorentList/>
-  
+export default function Maindisplay() {
+    return (<div className="restaurant-list-page">
+
+        <RestorentList />
+
 
     </div>
     )

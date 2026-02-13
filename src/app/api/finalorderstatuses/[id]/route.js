@@ -6,7 +6,7 @@ import OrderStatus from "../../../../../models/OrderStatus";
 export async function DELETE(request, { params }) {
     try {
         await connectionToDatabase();
-        const { id } = params;
+        const { id } = await params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return NextResponse.json(

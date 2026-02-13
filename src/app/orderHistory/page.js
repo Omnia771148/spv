@@ -41,10 +41,10 @@ export default function MyOrders() {
     fetchOrders();
   }, []);
 
-  if (loading) return <p>Checking authentication...</p>;
+  if (loading) return <p style={{ backgroundColor: '#F8F5EB', minHeight: '100vh', padding: '20px' }}>Checking authentication...</p>;
 
   return (
-    <div className="mt-4">
+    <div style={{ backgroundColor: '#F8F5EB', minHeight: '100vh', padding: '20px' }}>
       <h2>My Orders</h2>
       {orders.length === 0 ? (
         <p>No orders found.</p>
