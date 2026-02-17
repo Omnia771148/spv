@@ -104,7 +104,8 @@ export default function KushasMenuLite() {
       existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
       existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512) ||
       existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
-      existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714)
+      existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 712) ||
+      existingCart.some((cartItem) => cartItem.id >= 713 && cartItem.id <= 725)
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;

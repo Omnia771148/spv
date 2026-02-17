@@ -90,13 +90,14 @@ export default function PvMenu() {
             existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
             existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
             existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512) ||
-            existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613)
+            existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
+            existingCart.some((cartItem) => cartItem.id >= 713 && cartItem.id <= 725)
         ) {
             showToast("You Can Select From Only One Restaurant", "danger");
             return;
         }
 
-        item.restaurantName = "pv";
+        item.restaurantName = "Cream Stone";
         const updatedCart = [...existingCart, item];
         setCart(updatedCart);
         localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -239,7 +240,7 @@ export default function PvMenu() {
                 {Data.filter((item) => {
                     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
                     const matchesType = typeFilter === "" || item.type === typeFilter;
-                    const matchesId = item.id >= 614 && item.id <= 714; ///cange for the item statuses
+                    const matchesId = item.id >= 614 && item.id <= 712; ///cange for the item statuses
                     const isActive = buttonStatuses[item.id] === true;
 
                     return matchesSearch && matchesType && matchesId && isActive;
@@ -260,7 +261,7 @@ export default function PvMenu() {
                 {Data.filter((item) => {
                     const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
                     const matchesType = typeFilter === "" || item.type === typeFilter;
-                    const matchesId = item.id >= 614 && item.id <= 714; ///cange for the item statuses
+                    const matchesId = item.id >= 614 && item.id <= 712; ///cange for the item statuses
                     const isActive = buttonStatuses[item.id] === true;
                     return matchesSearch && matchesType && matchesId && isActive;
                 }).length === 0 && (

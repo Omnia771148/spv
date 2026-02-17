@@ -312,7 +312,8 @@ export default function Cart() {
       else if (firstItemId >= 311 && firstItemId <= 411) restaurantId = "4";
       else if (firstItemId >= 412 && firstItemId <= 512) restaurantId = "5";
       else if (firstItemId >= 513 && firstItemId <= 613) restaurantId = "6";
-      else if (firstItemId >= 614 && firstItemId <= 714) restaurantId = "7";
+      else if (firstItemId >= 614 && firstItemId <= 712) restaurantId = "7";
+      else if (firstItemId >= 713 && firstItemId <= 725) restaurantId = "8";
 
       // Fallback: If no ID range matched (unlikely for valid items), keep the original value
       if (!restaurantId || restaurantId === "undefined") {

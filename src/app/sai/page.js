@@ -104,13 +104,14 @@ export default function SaiMenu() {
             existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
             existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
             existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512) ||
-            existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 714)
+            existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 712) ||
+            existingCart.some((cartItem) => cartItem.id >= 713 && cartItem.id <= 725)
         ) {
             showToast("You Can Select From Only One Restaurant", "danger");
             return;
         }
 
-        item.restaurantName = "sai";
+        item.restaurantName = "Cake wala";
         const updatedCart = [...existingCart, item];
         setCart(updatedCart);
         localStorage.setItem('cart', JSON.stringify(updatedCart));

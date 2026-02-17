@@ -1,38 +1,38 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
-import { Data } from '../data/page';
-import { ProductCard } from '../universaldisplay/page';
-import { showToast } from '../../toaster/page';
-
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Data } from "../data/page";
+import { ProductCard } from "../universaldisplay/page";
+import { showToast } from "../../toaster/page";
 import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
-import Navbar from '@/navigation/page';
+import Navbar from "@/navigation/page";
+// ✅ Fixed Import: Capitalized 'Loading'
 import Loading from '../loading/page';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from 'lib/features/restaurantSlice';
 import { selectUser } from 'lib/features/userSlice';
 
-import './kushas.css';
+import './rgv.css';
 
-export default function KushasMenuList() {
+export default function KushasMenuLite() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const [typeFilter, setTypeFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState("");
   const [cart, setCart] = useState([]);
 
-  // ✅ Restaurant status states
+  // 🔴 SAFE DEFAULTS (NO FLICKER)
   const dispatch = useDispatch();
   const allStatuses = useSelector(selectAllStatuses);
   const isLoadingRedux = useSelector(selectRestaurantLoading);
 
-  // ID "1" corresponds to Kushas
-  const restaurantActive = allStatuses["1"] ?? false;
+  // ID "5" corresponds to Mayuri
+  const restaurantActive = allStatuses["8"] ?? false;
   const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
 
   // Button statuses state (REDUX)
@@ -46,11 +46,11 @@ export default function KushasMenuList() {
     }
   }, [dispatch, allStatuses]);
 
-  // ✅ Authentication check
+  // ✅ AUTH CHECK (UNCHANGED)
   const user = useSelector(selectUser);
   useEffect(() => {
     if (!user && !localStorage.getItem("userId")) {
-      router.push("/login");
+      router.replace("/login");
     } else {
       setLoading(false);
     }
@@ -58,7 +58,7 @@ export default function KushasMenuList() {
 
   // Removed manual fetch button statuses logic
 
-  // ✅ Add item to cart
+  // ✅ ADD TO CART
   const addToCart = (item) => {
     // ✅ Cached Service Check (No API Call)
     const serviceStatus = localStorage.getItem("isServiceAvailable");
@@ -67,37 +67,40 @@ export default function KushasMenuList() {
       return;
     }
 
+    // 🔴 BLOCK IF CLOSED
     if (!restaurantActive) {
       showToast("Restaurant is currently not accepting orders", "danger");
       return;
     }
 
-    const existingCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    if (existingCart.some(cartItem => cartItem.id === item.id)) {
+    const isItemAlreadyInCart = existingCart.some(
+      (cartItem) => cartItem.id === item.id
+    );
+
+    if (isItemAlreadyInCart) {
       showToast("Item already exists in the cart.", "danger");
       return;
     }
 
-    // ✅ One restaurant restriction
     if (
+      existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 100) ||
       existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
       existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
       existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
       existingCart.some((cartItem) => cartItem.id >= 412 && cartItem.id <= 512) ||
       existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
-      existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 712) ||
-      existingCart.some((cartItem) => cartItem.id >= 713 && cartItem.id <= 725)
+      existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 712)
     ) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
     }
 
-    item.restaurantName = "Kushas";
-
+    item.restaurantName = "rgv";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
     window.dispatchEvent(new Event("cartUpdated")); // Notify Navbar
     showToast("Added to cart successfully!");
   };
@@ -113,27 +116,29 @@ export default function KushasMenuList() {
     }
   }, []);
 
+  // ✅ Corrected Loading placement
   if (loading || buttonStatusLoading) return <Loading />;
 
   return (
     <div className="restaurant-page-bg container mt-4">
-
       {/* ✅ RESTAURANT CARD */}
-      <RestorentDisplay data={restuarents[2]} distance={distance} className="col-12 mb-4" />
+      <div className="mb-4">
+        <RestorentDisplay data={restuarents.find(r => r.id === 8)} distance={distance} className="col-12 mb-4" />
 
-      {statusLoading && (
-        <div className="alert alert-warning mt-3">
-          Checking restaurant status...
-        </div>
-      )}
+        {statusLoading && (
+          <div className="alert alert-warning mt-3">
+            Checking restaurant status...
+          </div>
+        )}
 
-      {!statusLoading && !restaurantActive && (
-        <div className="reststatus">
-          Restaurant is currently CLOSED
-        </div>
-      )}
+        {!statusLoading && !restaurantActive && (
+          <div className="reststatus">
+            Restaurant is currently CLOSED
+          </div>
+        )}
+      </div>
 
-      <div className="filter-section mb-4 mt-4">
+      <div className="filter-section mb-4">
         <div className="search-input-group">
           <i className="fa-solid fa-magnifying-glass search-icon"></i>
           <input
@@ -232,16 +237,14 @@ export default function KushasMenuList() {
       </div>
 
       <div className="row">
-        {Data.filter(item => {
+        {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-          const matchesType = typeFilter === '' || item.type === typeFilter;
-          const matchesId = item.id >= 1 && item.id <= 100; ///cange for the item statuses
-
-          // Check button status for this item
+          const matchesType = typeFilter === "" || item.type === typeFilter;
+          const matchesId = item.id >= 713 && item.id <= 725; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
 
           return matchesSearch && matchesType && matchesId && isActive;
-        }).map(item => (
+        }).map((item) => (
           <ProductCard
             key={item.id}
             item={item}
@@ -254,10 +257,11 @@ export default function KushasMenuList() {
             image={item.image}
           />
         ))}
-        {Data.filter(item => {
+
+        {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-          const matchesType = typeFilter === '' || item.type === typeFilter;
-          const matchesId = item.id >= 1 && item.id <= 100; ///cange for the item statuses
+          const matchesType = typeFilter === "" || item.type === typeFilter;
+          const matchesId = item.id >= 713 && item.id <= 725; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
           return matchesSearch && matchesType && matchesId && isActive;
         }).length === 0 && (

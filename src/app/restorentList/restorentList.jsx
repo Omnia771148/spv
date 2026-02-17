@@ -392,6 +392,9 @@ export default function RestorentList() {
         } else if (name === "Cream Stone") {
             router.push('/pv');
         }
+        else if (name === "RGV") {
+            router.push('/rgv');
+        }
     };
 
     if (loading && !mounted) return <Loading />;

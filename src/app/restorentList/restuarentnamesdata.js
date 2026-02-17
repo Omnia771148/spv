@@ -56,6 +56,15 @@ const restuarents = [
     image: "/2.jpg",
   },
 
+  {
+    id: 8,
+    name: "RGV",
+    Type: "Non-Veg",
+    place: "Venkata Ramana Colony",
+    rating: 4.5,
+    image: "/2.jpg",
+  }, 
+
 ];
 
 export default restuarents;
