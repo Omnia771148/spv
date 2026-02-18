@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Loading from '../loading/page';
 import './orderstatus.css';
@@ -11,6 +11,8 @@ export default function FinalOrderStatuses() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const prevOrdersRef = useRef([]);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -33,11 +35,22 @@ export default function FinalOrderStatuses() {
     // Initial fetch
     fetchOrders();
 
-    // Poll every 2 minutes (120,000 ms)
+    // Poll every 10 seconds
     const intervalId = setInterval(fetchOrders, 10000);
 
     return () => clearInterval(intervalId);
   }, [router]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    // Check if we had orders before and now have none -> redirect to history
+    if (prevOrdersRef.current.length > 0 && orders.length === 0) {
+      router.push('/finalorders');
+    }
+
+    prevOrdersRef.current = orders;
+  }, [orders, loading, router]);
 
   useEffect(() => {
     // Check for rejected orders and set up auto-deletion

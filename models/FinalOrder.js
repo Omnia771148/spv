@@ -5,8 +5,9 @@ const FinalOrderSchema = new mongoose.Schema({
     originalAcceptedOrderId: { type: String },
     orderId: { type: String, required: true },
     deliveryBoyId: { type: String },
-    userId: { type: String, required: true }, 
+    userId: { type: String, required: true },
     restaurantId: { type: String },
+    restaurantName: { type: String },
     items: [
         {
             name: { type: String },
@@ -32,7 +33,7 @@ const FinalOrderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // CRITICAL CHANGE: The 3rd parameter 'finalcompletedorders' matches your Atlas screenshot.
-const FinalOrder = mongoose.models.FinalOrder || 
-                   mongoose.model("FinalOrder", FinalOrderSchema, "finalcompletedorders");
+const FinalOrder = mongoose.models.FinalOrder ||
+    mongoose.model("FinalOrder", FinalOrderSchema, "finalcompletedorders");
 
 export default FinalOrder;

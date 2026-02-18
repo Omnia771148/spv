@@ -12,6 +12,7 @@ export default function MyOrders() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [userId, setUserId] = useState("");
+    const [reviewedOrderIds, setReviewedOrderIds] = useState([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -25,7 +26,17 @@ export default function MyOrders() {
 
         setUserId(loggedInUserId);
         fetchMyOrders(loggedInUserId);
+        fetchReviewedOrders(loggedInUserId);
     }, []);
+
+    const fetchReviewedOrders = async (uid) => {
+        try {
+            const res = await axios.get(`/api/my-reviews?userId=${uid}`);
+            setReviewedOrderIds(res.data || []);
+        } catch (err) {
+            console.error("Error fetching reviews:", err);
+        }
+    };
 
     const fetchMyOrders = async (userId) => {
         try {
@@ -188,6 +199,19 @@ export default function MyOrders() {
                                     )}
                                 </div>
 
+                                {/* Rating Section */}
+                                {!reviewedOrderIds.includes(order.orderId) ? (
+                                    <ReviewForm
+                                        order={order}
+                                        userId={userId}
+                                        onReviewSubmitted={(orderId) => setReviewedOrderIds(prev => [...prev, orderId])}
+                                    />
+                                ) : (
+                                    <div className="review-completed-msg" style={{ padding: '10px 15px', color: '#4caf50', fontWeight: 'bold' }}>
+                                        <i className="fas fa-check-circle"></i> Review Submitted
+                                    </div>
+                                )}
+
                                 {/* Footer Buttons */}
                                 <div className="order-footer">
                                     <div className="footer-left">
@@ -214,5 +238,115 @@ export default function MyOrders() {
                 )
             }
         </div >
+    );
+}
+
+function ReviewForm({ order, userId, onReviewSubmitted }) {
+    const [restRating, setRestRating] = useState(0);
+    const [restReview, setRestReview] = useState("");
+    const [boyRating, setBoyRating] = useState(0);
+    const [boyReview, setBoyReview] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [msg, setMsg] = useState("");
+
+    const hasDeliveryBoy = !!order.deliveryBoyId;
+
+    const handleSubmit = async () => {
+        if (restRating === 0 || (hasDeliveryBoy && boyRating === 0)) {
+            setMsg("Please provide star ratings.");
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            const payload = {
+                orderId: order.orderId,
+                userId: userId,
+                restaurantId: order.restaurantId,
+                restaurantRating: restRating,
+                restaurantReview: restReview,
+            };
+
+            if (hasDeliveryBoy) {
+                payload.deliveryBoyId = order.deliveryBoyId;
+                payload.deliveryBoyRating = boyRating;
+                payload.deliveryBoyReview = boyReview;
+            }
+
+            await axios.post('/api/submit-review', payload);
+            onReviewSubmitted(order.orderId);
+            setMsg("Thanks for your feedback!");
+        } catch (error) {
+            console.error(error);
+            setMsg("Failed to submit review.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const StarRating = ({ rating, setRating, label }) => (
+        <div className="star-rating-group" style={{ marginBottom: '10px' }}>
+            <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '4px' }}>{label}</div>
+            <div style={{ display: 'flex', gap: '5px' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                        key={star}
+                        onClick={() => setRating(star)}
+                        style={{
+                            cursor: 'pointer',
+                            fontSize: '20px',
+                            color: star <= rating ? '#FFD700' : '#ddd'
+                        }}
+                    >
+                        ★
+                    </span>
+                ))}
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="review-section" style={{ padding: '15px', borderTop: '1px solid #eee', marginTop: '10px' }}>
+            <h5 style={{ fontSize: '16px', marginBottom: '15px' }}>Rate Your Experience</h5>
+
+            <div className="review-grid" style={{ display: 'grid', gridTemplateColumns: hasDeliveryBoy ? '1fr 1fr' : '1fr', gap: '20px' }}>
+                {/* Restaurant Review */}
+                <div className="review-column">
+                    <StarRating rating={restRating} setRating={setRestRating} label={`Restaurant: ${order.restaurantName || 'Restaurant'}`} />
+                    <textarea
+                        className="form-control"
+                        placeholder="How was the food?"
+                        value={restReview}
+                        onChange={(e) => setRestReview(e.target.value)}
+                        style={{ fontSize: '13px', height: '60px' }}
+                    />
+                </div>
+
+                {/* Delivery Boy Review - Conditional */}
+                {hasDeliveryBoy && (
+                    <div className="review-column">
+                        <StarRating rating={boyRating} setRating={setBoyRating} label="Delivery Partner" />
+                        <textarea
+                            className="form-control"
+                            placeholder="How was the delivery?"
+                            value={boyReview}
+                            onChange={(e) => setBoyReview(e.target.value)}
+                            style={{ fontSize: '13px', height: '60px' }}
+                        />
+                    </div>
+                )}
+            </div>
+
+            {msg && <div style={{ color: msg.includes('Thanks') ? 'green' : 'red', marginTop: '10px', fontSize: '13px' }}>{msg}</div>}
+
+            <button
+                onClick={handleSubmit}
+                disabled={submitting}
+                className="btn btn-primary btn-sm"
+                style={{ marginTop: '15px', width: '100%', backgroundColor: '#ff9800', borderColor: '#ff9800' }}
+            >
+                {submitting ? 'Submitting...' : 'Submit Review'}
+            </button>
+        </div>
     );
 }
