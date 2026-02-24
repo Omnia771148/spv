@@ -18,7 +18,7 @@ export default function MyReviews() {
             return;
         }
         fetchMyReviews(userId);
-    }, []);
+    }, [router]);
 
     const fetchMyReviews = async (userId) => {
         try {
@@ -67,7 +67,7 @@ export default function MyReviews() {
             <div className="reviews-list">
                 {reviews.length === 0 ? (
                     <div className="no-reviews">
-                        <p>You haven't submitted any reviews yet.</p>
+                        <p>You haven&apos;t submitted any reviews yet.</p>
                         <button onClick={() => router.push('/finalorders')} className="btn btn-sm btn-dark">
                             Go to Orders
                         </button>
