@@ -88,7 +88,7 @@ export default function MyReviews() {
                                     <span className="review-label">Restaurant Experience</span>
                                     <div className="stars">{renderStars(review.restaurantRating)}</div>
                                     {review.restaurantReview && (
-                                        <div className="review-text">"{review.restaurantReview}"</div>
+                                        <div className="review-text">&quot;{review.restaurantReview}&quot;</div>
                                     )}
                                 </div>
 
@@ -98,7 +98,7 @@ export default function MyReviews() {
                                         <span className="review-label">Delivery Experience</span>
                                         <div className="stars">{renderStars(review.deliveryBoyRating)}</div>
                                         {review.deliveryBoyReview && (
-                                            <div className="review-text">"{review.deliveryBoyReview}"</div>
+                                            <div className="review-text">&quot;{review.deliveryBoyReview}&quot;</div>
                                         )}
                                     </div>
                                 )}

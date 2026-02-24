@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 export default function RestorentDisplay({ name, place, rating, image, distance, isActive = true }) {
     return (
         <div className="rest-card-main">
