@@ -9,7 +9,6 @@ import RestorentDisplay from "../restorentList/restnamedisplay";
 import restuarents from "../restorentList/restuarentnamesdata";
 
 import Loading from '../loading/page';
-import Navbar from '../../navigation/page';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from 'lib/features/restaurantSlice';
 import { selectUser } from 'lib/features/userSlice';
@@ -277,9 +276,6 @@ export default function SaiMenu() {
                     )}
             </div>
 
-
-
-            <Navbar />
         </div>
     );
 }

@@ -32,7 +32,7 @@ export default function MyOrders() {
     const fetchReviewedOrders = async (uid) => {
         try {
             const res = await axios.get(`/api/my-reviews?userId=${uid}`);
-            setReviewedOrderIds(res.data || []);
+            setReviewedOrderIds(res.data.map(r => r.orderId) || []);
         } catch (err) {
             console.error("Error fetching reviews:", err);
         }
@@ -265,6 +265,7 @@ function ReviewForm({ order, userId, onReviewSubmitted }) {
                 restaurantId: order.restaurantId,
                 restaurantRating: restRating,
                 restaurantReview: restReview,
+                items: order.items,
             };
 
             if (hasDeliveryBoy) {

@@ -9,7 +9,6 @@ import { restList } from './restorentDtata';
 import { Data } from '../data/page';
 import RestorentDisplay from './restorentDisplay';
 import { useRouter } from "next/navigation";
-import Navbar from '@/navigation/page';
 import { isPointInPolygon, getDistance } from "geolib";
 import { getExactDistance } from '../actions/delivery';
 import Loading from "../loading/page";
@@ -661,7 +660,6 @@ export default function RestorentList() {
                 </div>
             </div>
             {/* Navbar Removed: Already handled in global layout */}
-            <Navbar />
         </div >
     );
 }

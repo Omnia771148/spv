@@ -16,7 +16,8 @@ export async function POST(request) {
             restaurantRating,
             restaurantReview,
             deliveryBoyRating,
-            deliveryBoyReview
+            deliveryBoyReview,
+            items
         } = body;
 
         // specific validation can be added here
@@ -44,7 +45,8 @@ export async function POST(request) {
             restaurantRating,
             restaurantReview,
             deliveryBoyRating,
-            deliveryBoyReview
+            deliveryBoyReview,
+            items
         });
 
         await newReview.save();

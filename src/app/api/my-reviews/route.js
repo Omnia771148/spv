@@ -14,10 +14,8 @@ export async function GET(request) {
             return NextResponse.json({ message: "UserId required" }, { status: 400 });
         }
 
-        const reviews = await OrderReview.find({ userId }).select("orderId");
-        const reviewedOrderIds = reviews.map(r => r.orderId);
-
-        return NextResponse.json(reviewedOrderIds);
+        const reviews = await OrderReview.find({ userId }).sort({ createdAt: -1 });
+        return NextResponse.json(reviews);
 
     } catch (error) {
         console.error("Error fetching user reviews:", error);

@@ -12,6 +12,8 @@ const OrderReviewSchema = new mongoose.Schema({
     deliveryBoyRating: { type: Number, min: 1, max: 5 },
     deliveryBoyReview: { type: String },
 
+    items: [], // Array of order items
+
     createdAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

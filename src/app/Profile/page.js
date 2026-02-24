@@ -11,8 +11,8 @@ import './profile.css';
 export default function Profile() {
     const router = useRouter();
     const dispatch = useDispatch();
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [userCoins, setUserCoins] = useState(0);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -26,7 +26,7 @@ export default function Profile() {
                 const res = await fetch(`/api/users/${userId}`);
                 if (res.ok) {
                     const data = await res.json();
-                    setUserCoins(data.coins || 0);
+                    setUser(data);
                 }
             } catch (err) {
                 console.error("Failed to fetch user data", err);
@@ -74,7 +74,20 @@ export default function Profile() {
                 </div>
             </div>
 
-            {/* Coins Section - New Field */}
+            {/* User Profile Header Section */}
+            <div className="user-profile-info-card">
+                <div className="user-avatar-circle">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : <i className="fas fa-user"></i>}
+                </div>
+                <div className="user-text-details">
+                    <h1 className="user-display-name">{user?.name || "Welcome!"}</h1>
+                    <p className="user-display-phone">
+                        <i className="fas fa-phone-alt"></i> {user?.phone || "Phone not set"}
+                    </p>
+                </div>
+            </div>
+
+            {/* Coins Section - Matching My Orders style */}
             <div className="coin-balance-card">
                 <div className="coin-balance-info">
                     <div className="coin-icon-wrapper-large">
@@ -82,7 +95,7 @@ export default function Profile() {
                     </div>
                     <div className="coin-details">
                         <span className="coin-title">Available Coins</span>
-                        <span className="coin-amount">{userCoins}</span>
+                        <span className="coin-amount">{user?.coins || 0}</span>
                     </div>
                 </div>
                 <div className="coin-shine"></div>
@@ -105,6 +118,15 @@ export default function Profile() {
                     <div className="d-flex align-items-center">
                         <i className="fas fa-box-open btn-icon-left"></i>
                         <span className="btn-text">My Orders</span>
+                    </div>
+                    <i className="fas fa-caret-right btn-arrow"></i>
+                </button>
+
+                {/* My Reviews */}
+                <button className="custom-nav-btn" onClick={() => router.push("/MyReviews")}>
+                    <div className="d-flex align-items-center">
+                        <i className="fas fa-star btn-icon-left"></i>
+                        <span className="btn-text">My Reviews</span>
                     </div>
                     <i className="fas fa-caret-right btn-arrow"></i>
                 </button>

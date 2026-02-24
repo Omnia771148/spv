@@ -46,10 +46,10 @@ export default function Navbar() {
     updateActiveOrdersCount();
 
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
 
-      // Always show if near the top (e.g. within 50px) to ensure accessibility
-      if (currentScrollY < 50) {
+      // Always show if near the top (e.g. within 30px) to ensure accessibility
+      if (currentScrollY < 30) {
         setIsVisible(true);
         lastScrollY.current = currentScrollY;
         return;
@@ -57,21 +57,20 @@ export default function Navbar() {
 
       const diff = currentScrollY - lastScrollY.current;
 
-      // Hysteresis: Only react if scroll difference is > 10px
-      // This prevents "jitter" where tiny movements toggle the nav repeatedly
-      if (Math.abs(diff) < 10) {
+      // Hysteresis: Only react if scroll difference is > 5px for better responsiveness
+      if (Math.abs(diff) < 5) {
         return;
       }
 
       if (diff > 0) {
-        // Scrolled DOWN
+        // Scrolled DOWN -> Hide
         setIsVisible(false);
       } else {
-        // Scrolled UP
+        // Scrolled UP -> Show
         setIsVisible(true);
       }
 
-      // Update the "anchor" position only after a significant move
+      // Update the "anchor" position
       lastScrollY.current = currentScrollY;
     };
 

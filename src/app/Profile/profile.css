@@ -10,6 +10,68 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 120px;
+    /* Extra padding for bottom navbar and scrollability */
+}
+
+/* User Profile Info Card */
+.user-profile-info-card {
+    width: 100%;
+    max-width: 500px;
+    background-color: #fff;
+    border-radius: 30px;
+    padding: 25px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.user-avatar-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.user-text-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.user-display-name {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: #1a1a1a;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.user-display-phone {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.user-display-phone i {
+    font-size: 12px;
+    color: #b8860b;
 }
 
 /* Header Styling - Pill Shape */
