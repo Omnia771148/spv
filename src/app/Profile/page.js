@@ -82,7 +82,7 @@ export default function Profile() {
                 <div className="user-text-details">
                     <h1 className="user-display-name">{user?.name || "Welcome!"}</h1>
                     <p className="user-display-phone">
-                        <i className="fas fa-phone-alt"></i> {user?.phone || "Phone not set"}
+                        <i className="fas fa-phone-alt" style={{ transform: 'scaleX(-1)', display: 'inline-block' }}></i> {user?.phone || "Phone not set"}
                     </p>
                 </div>
             </div>

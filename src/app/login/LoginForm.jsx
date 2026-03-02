@@ -142,7 +142,7 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
 
 
             <div className="hello-box">
-                <h1 className="hello-text">Hello</h1>
+                <h1 className="hello-text">LEEVON</h1>
             </div>
 
             <div className="form-wrapper">

@@ -4,7 +4,7 @@
     min-height: 100vh;
     background-color: #F8F5EB;
     /* Beige background */
-    padding: 20px;
+    padding: 20px 20px 100px 20px;
     font-family: 'Poppins', sans-serif;
     color: #1a1a1a;
 }
@@ -106,7 +106,7 @@
 }
 
 /* Card Styling - The "Beige Card" Look */
-.order-card {
+.my-order-card {
     background-color: #fff;
     border: 2px solid #000;
     border-radius: 25px;
@@ -115,7 +115,7 @@
     transition: transform 0.2s ease;
 }
 
-.order-card:hover {
+.my-order-card:hover {
     transform: translateY(-2px);
 }
 
@@ -180,21 +180,30 @@
 .item-row {
     padding: 8px 0;
     border-bottom: 1px dashed #eee;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    gap: 10px;
 }
 
-.item-name {
+.my-item-name {
     font-weight: 500;
     color: #333;
+    flex: 1;
 }
 
 .item-quantity {
     font-size: 14px;
+    color: #666;
+    min-width: 40px;
+    text-align: center;
 }
 
-.item-price {
+.my-item-price {
     font-weight: 600;
     color: #000;
+    min-width: 60px;
+    text-align: right;
 }
 
 .pricing-details {
@@ -205,6 +214,14 @@
     border: 1px solid #eee;
 }
 
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
 .price-row.total {
     border-top: 1px solid #000;
     margin-top: 10px;
@@ -212,7 +229,7 @@
     font-size: 18px;
 }
 
-.payment-info,
+.my-payment-info,
 .delivery-address {
     background: #f9f9f9;
     padding: 12px;
@@ -266,7 +283,7 @@
 
 @media (max-width: 768px) {
     .my-orders-container {
-        padding: 15px;
+        padding: 15px 15px 100px 15px;
     }
 
     .orders-list {
@@ -276,7 +293,7 @@
 
 @media (max-width: 480px) {
     .my-orders-container {
-        padding: 10px;
+        padding: 10px 10px 100px 10px;
     }
 
     .order-header,

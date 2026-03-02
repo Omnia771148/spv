@@ -119,7 +119,7 @@ export default function MyOrders() {
                 ) : (
                     <div className="orders-list">
                         {orders.map((order) => (
-                            <div key={order._id} className="order-card">
+                            <div key={order._id} className="my-order-card">
                                 <div className="order-header">
                                     <div className="order-id-section">
                                         <h3>Order #{order.orderId}</h3>
@@ -140,11 +140,16 @@ export default function MyOrders() {
                                     <div className="order-section">
                                         <h4>Items Ordered</h4>
                                         <div className="items-list">
+                                            <div className="item-row" style={{ borderBottom: '2px solid #ccc', paddingBottom: '8px', marginBottom: '4px', color: '#1a1a1a', fontWeight: '700', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                                <span className="my-item-name">Item Names</span>
+                                                <span className="item-quantity" style={{ color: 'inherit' }}>Qty</span>
+                                                <span className="my-item-price">Price</span>
+                                            </div>
                                             {order.items.map((item, index) => (
                                                 <div key={index} className="item-row">
-                                                    <span className="item-name">{item.name}</span>
+                                                    <span className="my-item-name">{item.name}</span>
                                                     <span className="item-quantity">x {item.quantity}</span>
-                                                    <span className="item-price">₹{item.price * item.quantity}</span>
+                                                    <span className="my-item-price">₹{item.price * item.quantity}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -177,12 +182,12 @@ export default function MyOrders() {
 
                                     {/* Payment Info */}
                                     <div className="order-section">
-                                        <div className="payment-info">
+                                        <div className="my-payment-info">
                                             <p style={{ margin: 0 }}>
                                                 <strong>Payment:</strong> {order.paymentStatus}
                                                 {order.razorpayPaymentId && (
                                                     <span style={{ display: 'block', fontSize: '11px', color: '#666', marginTop: '4px' }}>
-                                                        TxN: {order.razorpayPaymentId}
+                                                        Payment ID: {order.razorpayPaymentId}
                                                     </span>
                                                 )}
                                             </p>
