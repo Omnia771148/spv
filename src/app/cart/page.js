@@ -165,8 +165,12 @@ export default function Cart() {
   }, [cartItems, quantities]);
 
   const totalPrice = Object.values(itemTotals).reduce((acc, val) => acc + val, 0);
-  const gstAmount = totalPrice * 0.05;
-  const grandTotal = totalPrice + gstAmount + deliveryCharge;
+  const foodGst = Math.round(totalPrice * 0.05); // Round 5% Food GST
+  const deliveryGst = Math.round(deliveryCharge * 0.18); // Round 18% Delivery GST
+  const platformFee = 2; // FIXED PLATFORM FEE
+  const platformFeeGst = Math.round(platformFee * 0.18); // Round 18% Platform Fee GST
+  const gstAmount = foodGst + deliveryGst + platformFeeGst; // Combine ALL GST into one
+  const grandTotal = Math.round(totalPrice + gstAmount + deliveryCharge + platformFee); // Round Grand Total
 
   const clear = () => {
     localStorage.removeItem('cart');
@@ -333,6 +337,7 @@ export default function Cart() {
         totalPrice: Number(totalPrice),
         gst: Number(gstAmount),
         deliveryCharge: Number(deliveryCharge),
+        platformFee: Number(platformFee),
         grandTotal: Number(grandTotal),
         deliveryAddress: deliveryAddress,
         flatNo: flatNo.trim(),
@@ -456,7 +461,7 @@ export default function Cart() {
                     <span className="qty-val">{quantities[item.id]}</span>
                     <button onClick={() => updateQuantity(item.id, -1)} className="qty-btn">-</button>
                   </div>
-                  <span className="item-price">₹{item.price} x {quantities[item.id]}</span>
+                  <span className="item-price">₹{item.price * (quantities[item.id] || 1)}</span>
                   <button onClick={() => removeItem(item.id)} className="trash-btn">
                     <i className="fas fa-trash-alt"></i>
                   </button>
@@ -474,6 +479,10 @@ export default function Cart() {
             <div className="totals-row">
               <span>GST</span>
               <span>₹{gstAmount.toFixed(0)}</span>
+            </div>
+            <div className="totals-row">
+              <span>Platform fee</span>
+              <span>₹{platformFee}</span>
             </div>
             <div className="totals-row">
               <span>Delivery charges ({distance} km)</span>

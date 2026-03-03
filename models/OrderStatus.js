@@ -17,6 +17,7 @@ const orderStatusSchema = new mongoose.Schema({
   totalPrice: { type: Number, required: true },
   gst: { type: Number, required: true },
   deliveryCharge: { type: Number, required: true },
+  platformFee: { type: Number, default: 0 },
   grandTotal: { type: Number, required: true },
   razorpayOrderId: { type: String },
   razorpayPaymentId: { type: String },

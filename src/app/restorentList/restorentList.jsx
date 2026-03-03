@@ -616,27 +616,8 @@ export default function RestorentList() {
                             if (restaurant.name.toLowerCase().includes(lowerSearch)) return true;
 
                             // Check Items in Restaurant
-                            let startId = 0;
-                            let endId = 0;
-
-                            switch (restaurant.name) {
-                                case "Kushas":
-                                    startId = 1; endId = 4; break;
-                                case "KNL":
-                                    startId = 5; endId = 8; break;
-                                case "Snow Field":
-                                    startId = 9; endId = 12; break;
-                                case "bros":
-                                    startId = 13; endId = 16; break;
-                                case "mayuri":
-                                    startId = 17; endId = 20; break;
-                                default:
-                                    return false;
-                            }
-
                             const hasMatchingItem = Data.some(item =>
-                                item.id >= startId &&
-                                item.id <= endId &&
+                                item.restid === Number(restaurant.id) &&
                                 item.name.toLowerCase().includes(lowerSearch)
                             );
 

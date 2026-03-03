@@ -38,6 +38,7 @@ export async function POST(request) {
       totalPrice: orderData.totalPrice,
       gst: orderData.gst,
       deliveryCharge: orderData.deliveryCharge,
+      platformFee: orderData.platformFee,
       grandTotal: orderData.grandTotal,
       restaurantId: orderData.restaurantId,
       restaurantName: orderData.restaurantName,

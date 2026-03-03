@@ -181,7 +181,7 @@ export default function FinalOrderStatuses() {
                 ) : (
                   <div className="savior-row">
                     <span className="savior-label">Phone</span>
-                    <span className="savior-value">Pending</span>
+                    <span className="savior-value">Not Assigned</span>
                   </div>
                 )}
               </div>
@@ -228,8 +228,13 @@ export default function FinalOrderStatuses() {
               {order.gst > 0 && (
                 <div className="gst-row">
                   <span>GST</span>
-                  <span style={{ marginRight: 'auto', marginLeft: '10px' }}>5%</span>
                   <span>₹ {order.gst}</span>
+                </div>
+              )}
+              {order.platformFee !== undefined && order.platformFee !== null && (
+                <div className="gst-row">
+                  <span>Platform Fee</span>
+                  <span>₹ {order.platformFee}</span>
                 </div>
               )}
 
