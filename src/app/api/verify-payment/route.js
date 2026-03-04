@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import connectionToDatabase from "lib/mongoose";
 import Order from "../../../../models/Order";
+import FinalOrder from "../../../../models/FinalOrder";
 import OrderStatus from "../../../../models/OrderStatus";
 import User from "../../../../models/User";
 import { generateOrderId } from "lib/generateOrderId";
@@ -32,7 +33,7 @@ export async function POST(request) {
     const formattedOrderId = await generateOrderId();
     // 3️⃣ SAVE ORDER
     // We calculate coins here so we can include it in the Order object
-    const userOrderCount = await Order.countDocuments({ userId: orderData.userId });
+    const userOrderCount = await FinalOrder.countDocuments({ userId: orderData.userId });
     const isFirstOrder = userOrderCount === 0;
     const coinsAwarded = getCoinsEarned(orderData.grandTotal, isFirstOrder);
 

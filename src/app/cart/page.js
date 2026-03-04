@@ -131,7 +131,7 @@ export default function Cart() {
         }
 
         // Check if this is their first order to calculate exact coins
-        const ordersRes = await fetch(`/api/orders?userId=${userId}`);
+        const ordersRes = await fetch(`/api/final-orders?userId=${userId}`);
         if (ordersRes.ok) {
           const pastOrders = await ordersRes.json();
           setIsFirstOrder(pastOrders.length === 0);
