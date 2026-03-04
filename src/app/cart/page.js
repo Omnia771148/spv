@@ -503,11 +503,13 @@ export default function Cart() {
             </div>
 
             <div className="coin-row">
-              <span style={{ display: 'flex', alignItems: 'center' }}>
-                <i className="fas fa-coins coin-icon"></i>
-                Coins you will earn
-              </span>
-              <span className="coin-value">+{getCoinsEarned(grandTotal, isFirstOrder)}</span>
+              <div className="coin-badge">
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <i className="fas fa-coins coin-icon"></i>
+                  <span className="coin-badge-text">Coins you earn</span>
+                </div>
+                <span className="coin-badge-value">+{getCoinsEarned(grandTotal, isFirstOrder)}</span>
+              </div>
             </div>
           </div>
 
