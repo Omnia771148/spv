@@ -107,6 +107,13 @@ export default function Home({ handleBacktoLogin }) {
       return;
     }
 
+    // Email validation (@gmail.com only)
+    if (!email.endsWith("@gmail.com")) {
+      setValidationErrors(prev => ({ ...prev, email: "Email must be a valid @gmail.com address." }));
+      setErrors(prev => ({ ...prev, email: true }));
+      return;
+    }
+
     // 2. Phone Validation (10 digits only)
     if (phone.length !== 10) {
       setValidationErrors(prev => ({ ...prev, phone: "Phone number must be exactly 10 digits." }));
@@ -132,7 +139,7 @@ export default function Home({ handleBacktoLogin }) {
     }
 
     if (age < 18) {
-      setValidationErrors(prev => ({ ...prev, dateOfBirth: "You must be at least 18 years old." }));
+      setValidationErrors(prev => ({ ...prev, dateOfBirth: "You Are Under 18 Years Age" }));
       setErrors(prev => ({ ...prev, dateOfBirth: true }));
       return;
     }
@@ -357,12 +364,14 @@ export default function Home({ handleBacktoLogin }) {
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (errors.email) setErrors(prev => ({ ...prev, email: false }));
+                  if (validationErrors.email) setValidationErrors(prev => ({ ...prev, email: "" }));
                 }}
                 value={email}
                 className={`styled-input ${errors.email ? 'error-border' : ''}`}
                 disabled={otpVerified}
               />
             </div>
+            {validationErrors.email && <p className="validation-message">{validationErrors.email}</p>}
 
             {/* Phone Number */}
             <div className="input-group-styled">
@@ -412,7 +421,6 @@ export default function Home({ handleBacktoLogin }) {
                 showMonthDropdown
                 showYearDropdown
                 dropdownMode="select"
-                popperPlacement="bottom-start"
                 shouldCloseOnSelect={true}
               />
             </div>

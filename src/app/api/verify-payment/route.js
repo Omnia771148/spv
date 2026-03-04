@@ -31,6 +31,11 @@ export async function POST(request) {
     // 2️⃣ GENERATE CUSTOM ORDER ID
     const formattedOrderId = await generateOrderId();
     // 3️⃣ SAVE ORDER
+    // We calculate coins here so we can include it in the Order object
+    const userOrderCount = await Order.countDocuments({ userId: orderData.userId });
+    const isFirstOrder = userOrderCount === 0;
+    const coinsAwarded = getCoinsEarned(orderData.grandTotal, isFirstOrder);
+
     const orderDoc = {
       userId: orderData.userId,
       items: orderData.items,
@@ -55,7 +60,8 @@ export async function POST(request) {
       orderId: formattedOrderId,
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
-      paymentStatus: "Paid"
+      paymentStatus: "Paid",
+      coinsEarned: coinsAwarded,
     };
     const newOrder = await Order.create(orderDoc);
     // 4️⃣ ORDER STATUS
@@ -66,8 +72,6 @@ export async function POST(request) {
     });
 
     // 5️⃣ ADD COINS TO USER REWARDS
-    const coinsAwarded = getCoinsEarned(orderDoc.grandTotal);
-
     if (coinsAwarded > 0) {
       try {
         await User.findByIdAndUpdate(

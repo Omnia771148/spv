@@ -106,6 +106,7 @@ export default function Cart() {
 
   // ✅ Check for active orders
   const [hasActiveOrder, setHasActiveOrder] = useState(false);
+  const [isFirstOrder, setIsFirstOrder] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [isLocationSkipped, setIsLocationSkipped] = useState(false);
 
@@ -127,6 +128,13 @@ export default function Cart() {
         if (res.ok) {
           const data = await res.json();
           setHasActiveOrder(data.hasActiveOrder);
+        }
+
+        // Check if this is their first order to calculate exact coins
+        const ordersRes = await fetch(`/api/orders?userId=${userId}`);
+        if (ordersRes.ok) {
+          const pastOrders = await ordersRes.json();
+          setIsFirstOrder(pastOrders.length === 0);
         }
       } catch (err) {
         console.error("Error checking active orders:", err);
@@ -499,7 +507,7 @@ export default function Cart() {
                 <i className="fas fa-coins coin-icon"></i>
                 Coins you will earn
               </span>
-              <span className="coin-value">+{getCoinsEarned(grandTotal)}</span>
+              <span className="coin-value">+{getCoinsEarned(grandTotal, isFirstOrder)}</span>
             </div>
           </div>
 

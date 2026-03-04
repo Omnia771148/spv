@@ -39,18 +39,23 @@ export default function Profile() {
     }, [router]);
 
     const handleLogout = () => {
-        // 1. Clear Redux State (Memory)
-        dispatch(logoutUser());
+        setLoading(true);
 
-        // 2. Clear Local Storage (Disk)
-        localStorage.clear();
+        // Allow the Loading component to render before blocking the main thread 
+        // with storage clear commands and route navigation
+        setTimeout(() => {
+            // 1. Clear Redux State (Memory)
+            dispatch(logoutUser());
 
-        // 3. Reset Location Prompt Flag (Session)
-        sessionStorage.removeItem("isAppLoaded");
+            // 2. Clear Local Storage (Disk)
+            localStorage.clear();
 
-        // 3. Redirect
-        // We use replace to ensure history is clean and pathname is correct for hiding navbar
-        router.replace("/");
+            // 3. Reset Location Prompt Flag (Session)
+            sessionStorage.removeItem("isAppLoaded");
+
+            // 4. Redirect
+            router.replace("/");
+        }, 800);
     };
 
     if (loading) return <Loading />;
