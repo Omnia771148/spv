@@ -177,7 +177,7 @@ export default function Cart() {
   const deliveryGst = Math.round(deliveryCharge * 0.18); // Round 18% Delivery GST
   const platformFee = 2; // FIXED PLATFORM FEE
   const platformFeeGst = Math.round(platformFee * 0.18); // Round 18% Platform Fee GST
-  const gstAmount = foodGst + deliveryGst + platformFeeGst; // Combine ALL GST into one
+  const gstAmount = foodGst + deliveryGst; // Combine ALL GST into one
   const grandTotal = Math.round(totalPrice + gstAmount + deliveryCharge + platformFee); // Round Grand Total
 
   const clear = () => {

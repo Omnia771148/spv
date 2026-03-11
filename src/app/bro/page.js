@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Data } from "../data/page";
+import { Data } from './data';
 import { ProductCard } from "../universaldisplay/page";
 import { showToast } from "../../toaster/page";
 import RestorentDisplay from "../restorentList/restnamedisplay";
@@ -84,15 +84,7 @@ export default function Bro() {
       return;
     }
 
-    if (
-      existingCart.some((cartItem) => cartItem.id >= 1 && cartItem.id <= 100) ||
-      existingCart.some((cartItem) => cartItem.id >= 101 && cartItem.id <= 205) ||
-      existingCart.some((cartItem) => cartItem.id >= 206 && cartItem.id <= 310) ||
-      existingCart.some((cartItem) => cartItem.id >= 311 && cartItem.id <= 411) ||
-      existingCart.some((cartItem) => cartItem.id >= 513 && cartItem.id <= 613) ||
-      existingCart.some((cartItem) => cartItem.id >= 614 && cartItem.id <= 712) ||
-      existingCart.some((cartItem) => cartItem.id >= 713 && cartItem.id <= 725)
-    ) {
+    if (existingCart.length > 0 && existingCart[0].restid !== item.restid) {
       showToast("You Can Select From Only One Restaurant", "danger");
       return;
     }
@@ -240,10 +232,9 @@ export default function Bro() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === "" || item.type === typeFilter;
-          const matchesId = item.id >= 412 && item.id <= 512; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
 
-          return matchesSearch && matchesType && matchesId && isActive;
+          return matchesSearch && matchesType && isActive;
         }).map((item) => (
           <ProductCard
             key={item.id}
@@ -260,9 +251,8 @@ export default function Bro() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === "" || item.type === typeFilter;
-          const matchesId = item.id >= 412 && item.id <= 512; ///cange for the item statuses
           const isActive = buttonStatuses[item.id] === true;
-          return matchesSearch && matchesType && matchesId && isActive;
+          return matchesSearch && matchesType && isActive;
         }).length === 0 && (
             <div className="col-12 text-center text-muted">
               No active items available.

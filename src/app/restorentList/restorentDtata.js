@@ -1,5 +1,16 @@
 export const restList = [
     {
+        id: "8",
+        name: "RGV",
+        dbname: "rgv",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8061586,
+        lng: 78.0477663,
+        rating: "4.5",
+        image: "/pv.jpg",
+    },
+    {
         id: "1",
         name: "Kushas",
         dbname: "kushas",
@@ -78,18 +89,7 @@ export const restList = [
         lng: 78.0477663,
         rating: "4.5",
         image: "/pv.jpg",
-    },
-
-    {
-        id: "8",
-        name: "RGV",
-        dbname: "rgv",
-        type: "non-veg",
-        place: "Venkata Ramana Colony",
-        lat: 15.8061586,
-        lng: 78.0477663,
-        rating: "4.5",
-        image: "/pv.jpg",
-    },
+    }
+    
 
 ]
