@@ -6,12 +6,19 @@ import crypto from "crypto";
 export async function POST(request) {
   try {
     await connectionToDatabase();
-    const { name, email, phone, password, dateOfBirth } = await request.json();
+    const { name, email, phone, password, dateOfBirth, blickstatus } = await request.json();
 
     // Hash password using SHA-256
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
-    const newUser = new User({ name, email, phone, password: hashedPassword, dateOfBirth });
+    const newUser = new User({ 
+      name, 
+      email, 
+      phone, 
+      password: hashedPassword, 
+      dateOfBirth,
+      blickstatus: blickstatus ?? true 
+    });
     await newUser.save();
 
     return NextResponse.json(newUser, { status: 200 });

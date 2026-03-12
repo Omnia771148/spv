@@ -224,7 +224,7 @@ export default function Home({ handleBacktoLogin }) {
 
       // 2. Save to DB
       const cleanPhone = phone; // Already just numbers
-      await axios.post('/api/users', { name, email, password, phone: cleanPhone, dateOfBirth });
+      await axios.post('/api/users', { name, email, password, phone: cleanPhone, dateOfBirth, blickstatus: true });
 
       setPopup({
         show: true,

@@ -26,7 +26,8 @@ const userSchema = new mongoose.Schema({
     lng: { type: Number },
     url: { type: String }
   },
-  coins: { type: Number, default: 0 }
+  coins: { type: Number, default: 0 },
+  blickstatus: { type: Boolean, default: true }
 });
 
 // Force re-registering the model with the updated schema in development
