@@ -18,14 +18,13 @@ export async function POST(request) {
             return NextResponse.json({ error: "Invalid Mobile Number or Password" }, { status: 401 });
         }
 
-        // 1. Check if password matches as plain text (Legacy support)
-        if (user.password === password) {
-            return NextResponse.json(user, { status: 200 });
-        }
-
-        // 2. Check if password matches as hash
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-        if (user.password === hashedPassword) {
+        const isPasswordCorrect = (user.password === password) || (user.password === hashedPassword);
+
+        if (isPasswordCorrect) {
+            if (user.blickstatus === false) {
+                return NextResponse.json({ error: "Your ID was blocked" }, { status: 403 });
+            }
             return NextResponse.json(user, { status: 200 });
         }
 

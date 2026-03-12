@@ -113,6 +113,8 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
             // Only log unexpected errors, not standard login failures (401)
             if (err.response && err.response.status === 401) {
                 setPopup({ show: true, message: "Invalid Mobile Number or Password. Please try again.", isSuccess: false });
+            } else if (err.response && err.response.status === 403) {
+                setPopup({ show: true, message: "Your Id was Blocked", isSuccess: false });
             } else {
                 console.error("Login verification failed:", err);
                 setPopup({ show: true, message: "Something went wrong. Please try again later.", isSuccess: false });
