@@ -1,6 +1,14 @@
 const restuarents = [
-  {
+   {
     id: 1,
+    name: "Amigoo Noshery",
+    location: "Venkata Ramana Colony, Kurnool",
+    rating: 4.3,
+    Type: "Home Style Food",
+    image: "/2.jpg"
+  },
+  {
+    id: 3,
     name: "Knl Restuarent",
     location: "Colles College , Kurnool",
     rating: 4.5,
@@ -15,14 +23,7 @@ const restuarents = [
     Type: "Fast Delivery",
     image: "/2.jpg"
   },
-  {
-    id: 3,
-    name: "Amigoo Noshery",
-    location: "Venkata Ramana Colony, Kurnool",
-    rating: 4.3,
-    Type: "Home Style Food",
-    image: "/2.jpg"
-  },
+ 
   {
     id: 4,
     name: "Bro",
