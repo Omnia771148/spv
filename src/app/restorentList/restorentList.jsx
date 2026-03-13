@@ -380,8 +380,8 @@ export default function RestorentList() {
             router.push('/knlrest');
         } else if (name === "Snow Field") {
             router.push('/snowfield');
-        } else if (name === "Kushas") {
-            router.push('/kushas');
+        } else if (name === "Amigo Noshery") {
+            router.push('/AmigoNoshery');
         } else if (name === "bros") {
             router.push('/bro');
         } else if (name === "mayuri") {

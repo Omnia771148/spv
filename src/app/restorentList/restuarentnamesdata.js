@@ -17,7 +17,7 @@ const restuarents = [
   },
   {
     id: 3,
-    name: "Kushas Kitchen",
+    name: "Amigoo Noshery",
     location: "Venkata Ramana Colony, Kurnool",
     rating: 4.3,
     Type: "Home Style Food",

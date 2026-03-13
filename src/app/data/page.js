@@ -1,5 +1,5 @@
 
-import { Data as KushasData } from '../kushas/data';
+import { Data as AmigoData } from '../AmigoNoshery/data';
 import { Data as KnlData } from '../knlrest/data';
 import { Data as SnowfieldData } from '../snowfield/data';
 import { Data as MauryaData } from '../maurya/data';
@@ -9,7 +9,7 @@ import { Data as PvData } from '../pv/data';
 import { Data as RgvData } from '../rgv/data';
 
 export const Data = [
-    ...KushasData,
+    ...AmigoData,
     ...KnlData,
     ...SnowfieldData,
     ...MauryaData,

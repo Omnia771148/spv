@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from 'lib/features/restaurantSlice';
 import { selectUser } from 'lib/features/userSlice';
 
-import './kushas.css';
+import './amigo.css';
 
-export default function KushasMenuList() {
+export default function AmigoMenuList() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -85,7 +85,7 @@ export default function KushasMenuList() {
       return;
     }
 
-    item.restaurantName = "Kushas";
+    item.restaurantName = "Amigo Noshery";
 
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
