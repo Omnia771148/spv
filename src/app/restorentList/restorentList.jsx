@@ -376,23 +376,12 @@ export default function RestorentList() {
         localStorage.setItem("currentRestaurantDistance", dist);
         localStorage.setItem("currentRestaurantName", name);
 
-        if (name === "KNL") {
-            router.push('/knlrest');
+        if (name === "Viva Finedine") {
+            router.push('/vivafinedine');
         } else if (name === "Snow Field") {
             router.push('/snowfield');
         } else if (name === "Amigoo Noshery") {
             router.push('/AmigoNoshery');
-        } else if (name === "bros") {
-            router.push('/bro');
-        } else if (name === "mayuri") {
-            router.push('/maurya');
-        } else if (name === "Cake wala") {
-            router.push('/sai');
-        } else if (name === "Cream Stone") {
-            router.push('/pv');
-        }
-        else if (name === "RGV") {
-            router.push('/rgv');
         }
     };
 

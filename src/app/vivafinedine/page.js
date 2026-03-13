@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from 'lib/features/restaurantSlice';
 import { selectUser } from 'lib/features/userSlice';
 
-import './bro.css';
+import './viva.css';
 
-export default function Bro() {
+export default function vivaMenuList() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -26,27 +26,31 @@ export default function Bro() {
   const [typeFilter, setTypeFilter] = useState("");
   const [cart, setCart] = useState([]);
 
-  // 🔴 SAFE DEFAULTS (NO FLICKER)
+
+
+  // ✅ REDUX INTEGRATION
   const dispatch = useDispatch();
   const allStatuses = useSelector(selectAllStatuses);
   const isLoadingRedux = useSelector(selectRestaurantLoading);
 
-  // ID "4" corresponds to Bros
-  const restaurantActive = allStatuses["4"] ?? false;
-  const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
-
-  // Button statuses state (REDUX)
+  // Item (Button) Statuses
   const buttonStatuses = useSelector(selectAllItemStatuses);
   const buttonStatusLoading = useSelector(selectItemLoading);
 
+  // ID "2" corresponds to KNL based on API verification
+  const restaurantActive = allStatuses["2"] ?? false;
+  // If we have data, we are not "loading status" anymore. If Redux is fetching, use that.
+  const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
+
   useEffect(() => {
+    // If we landed here directly (refresh), store might be empty. Fetch it.
     if (Object.keys(allStatuses).length === 0) {
       dispatch(fetchRestaurantStatuses());
-      dispatch(fetchItemStatuses());
+      dispatch(fetchItemStatuses()); // Ensure items are also fetched
     }
   }, [dispatch, allStatuses]);
 
-  // ✅ AUTH CHECK (UNCHANGED)
+  // ✅ REDUX AUTH CHECK
   const user = useSelector(selectUser);
   useEffect(() => {
     if (!user && !localStorage.getItem("userId")) {
@@ -56,7 +60,7 @@ export default function Bro() {
     }
   }, [router, user]);
 
-  // Removed manual fetch button statuses logic
+  // Removed manual Fetch button statuses useEffect
 
   // ✅ ADD TO CART
   const addToCart = (item) => {
@@ -89,7 +93,7 @@ export default function Bro() {
       return;
     }
 
-    item.restaurantName = "bros";
+    item.restaurantName = "Viva Finedine";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -115,7 +119,7 @@ export default function Bro() {
     <div className="restaurant-page-bg container mt-4">
       {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
-        <RestorentDisplay data={restuarents.find(r => r.id === 4)} distance={distance} className="col-12 mb-4" />
+        <RestorentDisplay data={restuarents.find(r => r.id === 2)} distance={distance} className="col-12 mb-4" />
 
         {statusLoading && (
           <div className="alert alert-warning mt-3">
@@ -246,6 +250,7 @@ export default function Bro() {
             onAddToCart={addToCart}
             disabled={!restaurantActive}
             image={item.image}
+
           />
         ))}
         {Data.filter((item) => {
@@ -259,8 +264,6 @@ export default function Bro() {
             </div>
           )}
       </div>
-
-
 
       <Navbar />
     </div>
