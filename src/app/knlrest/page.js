@@ -119,7 +119,7 @@ export default function KushasMenuList() {
     <div className="restaurant-page-bg container mt-4">
       {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
-        <RestorentDisplay data={restuarents[0]} distance={distance} className="col-12 mb-4" />
+        <RestorentDisplay data={restuarents.find(r => r.id === 2)} distance={distance} className="col-12 mb-4" />
 
         {statusLoading && (
           <div className="alert alert-warning mt-3">

@@ -118,7 +118,7 @@ export default function KushasMenuLite() {
       {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
         <RestorentDisplay
-          data={restuarents[1]}
+          data={restuarents.find(r => r.id === 3)}
           distance={distance || "Calculating..."}
           className="col-12 mb-4"
         />

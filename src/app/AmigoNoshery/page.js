@@ -85,7 +85,7 @@ export default function AmigoMenuList() {
       return;
     }
 
-    item.restaurantName = "Amigo Noshery";
+    item.restaurantName = "Amigoo Noshery";
 
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
@@ -111,7 +111,7 @@ export default function AmigoMenuList() {
     <div className="restaurant-page-bg container mt-4">
 
       {/* ✅ RESTAURANT CARD */}
-      <RestorentDisplay data={restuarents[2]} distance={distance} className="col-12 mb-4" />
+      <RestorentDisplay data={restuarents.find(r => r.id === 1)} distance={distance} className="col-12 mb-4" />
 
       {statusLoading && (
         <div className="alert alert-warning mt-3">
