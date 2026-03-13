@@ -17,7 +17,7 @@ import { selectUser } from 'lib/features/userSlice';
 
 import './viva.css';
 
-export default function vivaMenuList() {
+export default function VivaMenuList() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
