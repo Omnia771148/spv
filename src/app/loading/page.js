@@ -7,19 +7,25 @@ export default function Loading() {
   return (
     <div style={styles.overlay}>
       <div className="container text-center">
-        {/* Logo Brand Presentation */}
+        {/* Logo with spinning ring */}
         <div className="brand-header mb-4">
-          <img
-            src="/spv-logo.png"
-            alt="SPV Logo"
-            className="brand-logo"
-          />
+          <div className="logo-spinner-wrapper">
+            {/* Dark track ring for the white spinner to be visible on */}
+            <div className="spinner-track"></div>
+            {/* Spinning white arc ring */}
+            <div className="spinner-ring"></div>
+            {/* Charcoal circular background with logo */}
+            <div className="logo-circle">
+              <img
+                src="/spv-logo.png"
+                alt="SPV Logo"
+                className="brand-logo"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Ultra-lightweight Sleek Progress Bar */}
-        <div className="loader-track">
-          <div className="loader-glide"></div>
-        </div>
+       
 
         <div className="mt-4">
           <h5 className="loading-text">Wait for a Second...</h5>
@@ -34,10 +40,60 @@ export default function Loading() {
               justify-content: center;
             }
 
-            .brand-logo {
+            .logo-spinner-wrapper {
+              position: relative;
+              width: 160px;
+              height: 160px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            /* The track that makes the spinner path visible */
+            .spinner-track {
+              position: absolute;
+              width: 148px;
+              height: 148px;
+              border-radius: 50%;
+              border: 6px solid rgba(181, 160, 112, 0.1); 
+              box-sizing: border-box;
+            }
+
+            /* Spinning arc ring - Changed to Gold for visibility on white */
+            .spinner-ring {
+              position: absolute;
+              width: 148px;
+              height: 148px;
+              border-radius: 50%;
+              border: 6px solid transparent;
+              border-top: 6px solid #B5A070; 
+              animation: spinRing 1s linear infinite;
+              box-sizing: border-box;
+            }
+
+            /* White circular badge behind the logo */
+            .logo-circle {
               width: 120px;
               height: 120px;
+              border-radius: 50%;
+              background: #ffffff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* Lighter shadow for white circle */
+              position: relative;
+              z-index: 1;
+            }
+
+            .brand-logo {
+              width: 80px;
+              height: 80px;
               object-fit: contain;
+            }
+
+            @keyframes spinRing {
+              0%   { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
             }
 
             .loader-track {
@@ -64,8 +120,6 @@ export default function Loading() {
               50% { width: 50%; }
               100% { left: 100%; width: 20%; }
             }
-
-
 
             .loading-text {
               font-weight: 700;
