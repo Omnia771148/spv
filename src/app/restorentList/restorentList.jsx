@@ -378,10 +378,11 @@ export default function RestorentList() {
 
         if (name === "Viva Finedine") {
             router.push('/vivafinedine');
-        } else if (name === "Snow Field") {
-            router.push('/snowfield');
+        
         } else if (name === "Amigoo Noshery") {
             router.push('/AmigoNoshery');
+        }else if (name === "Mr.Hangout Café") {
+            router.push('/mrhangout');
         }
     };
 

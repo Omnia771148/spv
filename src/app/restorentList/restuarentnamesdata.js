@@ -17,8 +17,8 @@ const restuarents = [
   },
   {
     id: 3,
-    name: "Snow Field",
-    place: "Ucon Plaza, Kurnool",
+    name: "Mr.Hangout Café",
+    place: "Venkata Ramana Colony, Kurnool",
     rating: 4.2,
     type: "Fast Delivery",
     image: "/2.jpg"

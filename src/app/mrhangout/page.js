@@ -13,9 +13,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from 'lib/features/restaurantSlice';
 import { selectUser } from 'lib/features/userSlice';
 
-import './snowfield.css';
+import './mrhangout.css';
 
-export default function KushasMenuLite() {
+export default function MrhangoutMenuLite() {
   const router = useRouter();
 
   const [search, setSearch] = useState('');
@@ -32,7 +32,7 @@ export default function KushasMenuLite() {
   const allStatuses = useSelector(selectAllStatuses);
   const isLoadingRedux = useSelector(selectRestaurantLoading);
 
-  // ID "3" corresponds to Snow Field
+  // ID "3" corresponds to Mr.Hangout Café
   const restaurantActive = allStatuses["3"] ?? false;
   // If we have data, we are not "loading status" anymore. If Redux is fetching, use that.
   const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
@@ -102,7 +102,7 @@ export default function KushasMenuLite() {
       return;
     }
 
-    item.restaurantName = "Snow Field";
+    item.restaurantName = "Mr.Hangout Café";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
