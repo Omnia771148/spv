@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'lib/features/userSlice';
+import Loading from '../loading/page';
 
 export default function MyOrders() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function MyOrders() {
     fetchOrders();
   }, []);
 
-  if (loading) return <p style={{ backgroundColor: '#F8F5EB', minHeight: '100vh', padding: '20px' }}>Checking authentication...</p>;
+  if (loading) return <Loading />;
 
   return (
     <div style={{ backgroundColor: '#F8F5EB', minHeight: '100vh', padding: '20px' }}>

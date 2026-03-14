@@ -7,10 +7,13 @@ export default function Loading() {
   return (
     <div style={styles.overlay}>
       <div className="container text-center">
-        {/* Minimalist & Premium Brand Presentation */}
+        {/* Logo Brand Presentation */}
         <div className="brand-header mb-4">
-          <div className="brand-status-dot"></div>
-          <h2 className="brand-title">SPV</h2>
+          <img
+            src="/spv-logo.png"
+            alt="SPV Logo"
+            className="brand-logo"
+          />
         </div>
 
         {/* Ultra-lightweight Sleek Progress Bar */}
@@ -29,28 +32,18 @@ export default function Loading() {
               display: flex;
               align-items: center;
               justify-content: center;
-              gap: 12px;
             }
 
-            .brand-status-dot {
-              width: 12px;
-              height: 12px;
-              background-color: #FF6B00;
-              border-radius: 50%;
-              animation: pulseGlow 2s infinite;
-            }
-
-            .brand-title {
-              font-weight: 900;
-              letter-spacing: 3px;
-              color: #2D3436;
-              margin: 0;
+            .brand-logo {
+              width: 120px;
+              height: 120px;
+              object-fit: contain;
             }
 
             .loader-track {
               width: 180px;
               height: 4px;
-              background-color: #F1F1F1;
+              background-color: #E8E2D0;
               border-radius: 20px;
               margin: 0 auto;
               overflow: hidden;
@@ -60,7 +53,7 @@ export default function Loading() {
             .loader-glide {
               width: 40%;
               height: 100%;
-              background: linear-gradient(90deg, #FF6B00, #FF9F43);
+              background: linear-gradient(90deg, #B5A070, #D4C08A);
               border-radius: 20px;
               position: absolute;
               animation: glideAlong 1.5s infinite ease-in-out;
@@ -72,11 +65,7 @@ export default function Loading() {
               100% { left: 100%; width: 20%; }
             }
 
-            @keyframes pulseGlow {
-              0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.5); }
-              70% { transform: scale(1.1); box-shadow: 0 0 0 12px rgba(255, 107, 0, 0); }
-              100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); }
-            }
+
 
             .loading-text {
               font-weight: 700;

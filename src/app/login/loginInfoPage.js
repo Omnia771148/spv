@@ -1,12 +1,14 @@
 'use client';
 import { useState, useEffect } from "react";
 import TotalForm from "./uI";
+import Loading from "../loading/page";
 
 
 const LoginInfoPage = () => {
     const [showLoginForm, setShowLoginForm] = useState(true);
     const [showFPform, setShowFPform] = useState(false);
     const [showSignUpForm, setShowSignUpForm] = useState(false);
+    const [transitioning, setTransitioning] = useState(false);
 
     // Sync state with URL hash to support mobile back gesture
     useEffect(() => {
@@ -26,6 +28,7 @@ const LoginInfoPage = () => {
                 setShowFPform(false);
                 setShowSignUpForm(false);
             }
+            setTransitioning(false);
         };
 
         // Run on mount to handle direct links or reloads
@@ -47,8 +50,11 @@ const LoginInfoPage = () => {
     };
 
     const handleSignUp = () => {
-        // Push hash to history so back button works
-        window.location.hash = 'signup';
+        // Show loading screen briefly before revealing signup form
+        setTransitioning(true);
+        setTimeout(() => {
+            window.location.hash = 'signup';
+        }, 800);
     };
 
     const handleBacktoLogin = () => {
@@ -64,6 +70,8 @@ const LoginInfoPage = () => {
             setShowSignUpForm(false);
         }
     };
+
+    if (transitioning) return <Loading />;
 
     return (
         <TotalForm
