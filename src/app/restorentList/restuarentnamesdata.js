@@ -55,6 +55,14 @@ const restuarents = [
     type: "Fast Delivery",
     image: "/2.jpg"
   },
+  {
+    id: 8,
+    name: "PR Grand",
+    place: "Venkata Ramana Colony, Kurnool",
+    rating: 4.2,
+    type: "Fast Delivery",
+    image: "/2.jpg"
+  },
 ];
 
 export default restuarents;

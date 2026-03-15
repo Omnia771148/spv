@@ -400,6 +400,9 @@ export default function RestorentList() {
          else if (name === "Fun and Food") {
             router.push('/funandfood');
         }
+        else if (name === "PR Grand") {
+            router.push('/prgrand');
+        }
         
     };
 

@@ -78,5 +78,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "8",
+        name: "PR Grand",
+        dbname: "PR Grand",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8355764,
+        lng: 78.0174753,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]
