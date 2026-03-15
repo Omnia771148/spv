@@ -403,6 +403,9 @@ export default function RestorentList() {
         else if (name === "PR Grand") {
             router.push('/prgrand');
         }
+        else if (name === "Food Land") {
+            router.push('/foodland');
+        }
         
     };
 
