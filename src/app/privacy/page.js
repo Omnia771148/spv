@@ -178,7 +178,7 @@ export default function PrivacyPolicy() {
                             <tr>
                                 <td style={styles.td}><strong>Location Data</strong></td>
                                 <td style={styles.td}>Precise GPS Coordinates (Lat/Lng)</td>
-                                <td style={styles.td}>Kurnool service area check & distance calculation</td>
+                                <td style={styles.td}>Kurnool service area check &amp; distance calculation</td>
                             </tr>
                             <tr>
                                 <td style={styles.td}><strong>Financial Info</strong></td>
@@ -192,7 +192,7 @@ export default function PrivacyPolicy() {
                             </tr>
                             <tr>
                                 <td style={styles.td}><strong>Feedback Data</strong></td>
-                                <td style={styles.td}>Restaurant & Delivery Boy Reviews</td>
+                                <td style={styles.td}>Restaurant &amp; Delivery Boy Reviews</td>
                                 <td style={styles.td}>Improving service quality and accountability</td>
                             </tr>
                         </tbody>
@@ -225,7 +225,7 @@ export default function PrivacyPolicy() {
             <div style={styles.card}>
                 <h2 style={styles.sectionHeading}>3. Data Security & Storage</h2>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}>All data is securely stored in MongoDB databases hosted on Vercel's professional cloud infrastructure.</li>
+                    <li style={styles.listItem}>All data is securely stored in MongoDB databases hosted on Vercel&apos;s professional cloud infrastructure.</li>
                     <li style={styles.listItem}>Passwords and sensitive information are encrypted at rest.</li>
                     <li style={styles.listItem}>All data transmitted between your device and our servers is encrypted in transit using HTTPS (TLS).</li>
                     <li style={styles.listItem}>We do not sell, rent, or share your personal data with third-party advertisers under any circumstances.</li>
@@ -233,7 +233,7 @@ export default function PrivacyPolicy() {
 
                 <div style={{...styles.highlightBox, borderLeftColor: '#2b9348', backgroundColor: '#f0fff4' }}>
                     <strong>Play Store Data Safety Note</strong><br/>
-                    Is data encrypted in transit? <strong>YES</strong> — all communication uses HTTPS via Vercel's secure hosting. <br/>
+                    Is data encrypted in transit? <strong>YES</strong> — all communication uses HTTPS via Vercel&apos;s secure hosting. <br/>
                     Can users request deletion? <strong>YES</strong> — through Profile Settings or via the Contact Us section in the app.
                 </div>
             </div>
@@ -243,7 +243,7 @@ export default function PrivacyPolicy() {
                 <h2 style={styles.sectionHeading}>4. Third-Party Services</h2>
                 <p style={styles.text}>Our application integrates with the following trusted third-party providers:</p>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}><strong>Firebase (Google):</strong> Provides phone number OTP authentication. Phone numbers are processed by Firebase in accordance with Google's Privacy Policy.</li>
+                    <li style={styles.listItem}><strong>Firebase (Google):</strong> Provides phone number OTP authentication. Phone numbers are processed by Firebase in accordance with Google&apos;s Privacy Policy.</li>
                     <li style={styles.listItem}><strong>Razorpay:</strong> Handles all payment transactions. Financial data such as card numbers is managed directly by Razorpay and is never stored on our servers.</li>
                     <li style={styles.listItem}><strong>Google Maps / Geolocation API:</strong> Used for address verification and distance calculation.</li>
                 </ul>
@@ -272,7 +272,7 @@ export default function PrivacyPolicy() {
 
             {/* Section 7, 8, 9 */}
             <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>7. Children's Privacy</h2>
+                <h2 style={styles.sectionHeading}>7. Children&apos;s Privacy</h2>
                 <p style={styles.text}>Our application is not intended for use by individuals under the age of 18. If you believe a child has provided us with personal information, please contact us immediately.</p>
             </div>
 
@@ -285,14 +285,14 @@ export default function PrivacyPolicy() {
                 <h2 style={styles.sectionHeading}>9. Contact Us</h2>
                 <p style={styles.text}>If you have any questions or requests, please reach out to us through:</p>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}><strong>In-App:</strong> Navigate to the 'Contact Us' section.</li>
-                    <li style={styles.listItem}><strong>Email:</strong> Available in the app's Help & Support section.</li>
+                    <li style={styles.listItem}><strong>In-App:</strong> Navigate to the &apos;Contact Us&apos; section.</li>
+                    <li style={styles.listItem}><strong>Email:</strong> Available in the app&apos;s Help &amp; Support section.</li>
                 </ul>
             </div>
 
             <div style={styles.footer}>
-                <p style={styles.commitment}>"Our Commitment: We are committed to handling your data responsibly, transparently, and in accordance with applicable data protection regulations. Your trust is the foundation of our service."</p>
-                <p style={{ fontSize: '0.8rem', color: '#999', marginTop: '15px' }}>© {new Date().getFullYear()} Food Delivery Application. Kurnool, Andhra Pradesh.</p>
+                <p style={styles.commitment}>&quot;Our Commitment: We are committed to handling your data responsibly, transparently, and in accordance with applicable data protection regulations. Your trust is the foundation of our service.&quot;</p>
+                <p style={{ fontSize: '0.8rem', color: '#999', marginTop: '15px' }}>&copy; {new Date().getFullYear()} Food Delivery Application. Kurnool, Andhra Pradesh.</p>
             </div>
         </div>
     );
