@@ -287,7 +287,13 @@ export default function RestorentList() {
         setMounted(true);
 
         // Redux Auth Check
-        if (!localStorage.getItem("userId")) {
+        const userId = localStorage.getItem("userId");
+        const loginTime = localStorage.getItem("loginTimestamp");
+        const currentTime = new Date().getTime();
+        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
+
+        if (!userId || !loginTime || (currentTime - Number(loginTime) > thirtyDaysInMs)) {
+            localStorage.clear(); // Clear session data if expired or missing
             router.replace("/login");
             return;
         }
@@ -305,7 +311,6 @@ export default function RestorentList() {
 
         // Location Logic: Aggressively prefer cached data
         const savedDistances = localStorage.getItem("allRestaurantDistances");
-        const userId = localStorage.getItem("userId");
         // const isAppLoaded = sessionStorage.getItem("isAppLoaded"); // Removed to force check on reload
 
         const checkActiveAndProceed = async () => {

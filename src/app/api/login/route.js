@@ -15,7 +15,7 @@ export async function POST(request) {
         const user = await User.findOne({ phone });
 
         if (!user) {
-            return NextResponse.json({ error: "Invalid Mobile Number or Password" }, { status: 401 });
+            return NextResponse.json({ error: "Account not found" }, { status: 401 });
         }
 
         const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');

@@ -44,9 +44,9 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
 
         if (loggedInUser && loginTime) {
             const currentTime = new Date().getTime();
-            const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+            const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
 
-            if (currentTime - Number(loginTime) < sevenDaysInMs) {
+            if (currentTime - Number(loginTime) < thirtyDaysInMs) {
                 // If ID is there but details are missing, try to fetch them quietly
                 if (!localStorage.getItem("userPhone") || !localStorage.getItem("userName")) {
                     axios.get('/api/users')
@@ -112,7 +112,17 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
         } catch (err) {
             // Only log unexpected errors, not standard login failures (401)
             if (err.response && err.response.status === 401) {
-                setPopup({ show: true, message: "Invalid Mobile Number or Password. Please try again.", isSuccess: false });
+                const errorMsg = err.response.data.error;
+                if (errorMsg === "Account not found") {
+                    setPopup({
+                        show: true,
+                        message: "No account found. Please create a new account.",
+                        isSuccess: false,
+                        redirectToSignup: true
+                    });
+                } else {
+                    setPopup({ show: true, message: "Invalid Mobile Number or Password. Please try again.", isSuccess: false });
+                }
             } else if (err.response && err.response.status === 403) {
                 setPopup({ show: true, message: "Your Id was Blocked", isSuccess: false });
             } else {
@@ -136,7 +146,13 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
                 <ErrorPopup
                     message={popup.message}
                     isSuccess={popup.isSuccess}
-                    onClose={() => setPopup({ ...popup, show: false })}
+                    buttonText={popup.redirectToSignup ? "Create New Account" : null}
+                    onClose={() => {
+                        setPopup({ ...popup, show: false });
+                        if (popup.redirectToSignup) {
+                            handleSignUp();
+                        }
+                    }}
                 />
             )}
 

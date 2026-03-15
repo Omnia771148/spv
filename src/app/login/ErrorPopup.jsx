@@ -2,7 +2,7 @@
 import React from 'react';
 import './error_popup.css';
 
-export default function ErrorPopup({ message, onClose, isSuccess = false }) {
+export default function ErrorPopup({ message, onClose, isSuccess = false, buttonText }) {
     if (!message) return null;
 
     return (
@@ -13,7 +13,7 @@ export default function ErrorPopup({ message, onClose, isSuccess = false }) {
                 </div>
                 <p className="error-text" style={{ whiteSpace: 'pre-line' }}>{message}</p>
                 <button className="error-retry-btn" onClick={onClose}>
-                    {isSuccess ? 'Continue' : 'Try Again'}
+                    {buttonText || (isSuccess ? 'Continue' : 'Try Again')}
                 </button>
             </div>
         </div>
