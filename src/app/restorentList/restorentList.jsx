@@ -394,6 +394,9 @@ export default function RestorentList() {
         else if (name === "Aaha Kitchens") {
             router.push('/ahakitchens');
         }
+        else if (name === "The Bro Story") {
+            router.push('/brostory');
+        }
         
     };
 

@@ -56,4 +56,16 @@ export const restList = [
         image: "/snow.jpg",
     },
 
+    {
+        id: "6",
+        name: "The Bro Story",
+        dbname: "The Bro Story",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8061675,
+        lng: 78.0477926,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
+
 ]
