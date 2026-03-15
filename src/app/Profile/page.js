@@ -145,6 +145,15 @@ export default function Profile() {
                     <i className="fas fa-caret-right btn-arrow"></i>
                 </button>
 
+                {/* Privacy Policy */}
+                <button className="custom-nav-btn" onClick={() => router.push("/privacy")}>
+                    <div className="d-flex align-items-center">
+                        <i className="fas fa-user-shield btn-icon-left"></i>
+                        <span className="btn-text">Privacy Policy</span>
+                    </div>
+                    <i className="fas fa-caret-right btn-arrow"></i>
+                </button>
+
                 {/* Logout - Added to maintain functionality */}
                 <button className="custom-nav-btn" onClick={handleLogout}>
                     <div className="d-flex align-items-center">
