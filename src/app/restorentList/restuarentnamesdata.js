@@ -31,6 +31,14 @@ const restuarents = [
     type: "Fast Delivery",
     image: "/2.jpg"
   },
+  {
+    id: 5,
+    name: "Aaha Kitchens",
+    place: "Venkata Ramana Colony, Kurnool",
+    rating: 4.2,
+    type: "Fast Delivery",
+    image: "/2.jpg"
+  },
 ];
 
 export default restuarents;

@@ -391,6 +391,10 @@ export default function RestorentList() {
         }else if (name === "Reddy Family Restuarent") {
             router.push('/reddyfamilyrest');
         }
+        else if (name === "Aaha Kitchens") {
+            router.push('/ahakitchens');
+        }
+        
     };
 
     if (loading && !mounted) return <Loading />;

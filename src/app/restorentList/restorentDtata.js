@@ -44,5 +44,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "5",
+        name: "Aaha Kitchens",
+        dbname: "Aaha Kitchens",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.7869693,
+        lng: 78.0336955,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]
