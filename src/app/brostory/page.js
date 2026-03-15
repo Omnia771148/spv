@@ -85,7 +85,7 @@ export default function BroStoryMenuList() {
       return;
     }
 
-    item.restaurantName = "Bro Story";
+    item.restaurantName = "The Bro Story";
 
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
