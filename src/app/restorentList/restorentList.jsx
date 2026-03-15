@@ -397,6 +397,9 @@ export default function RestorentList() {
         else if (name === "The Bro Story") {
             router.push('/brostory');
         }
+         else if (name === "Fun and Food") {
+            router.push('/funandfood');
+        }
         
     };
 

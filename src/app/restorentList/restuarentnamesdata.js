@@ -47,6 +47,14 @@ const restuarents = [
     type: "Fast Delivery",
     image: "/2.jpg"
   },
+  {
+    id: 7,
+    name: "Fun and Food",
+    place: "Venkata Ramana Colony, Kurnool",
+    rating: 4.2,
+    type: "Fast Delivery",
+    image: "/2.jpg"
+  },
 ];
 
 export default restuarents;
