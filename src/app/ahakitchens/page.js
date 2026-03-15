@@ -102,7 +102,7 @@ export default function AhakitchensRestMenuLite() {
       return;
     }
 
-    item.restaurantName = "Aha Kitchens";
+    item.restaurantName = "Aaha Kitchens";
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
