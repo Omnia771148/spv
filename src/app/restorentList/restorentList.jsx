@@ -388,6 +388,8 @@ export default function RestorentList() {
             router.push('/AmigoNoshery');
         }else if (name === "Mr.Hangout Café") {
             router.push('/mrhangout');
+        }else if (name === "Reddy Family Restuarent") {
+            router.push('/reddyfamilyrest');
         }
     };
 

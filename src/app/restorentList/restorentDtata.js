@@ -33,5 +33,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "4",
+        name: "Reddy Family Restuarent",
+        dbname: "Reddy Family Restuarent",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.7773726,
+        lng: 78.0574997,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]
