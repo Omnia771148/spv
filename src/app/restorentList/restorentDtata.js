@@ -111,5 +111,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "11",
+        name: "Hotel Taj Darbar",
+        dbname: "Hotel Taj Darbar",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8255741,
+        lng: 78.0340477,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]

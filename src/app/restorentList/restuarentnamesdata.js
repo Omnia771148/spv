@@ -80,6 +80,14 @@ const restuarents = [
     type: "Fast Delivery",
     image: "/2.jpg"
   },
+  {
+    id: 11,
+    name: "Hotel Taj Darbar",
+    place: "Venkata Ramana Colony, Kurnool",
+    rating: 4.2,
+    type: "Fast Delivery",
+    image: "/2.jpg"
+  },
 
 
 ];

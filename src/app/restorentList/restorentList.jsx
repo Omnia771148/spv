@@ -409,6 +409,9 @@ export default function RestorentList() {
         else if (name === "Talimpu Family Restaurant") {
             router.push('/talimpu');
         }
+        else if (name === "Hotel Taj Darbar") {
+            router.push('/tajdarbar');
+        }
         
     };
 
