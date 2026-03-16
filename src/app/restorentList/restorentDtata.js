@@ -100,5 +100,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "10",
+        name: "Talimpu Family Restaurant",
+        dbname: "Talimpu Family Restaurant",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.7888614,
+        lng: 78.0540306,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]

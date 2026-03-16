@@ -406,6 +406,9 @@ export default function RestorentList() {
         else if (name === "Food Land") {
             router.push('/foodland');
         }
+        else if (name === "Talimpu Family Restaurant") {
+            router.push('/talimpu');
+        }
         
     };
 
