@@ -83,11 +83,12 @@ export default function Loading() {
               box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* Lighter shadow for white circle */
               position: relative;
               z-index: 1;
+              overflow: hidden;
             }
 
             .brand-logo {
-              width: 80px;
-              height: 80px;
+              width: 110px;
+              height: 110px;
               object-fit: contain;
             }
 
