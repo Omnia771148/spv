@@ -23,6 +23,19 @@ export default function MrhangoutMenuLite() {
   const [typeFilter, setTypeFilter] = useState('');
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  
+  const categories = ['All', ...new Set(Data.map(item => item.category).filter(Boolean))];
+
+  useEffect(() => {
+    if (isSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => { document.body.style.overflow = 'auto'; };
+  }, [isSidebarOpen]);
 
   // ✅ Distance
   const [distance, setDistance] = useState(null);
@@ -114,6 +127,34 @@ export default function MrhangoutMenuLite() {
 
   return (
     <div className="kushas-page container mt-4">
+
+      {/* Sidebar Toggle Button */}
+      <button className="sidebar-toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+        <i className={`fa-solid ${isSidebarOpen ? 'fa-angle-left' : 'fa-angle-right'}`}></i>
+      </button>
+
+      {/* Sidebar Overlay */}
+      <div 
+        className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} 
+        onClick={() => setIsSidebarOpen(false)}
+      ></div>
+
+      {/* Sidebar */}
+      <div className={`category-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <button className="close-sidebar-btn" onClick={() => setIsSidebarOpen(false)}>&times;</button>
+        <h3>FIND OUT</h3>
+        <ul>
+          {categories.map(cat => (
+            <li 
+              key={cat} 
+              className={categoryFilter === cat ? 'active' : ''} 
+              onClick={() => { setCategoryFilter(cat); setIsSidebarOpen(false); }}
+            >
+              {cat}
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* ✅ RESTAURANT CARD */}
       <div className="mb-4">
@@ -238,9 +279,10 @@ export default function MrhangoutMenuLite() {
         {Data.filter(item => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === '' || item.type === typeFilter;
+          const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
           const isActive = buttonStatuses[item.id] === true;
 
-          return matchesSearch && matchesType && isActive;
+          return matchesSearch && matchesType && isActive && matchesCategory;
         }).map(item => (
           <ProductCard
             key={item.id}
@@ -257,8 +299,9 @@ export default function MrhangoutMenuLite() {
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
           const matchesType = typeFilter === '' || item.type === typeFilter;
+          const matchesCategory = categoryFilter === 'All' || item.category === categoryFilter;
           const isActive = buttonStatuses[item.id] === true;
-          return matchesSearch && matchesType && isActive;
+          return matchesSearch && matchesType && isActive && matchesCategory;
         }).length === 0 && (
             <div className="col-12 text-center text-muted">
               No active items available.
