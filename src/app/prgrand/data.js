@@ -257,7 +257,7 @@ export const Data = [
 { id: 960, name: "Tikka Chicken Biryani", price: 300, restid: 8, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "biryanis'-non-veg" },
 { id: 961, name: "Natu Kodi Biryani", price: 280, restid: 8, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "biryanis'-non-veg" },
 { id: 962, name: "Kamju Biryani", price: 260, restid: 8, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "biryanis'-non-veg" },
-{ id: 963, name: "Potlam Chicken Biryani", price: 300, restid: 8, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "biryanis'-non-veg" }
+{ id: 963, name: "Potlam Chicken Biryani", price: 300, restid: 8, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "biryanis'-non-veg" },
 
 
 
