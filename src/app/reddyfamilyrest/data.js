@@ -147,7 +147,7 @@ export const Data = [
 { id: 426, name: "Egg Biryani", price: 199, restid: 4, button: "Add", type: "non-veg", symbol: "🔺", category: "non-veg biryanis", image: "/fooditems/1 (200).webp" },
 
 
-//veg-biryani's
+//veg-biryani
 
 { id: 427, name: "Vegetable Biryani", price: 209, restid: 4, button: "Add", type: "veg", symbol: "🟩", category: "veg-biryani's", image: "/fooditems/1 (200).webp" },
 { id: 428, name: "Kaju Biryani", price: 229, restid: 4, button: "Add", type: "veg", symbol: "🟩", category: "veg-biryani's", image: "/fooditems/1 (200).webp" },
