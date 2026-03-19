@@ -412,6 +412,9 @@ export default function RestorentList() {
         else if (name === "Hotel Taj Darbar") {
             router.push('/tajdarbar');
         }
+        else if (name === "Ruchivedhika") {
+            router.push('/ruchivedhika');
+        }
         
     };
 

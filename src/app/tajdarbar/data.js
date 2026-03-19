@@ -234,4 +234,5 @@ export const Data = [
 { id: 1374, name: "Chicken Noodles", price: 190, restid: 11, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "Noodles - Non Veg" },
 { id: 1375, name: "Chicken shezwan Noodles", price: 200, restid: 11, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "Noodles - Non Veg" },
 { id: 1376, name: "Mix Noodles (Non Veg)", price: 250, restid: 11, button: "Add", type: "non-veg", symbol: "🔴", image: "/fooditems/placeholder.webp", category: "Noodles - Non Veg" }
+
 ]

@@ -122,5 +122,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+     {
+        id: "12",
+        name: "Ruchivedhika",
+        dbname: "Ruchivedhika",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8245927,
+        lng: 78.0195797,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]
