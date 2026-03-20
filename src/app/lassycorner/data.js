@@ -1,5 +1,6 @@
 export const Data = [
 //lassi corrner
+//lassi corner
 // Lassi
 { id: 1652, name: "Sweet Lassi", price: 50, restid: 14, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "Lassi" },
 { id: 1653, name: "Jaljeera Lassi", price: 50, restid: 14, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "Lassi" },
