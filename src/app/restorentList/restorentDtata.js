@@ -144,5 +144,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "14",
+        name: "LASSI CORNER",
+        dbname: "LASSI CORNER",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.7966878,
+        lng: 76.9620473,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]

@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurantStatuses, fetchItemStatuses, selectAllStatuses, selectRestaurantLoading, selectAllItemStatuses, selectItemLoading } from 'lib/features/restaurantSlice';
 import { selectUser } from 'lib/features/userSlice';
 
-import './hindustan.css';
+import './lassy.css';
 
-export default function HindustanMenuList() {
+export default function LassycornerMenuList() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ export default function HindustanMenuList() {
   const isLoadingRedux = useSelector(selectRestaurantLoading);
 
   // ID "1" corresponds to Kushas
-  const restaurantActive = allStatuses["13"] ?? false;
+  const restaurantActive = allStatuses["14"] ?? false;
   const statusLoading = Object.keys(allStatuses).length === 0 && isLoadingRedux;
 
   // Button statuses state (REDUX)
@@ -98,7 +98,7 @@ export default function HindustanMenuList() {
       return;
     }
 
-    item.restaurantName = "Hindustan Hotel";
+    item.restaurantName = "LASSI CORNER";
 
     const updatedCart = [...existingCart, item];
     setCart(updatedCart);
@@ -152,7 +152,7 @@ export default function HindustanMenuList() {
       </div>
 
       {/* ✅ RESTAURANT CARD */}
-      <RestorentDisplay data={restuarents.find(r => r.id === 13)} distance={distance} className="col-12 mb-4" />
+      <RestorentDisplay data={restuarents.find(r => r.id === 14)} distance={distance} className="col-12 mb-4" />
 
       {statusLoading && (
         <div className="alert alert-warning mt-3">

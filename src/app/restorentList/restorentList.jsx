@@ -418,6 +418,9 @@ export default function RestorentList() {
         else if (name === "Hindustan Hotel") {
             router.push('/hindustan');
         }
+        else if (name === "LASSI CORNER") {
+            router.push('/lassycorner');
+        }
         
     };
 

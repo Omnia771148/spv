@@ -104,6 +104,14 @@ const restuarents = [
     type: "Fast Delivery",
     image: "/2.jpg"
   },
+  {
+    id: 14,
+    name: "LASSI CORNER",
+    place: "Venkata Ramana Colony, Kurnool",
+    rating: 4.2,
+    type: "Fast Delivery",
+    image: "/2.jpg"
+  },
 
 
 ];
