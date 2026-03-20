@@ -1,0 +1,223 @@
+/* Page Background */
+.restaurant-page-bg {
+    background-color: #F8F5EB;
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+/* Filter Section Styles */
+.filter-section {
+    background-color: #EBE5D5;
+    /* Beige background to match cards */
+    border-radius: 12px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    margin-right: 15px;
+}
+
+.search-icon {
+    font-size: 1.2rem;
+    color: #1a1a1a;
+    margin-right: 8px;
+}
+
+.custom-search-input {
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: #333;
+    width: 100%;
+}
+
+.custom-search-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Toggle Group Styles */
+.toggle-group {
+    display: flex;
+    background-color: #E0DAC8;
+    /* Slightly darker beige */
+    border-radius: 20px;
+    padding: 4px;
+    position: relative;
+}
+
+.toggle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 4px;
+    font-size: 1.2rem;
+    background-color: transparent;
+    color: #888;
+}
+
+.toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Icon Colors (Inactive) */
+.toggle-btn.veg-btn {
+    color: #6FCF97;
+}
+
+.toggle-btn.nonveg-btn {
+    color: #FF5252;
+}
+
+/* Active States */
+.toggle-btn.active-all {
+    background-color: #ffffff !important;
+    color: #333 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn.active-veg {
+    background-color: #6FCF97 !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-btn.active-nonveg {
+    background-color: #FF5252 !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.reststatus {
+    background-color: red;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Sidebar Styles */
+.sidebar-toggle-btn {
+    position: fixed;
+    top: 25%;
+    left: 0;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #111, #333);
+    border: none;
+    box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
+    padding: 12px 6px; /* Slashed width padding */
+    border-radius: 0 8px 8px 0;
+    z-index: 1002; /* Brought above the sidebar if it stays visible */
+    cursor: pointer;
+    font-size: 1.1rem; /* Sleeker icon */
+    color: #fff; /* White icon to pop against dark background */
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    padding-left: 10px; /* Slight fun hover expansion */
+    box-shadow: 5px 0 12px rgba(0, 0, 0, 0.4);
+}
+
+.category-sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100vh;
+    background-color: #EBE5D5;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: left 0.3s ease;
+    z-index: 1001;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.category-sidebar.open {
+    left: 0;
+}
+
+.category-sidebar .close-sidebar-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #333;
+}
+
+.category-sidebar h3 {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: black;
+    border-bottom: 4px solid black;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.category-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-sidebar ul li {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    color: black;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: background 0.2s, color 0.2s;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.category-sidebar ul li:hover {
+    background-color: #E0DAC8;
+}
+
+.category-sidebar ul li.active {
+    background-color: #333;
+    color: #fff;
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}

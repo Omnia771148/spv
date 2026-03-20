@@ -415,6 +415,9 @@ export default function RestorentList() {
         else if (name === "Ruchivedhika") {
             router.push('/ruchivedhika');
         }
+        else if (name === "Hindustan Hotel") {
+            router.push('/hindustan');
+        }
         
     };
 

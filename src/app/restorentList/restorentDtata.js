@@ -133,5 +133,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "13",
+        name: "Hindustan Hotel",
+        dbname: "Hindustan Hotel",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8312209,
+        lng: 78.0447529,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]
