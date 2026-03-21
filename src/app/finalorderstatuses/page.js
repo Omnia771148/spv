@@ -155,9 +155,26 @@ export default function FinalOrderStatuses() {
                   <i className="fa-solid fa-bowl-food" style={{ color: '#888' }}></i>
                 </div>
                 <div className="progress-pointer" style={{ left: width, borderTopColor: color }}></div>
-                <div className="progress-track">
-                  <div className="progress-fill" style={{ width: width, backgroundColor: color }}></div>
-                  <div className="status-caption" style={{ zIndex: 5, color: '#999', mixBlendMode: 'multiply' }}>{text}</div>
+                <div className="progress-track" style={{ position: 'relative', overflow: 'hidden' }}>
+                  <div className="progress-fill" style={{ width: width, backgroundColor: color, height: '100%' }}></div>
+                  
+                  {/* Bottom layer: Black text */}
+                  <div className="status-caption" style={{ color: '#000', position: 'absolute', top: 0, left: 0, width: '100%', textAlign: 'center' }}>
+                    {text}
+                  </div>
+                  
+                  {/* Top layer: White text revealed by clip-path */}
+                  <div className="status-caption" style={{ 
+                    color: '#fff', 
+                    position: 'absolute', 
+                    top: 0, 
+                    left: 0, 
+                    width: '100%', 
+                    textAlign: 'center',
+                    clipPath: `inset(0 ${100 - (parseFloat(width) || 0)}% 0 0)`
+                  }}>
+                    {text}
+                  </div>
                 </div>
                 {/* Alternatively put text below if it clashes */}
                 {/* <div className="status-caption-below">{text}</div> */}
