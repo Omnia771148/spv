@@ -155,5 +155,16 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    {
+        id: "15",
+        name: "Mandi@9R",
+        dbname: "Mandi@9R",
+        type: "non-veg",
+        place: "Venkata Ramana Colony",
+        lat: 15.8308853,
+        lng: 78.0446194,
+        rating: "4.5",
+        image: "/snow.jpg",
+    },
 
 ]

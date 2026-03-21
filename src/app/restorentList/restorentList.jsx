@@ -421,6 +421,9 @@ export default function RestorentList() {
         else if (name === "LASSI CORNER") {
             router.push('/lassycorner');
         }
+        else if (name === "Mandi@9R") {
+            router.push('/mandi9r');
+        }
         
     };
 

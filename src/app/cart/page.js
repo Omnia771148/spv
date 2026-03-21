@@ -8,6 +8,7 @@ import Loading from '../loading/page';
 import { showToast } from '../../toaster/page';
 import { getCoinsEarned } from 'lib/coinConfig';
 import './cart.css';
+import ErrorPopup from '../login/ErrorPopup';
 
 export default function Cart() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function Cart() {
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false });
 
   const aa = "gg";
   const [expandAddresses, setExpandAddresses] = useState(false);
@@ -289,7 +291,10 @@ export default function Cart() {
   };
 
   const placeOrder = async () => {
-    if (cartItems.length === 0) return alert("Cart is empty");
+    if (cartItems.length === 0) {
+      setPopup({ show: true, message: "Cart is empty", isSuccess: false });
+      return;
+    }
 
     // ✅ Cached Service Check (No API Call)
     const serviceStatus = localStorage.getItem("isServiceAvailable");
@@ -299,7 +304,10 @@ export default function Cart() {
     }
 
     const deliveryAddress = `${flatNo}, ${street} ${landmark ? ', ' + landmark : ''}`;
-    if (!flatNo.trim() || !street.trim()) return alert("Please enter Flat No and Street address.");
+    if (!flatNo.trim() || !street.trim()) {
+      setPopup({ show: true, message: "Please enter Flat No and Street address.", isSuccess: false });
+      return;
+    }
 
     setLoading(true);
 
@@ -416,7 +424,7 @@ export default function Cart() {
 
     } catch (err) {
       setLoading(false);
-      alert(`Error: ${err.message}`);
+      setPopup({ show: true, message: `Error: ${err.message}`, isSuccess: false });
     }
   };
 
@@ -426,6 +434,13 @@ export default function Cart() {
 
   return (
     <div className="cart-container">
+      {popup.show && (
+        <ErrorPopup
+          message={popup.message}
+          isSuccess={popup.isSuccess}
+          onClose={() => setPopup({ ...popup, show: false })}
+        />
+      )}
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
       <div className="cart-header">
