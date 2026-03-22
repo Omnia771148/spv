@@ -3,297 +3,359 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 
+/**
+ * Privacy Policy Component
+ * 
+ * This component displays the official Privacy Policy for the application.
+ * Updated: 22nd March 2026
+ * Compliant with modern data protection standards and Google Play Store requirements.
+ */
 export default function PrivacyPolicy() {
     const router = useRouter();
 
+    // Premium Design Tokens
+    const config = {
+        colors: {
+            primary: '#e63946', // Modern red for branding
+            secondary: '#1d3557', // Deep blue for text
+            accent: '#457b9d', // Muted blue for highlights
+            background: '#F9FAFB', // Soft gray-white background
+            cardBg: '#FFFFFF', // Pure white for cards/sections
+            textHead: '#111827', // Strong gray for titles
+            textMain: '#4B5563', // Soft gray for body text
+            success: '#10B981', // Green for positive badges
+            warning: '#F59E0B', // Amber for important notes
+            border: '#E5E7EB', // Light gray for borders
+        },
+        fonts: {
+            main: '"Inter", "Poppins", -apple-system, sans-serif'
+        }
+    };
+
+    const handleBack = () => {
+        // Fallback for direct links (e.g., from Google Play Store)
+        if (typeof window !== 'undefined' && window.history.length > 1) {
+            router.back();
+        } else {
+            router.push('/');
+        }
+    };
+
     const styles = {
         container: {
-            padding: '20px',
-            backgroundColor: '#F8F5EB',
+            padding: '24px',
+            backgroundColor: config.colors.background,
             minHeight: '100vh',
-            fontFamily: "'Poppins', sans-serif",
-            color: '#333',
-            lineHeight: '1.6',
-            paddingBottom: '40px',
+            fontFamily: config.fonts.main,
+            color: config.colors.textMain,
+            lineHeight: '1.7',
+            paddingBottom: '60px',
         },
         header: {
             display: 'flex',
             alignItems: 'center',
-            marginBottom: '30px',
-            gap: '15px',
+            marginBottom: '32px',
+            gap: '16px',
             position: 'sticky',
             top: 0,
-            backgroundColor: '#F8F5EB',
-            padding: '10px 0',
-            zIndex: 10,
+            backgroundColor: 'rgba(249, 250, 251, 0.95)',
+            backdropFilter: 'blur(8px)',
+            padding: '12px 0',
+            zIndex: 100,
         },
         backButton: {
             border: 'none',
-            background: 'white',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
+            background: config.colors.cardBg,
+            borderRadius: '12px',
+            width: '44px',
+            height: '44px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
             cursor: 'pointer',
+            transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         },
         titleContainer: {
             display: 'flex',
             flexDirection: 'column',
         },
         title: {
-            fontSize: '1.5rem',
-            fontWeight: '600',
-            color: '#1a1a1a',
+            fontSize: '1.75rem',
+            fontWeight: '700',
+            color: config.colors.textHead,
             margin: 0,
+            letterSpacing: '-0.025em',
         },
         subtitle: {
-            fontSize: '0.8rem',
-            color: '#666',
+            fontSize: '0.875rem',
+            color: config.colors.accent,
+            fontWeight: '500',
         },
         card: {
-            backgroundColor: 'white',
-            padding: '25px',
-            borderRadius: '20px',
-            marginBottom: '20px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-            border: '1px solid rgba(0,0,0,0.02)',
+            backgroundColor: config.colors.cardBg,
+            padding: '32px',
+            borderRadius: '24px',
+            marginBottom: '24px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+            border: `1px solid ${config.colors.border}`,
         },
         sectionHeading: {
-            fontSize: '1.2rem',
+            fontSize: '1.375rem',
             fontWeight: '600',
-            marginBottom: '15px',
-            color: '#e63946',
+            marginBottom: '16px',
+            color: config.colors.secondary,
             display: 'flex',
             alignItems: 'center',
-            gap: '10px',
+            gap: '12px',
         },
         text: {
-            fontSize: '0.95rem',
-            color: '#444',
-            marginBottom: '15px',
+            fontSize: '1rem',
+            color: config.colors.textMain,
+            marginBottom: '16px',
         },
         tableWrapper: {
             overflowX: 'auto',
-            marginBottom: '20px',
-            borderRadius: '12px',
-            border: '1px solid #eee',
+            marginBottom: '24px',
+            borderRadius: '16px',
+            border: `1px solid ${config.colors.border}`,
         },
         table: {
             width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '0.85rem',
-        },
-        th: {
-            backgroundColor: '#f9f9f9',
-            padding: '12px',
-            textAlign: 'left',
-            fontWeight: '600',
-            borderBottom: '2px solid #eee',
-        },
-        td: {
-            padding: '12px',
-            borderBottom: '1px solid #eee',
-        },
-        highlightBox: {
-            backgroundColor: '#fff5f5',
-            padding: '15px',
-            borderRadius: '12px',
-            borderLeft: '4px solid #e63946',
-            marginTop: '10px',
+            borderCollapse: 'separate',
+            borderSpacing: '0',
             fontSize: '0.9rem',
         },
+        th: {
+            backgroundColor: '#F3F4F6',
+            padding: '16px',
+            textAlign: 'left',
+            fontWeight: '600',
+            color: config.colors.textHead,
+            borderBottom: `2px solid ${config.colors.border}`,
+        },
+        td: {
+            padding: '16px',
+            borderBottom: `1px solid ${config.colors.border}`,
+            verticalAlign: 'top',
+        },
+        highlightBox: {
+            backgroundColor: '#FEF2F2',
+            padding: '20px',
+            borderRadius: '16px',
+            borderLeft: `5px solid ${config.colors.primary}`,
+            marginTop: '12px',
+            fontSize: '0.9375rem',
+            color: config.colors.secondary,
+        },
         list: {
-            paddingLeft: '20px',
-            fontSize: '0.95rem',
-            color: '#444',
+            paddingLeft: '24px',
+            fontSize: '1rem',
+            color: config.colors.textMain,
         },
         listItem: {
-            marginBottom: '10px',
+            marginBottom: '12px',
         },
         footer: {
             textAlign: 'center',
-            marginTop: '40px',
-            padding: '20px',
-            borderTop: '1px solid #ddd',
+            marginTop: '60px',
+            padding: '32px',
+            borderTop: `1px solid ${config.colors.border}`,
         },
         commitment: {
-            fontSize: '1rem',
+            fontSize: '1.125rem',
             fontWeight: '600',
-            color: '#111',
+            color: config.colors.textHead,
             fontStyle: 'italic',
+            display: 'block',
+            maxWidth: '600px',
+            margin: '0 auto 24px auto',
         }
     };
 
     return (
         <div style={styles.container}>
-            {/* Header */}
-            <div style={styles.header}>
-                <button style={styles.backButton} onClick={() => router.back()}>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            {/* Navigation Header */}
+            <header style={styles.header}>
+                <button 
+                    style={styles.backButton} 
+                    onClick={handleBack}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e63946" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M15 18l-6-6 6-6" />
                     </svg>
                 </button>
                 <div style={styles.titleContainer}>
                     <h1 style={styles.title}>Privacy Policy</h1>
-                    <span style={styles.subtitle}>Food Delivery Application — Kurnool</span>
+                    <span style={styles.subtitle}>Last Updated: 22nd March 2026</span>
                 </div>
-            </div>
+            </header>
 
-            {/* Intro Card */}
-            <div style={styles.card}>
-                <p style={{ ...styles.text, fontWeight: 'bold' }}>Last Updated: 15 March 2026</p>
+            {/* Introduction Card */}
+            <section style={styles.card}>
                 <p style={styles.text}>
-                    Your privacy is important to us. This Privacy Policy explains how our application collects, uses, and protects your information when you use our services. By using our app, you agree to the terms described in this document.
+                    Your privacy is our core priority. This Policy outlines how our food delivery application collects, processes, and safeguards your personal data. We are committed to transparency and ensuring that your experience is secure and compliant with modern data protection regulations.
                 </p>
-            </div>
+                <div style={{ ...styles.highlightBox, backgroundColor: '#F0FDF4', borderLeftColor: config.colors.success }}>
+                    <strong>Our Quality Pledge:</strong> We do not sell, rent, or trade your personal information with third-party marketers or advertisers under any circumstances.
+                </div>
+            </section>
 
-            {/* Section 1: Information Collection */}
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>1. Information We Collect</h2>
-                <p style={styles.text}>We collect the following categories of personal data when you register and use our application:</p>
+            {/* 1. Data Collection */}
+            <section style={styles.card}>
+                <h2 style={styles.sectionHeading}>
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    1. Information We Collect
+                </h2>
+                <p style={styles.text}>To facilitate seamless food discovery and delivery, we collect the following categories of data:</p>
                 
                 <div style={styles.tableWrapper}>
                     <table style={styles.table}>
                         <thead>
                             <tr>
-                                <th style={styles.th}>Data Type</th>
-                                <th style={styles.th}>Specific Items</th>
-                                <th style={styles.th}>Purpose</th>
+                                <th style={styles.th}>Data Category</th>
+                                <th style={styles.th}>Specific Data Points</th>
+                                <th style={styles.th}>Business Need</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td style={styles.td}><strong>Personal Info</strong></td>
-                                <td style={styles.td}>Name, Phone, Email, Date of Birth</td>
-                                <td style={styles.td}>Account creation & identity verification</td>
+                                <td style={styles.td}><strong>Identity Profile</strong></td>
+                                <td style={styles.td}>Full Name, Email Address, Contact Number, Date of Birth.</td>
+                                <td style={styles.td}>Account verification, personalization, and 18+ age validation.</td>
                             </tr>
                             <tr>
-                                <td style={styles.td}><strong>Delivery Details</strong></td>
-                                <td style={styles.td}>Flat No, Street, Landmark, Saved Labels</td>
-                                <td style={styles.td}>Accurate delivery routing to your doorstep</td>
+                                <td style={styles.td}><strong>Precise Location</strong></td>
+                                <td style={styles.td}>GPS Latitude/Longitude, Delivery Address (Flat No, Street, Landmark).</td>
+                                <td style={styles.td}>Verification of service area (Kurnool-only) and delivery distance computation.</td>
                             </tr>
                             <tr>
-                                <td style={styles.td}><strong>Location Data</strong></td>
-                                <td style={styles.td}>Precise GPS Coordinates (Lat/Lng)</td>
-                                <td style={styles.td}>Kurnool service area check &amp; distance calculation</td>
+                                <td style={styles.td}><strong>Device Access</strong></td>
+                                <td style={styles.td}>Microphone Permission.</td>
+                                <td style={styles.td}>Enabling voice-assisted search features within the restaurant list.</td>
                             </tr>
                             <tr>
-                                <td style={styles.td}><strong>Financial Info</strong></td>
-                                <td style={styles.td}>Razorpay Transaction IDs</td>
-                                <td style={styles.td}>Secure payment validation</td>
+                                <td style={styles.td}><strong>Transaction Logs</strong></td>
+                                <td style={styles.td}>Payment Status, Transaction IDs (via Payment Gateway).</td>
+                                <td style={styles.td}>Processing orders and resolving payment disputes.</td>
                             </tr>
                             <tr>
-                                <td style={styles.td}><strong>System Data</strong></td>
-                                <td style={styles.td}>Coins Balance, Block Status</td>
-                                <td style={styles.td}>Loyalty rewards and app security management</td>
-                            </tr>
-                            <tr>
-                                <td style={styles.td}><strong>Feedback Data</strong></td>
-                                <td style={styles.td}>Restaurant &amp; Delivery Boy Reviews</td>
-                                <td style={styles.td}>Improving service quality and accountability</td>
+                                <td style={styles.td}><strong>User Interaction</strong></td>
+                                <td style={styles.td}>Reviews, Feedback, Coins Balance, App Preferences.</td>
+                                <td style={styles.td}>Enhancing application quality and managing loyalty rewards.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div style={styles.highlightBox}>
-                    <strong>Why do we collect Date of Birth?</strong><br/>
-                    Your date of birth is used to verify your age eligibility and personalise your account experience. It is never shared with third-party advertisers.
+                    <strong>Age Requirement Policy (18+)</strong><br/>
+                    This application is strictly intended for users aged 18 and above. Your Date of Birth is used exclusively to verify eligibility and will never be shared with restaurant partners or third parties.
                 </div>
-            </div>
+            </section>
 
-            {/* Section 2: How We Use Your Data */}
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>2. How We Use Your Data</h2>
-                <p style={styles.text}>We use the information collected strictly for the following purposes:</p>
+            {/* 2. Usage Policy */}
+            <section style={styles.card}>
+                <h2 style={styles.sectionHeading}>
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    2. How We Utilize Your Information
+                </h2>
+                <p style={styles.text}>Your data is processed based on the necessity to perform our service contract with you:</p>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}><strong>Account Management:</strong> To create, maintain, and authenticate your user account using Firebase Phone OTP.</li>
-                    <li style={styles.listItem}><strong>Order Processing:</strong> To process, deliver, and track your food orders accurately and efficiently.</li>
-                    <li style={styles.listItem}><strong>Service Area Verification:</strong> Upon opening the app, your GPS coordinates are checked against our Kurnool polygon boundary.</li>
-                    <li style={styles.listItem}><strong>Delivery Distance Calculation:</strong> Your GPS location and the restaurant location are used to calculate the exact delivery distance.</li>
-                    <li style={styles.listItem}><strong>Payment Processing:</strong> Razorpay secrets are used to verify the legitimacy of each transaction before finalising your order.</li>
-                    <li style={styles.listItem}><strong>Session Management:</strong> A login timestamp is stored locally so that you remain logged in for up to 30 days.</li>
-                    <li style={styles.listItem}><strong>Customer Support:</strong> Your contact details may be used to respond to support queries and send service updates.</li>
-                    <li style={styles.listItem}><strong>Loyalty Rewards:</strong> A Coins balance is maintained on your profile and may be applied as discounts or loyalty rewards.</li>
+                    <li style={styles.listItem}><strong>Authentication:</strong> Using secure SMS-based OTP verification for account security and password recovery.</li>
+                    <li style={styles.listItem}><strong>Operational Logic:</strong> Validating your real-time location against our Kurnool service boundary to ensure order feasibility.</li>
+                    <li style={styles.listItem}><strong>Dynamic Pricing:</strong> Calculating precise delivery fees based on road-distance between your location and the selected restaurant.</li>
+                    <li style={styles.listItem}><strong>Payment Integrity:</strong> Using specialized verification secrets to authenticate secure digital payments.</li>
+                    <li style={styles.listItem}><strong>Persistence:</strong> Storing temporary session data locally (LocalStorage) to maintain your login state for up to 30 days.</li>
+                    <li style={styles.listItem}><strong>Voice Search:</strong> Processing voice input locally to provide a hands-free search experience for food items.</li>
                 </ul>
-            </div>
+            </section>
 
-            {/* Section 3: Data Security */}
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>3. Data Security & Storage</h2>
+            {/* 3. Security Framework */}
+            <section style={styles.card}>
+                <h2 style={styles.sectionHeading}>
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    3. Security & Cloud Management
+                </h2>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}>All data is securely stored in MongoDB databases hosted on Vercel&apos;s professional cloud infrastructure.</li>
-                    <li style={styles.listItem}>Passwords and sensitive information are encrypted at rest.</li>
-                    <li style={styles.listItem}>All data transmitted between your device and our servers is encrypted in transit using HTTPS (TLS).</li>
-                    <li style={styles.listItem}>We do not sell, rent, or share your personal data with third-party advertisers under any circumstances.</li>
+                    <li style={styles.listItem}><strong>Encrypted Storage:</strong> All user profiles and order histories are stored in dedicated cloud databases with disk-level encryption.</li>
+                    <li style={styles.listItem}><strong>Transport Security:</strong> All data transmitted between your mobile device and our servers is secured using TLS (HTTPS) via SSL certificates.</li>
+                    <li style={styles.listItem}><strong>Credential Hashing:</strong> Passwords and sensitive identifiers are hashed using strong cryptographic protocols (SHA-256) to prevent unauthorized access.</li>
+                    <li style={styles.listItem}><strong>Isolated Payments:</strong> Financial data (card numbers, CVV) are handled entirely by our secure Payment Gateway provider and never cross our servers.</li>
                 </ul>
-
-                <div style={{...styles.highlightBox, borderLeftColor: '#2b9348', backgroundColor: '#f0fff4' }}>
-                    <strong>Play Store Data Safety Note</strong><br/>
-                    Is data encrypted in transit? <strong>YES</strong> — all communication uses HTTPS via Vercel&apos;s secure hosting. <br/>
-                    Can users request deletion? <strong>YES</strong> — through Profile Settings or via the Contact Us section in the app.
+                <div style={{ ...styles.highlightBox, borderLeftColor: '#2b9348', backgroundColor: '#f0fff4' }}>
+                    <strong>Data Protection Note:</strong> In compliance with Play Store requirements, we ensure that all personal and sensitive user data is handled with the highest level of encryption-at-rest and in-transit.
                 </div>
-            </div>
+            </section>
 
-            {/* Section 4: Third-Party Services */}
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>4. Third-Party Services</h2>
-                <p style={styles.text}>Our application integrates with the following trusted third-party providers:</p>
+            {/* 4. Third-Party Integrations */}
+            <section style={styles.card}>
+                <h2 style={styles.sectionHeading}>
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    4. Trusted Partners
+                </h2>
+                <p style={styles.text}>We collaborate with the following industry-standard providers to ensure app reliability:</p>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}><strong>Firebase (Google):</strong> Provides phone number OTP authentication. Phone numbers are processed by Firebase in accordance with Google&apos;s Privacy Policy.</li>
-                    <li style={styles.listItem}><strong>Razorpay:</strong> Handles all payment transactions. Financial data such as card numbers is managed directly by Razorpay and is never stored on our servers.</li>
-                    <li style={styles.listItem}><strong>Google Maps / Geolocation API:</strong> Used for address verification and distance calculation.</li>
+                    <li style={styles.listItem}><strong>Authentication Services (Google Firebase):</strong> Secure SMS delivery and Phone-number verification.</li>
+                    <li style={styles.listItem}><strong>Financial Infrastructure (Razorpay):</strong> Industry-standard payment processing and settlement services.</li>
+                    <li style={styles.listItem}><strong>Geospatial Intelligence (Google Maps):</strong> Accurate address suggestions and optimized route calculation.</li>
+                    <li style={styles.listItem}><strong>Cloud Infrastructure:</strong> Professional hosting environments that provide global security and data availability.</li>
                 </ul>
-            </div>
+            </section>
 
-            {/* Section 5: Data Retention */}
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>5. Data Retention</h2>
+            {/* 5. User Rights & Data Deletion */}
+            <section style={styles.card}>
+                <h2 style={styles.sectionHeading}>
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    5. Your Rights & Data Control
+                </h2>
+                <p style={styles.text}>You maintain full control over your personal data at all times:</p>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}>Order history is retained to allow you to view past purchases and for our internal revenue records.</li>
-                    <li style={styles.listItem}>Your session data (login timestamp) is automatically cleared after 30 days of inactivity.</li>
-                    <li style={styles.listItem}>Upon account deletion, all personal data is removed from our systems within 30 days.</li>
+                    <li style={styles.listItem}><strong>Right to Correction:</strong> Edit your phone, name, and addresses directly via your Profile.</li>
+                    <li style={styles.listItem}><strong>Microphone Control:</strong> You can enable or disable voice search permissions any time via device settings.</li>
+                    <li style={styles.listItem}><strong>Data Portability:</strong> You may request a summary of the data we maintain regarding your account.</li>
+                    <li style={styles.listItem}><strong>Right to Deletion:</strong> You can request immediate account termination and data erasure via the &quot;Profile&quot; or &quot;Contact Us&quot; sections.</li>
                 </ul>
-            </div>
+            </section>
 
-            {/* Section 6: User Rights */}
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>6. Your Rights</h2>
-                <ul style={styles.list}>
-                    <li style={styles.listItem}><strong>Access:</strong> You may request a copy of the personal data we hold about you.</li>
-                    <li style={styles.listItem}><strong>Correction:</strong> You may update your personal information via your Profile settings.</li>
-                    <li style={styles.listItem}><strong>Deletion:</strong> You may request that your account and all associated data be permanently deleted.</li>
-                    <li style={styles.listItem}><strong>Restriction:</strong> You may request that we restrict how we use your data.</li>
-                </ul>
-            </div>
+            {/* 6. Legal Contact Section */}
+            <section style={styles.card}>
+                <h2 style={styles.sectionHeading}>
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    6. Privacy Contact Information
+                </h2>
+                <p style={styles.text}>
+                    For any privacy-related inquiries, data access requests, or to exercise your legal rights, please contact our dedicated privacy team:
+                </p>
+                <p style={{ ...styles.text, backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
+                    <strong>Email:</strong> <a href="mailto:spv@gmail.com" style={{ color: config.colors.primary, textDecoration: 'none' }}>spv@gmail.com</a>
+                    <br />
+                    <strong>Address:</strong> Kurnool City, Andhra Pradesh, India.
+                </p>
+            </section>
 
-            {/* Section 7, 8, 9 */}
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>7. Children&apos;s Privacy</h2>
-                <p style={styles.text}>Our application is not intended for use by individuals under the age of 18. If you believe a child has provided us with personal information, please contact us immediately.</p>
-            </div>
-
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>8. Changes to This Policy</h2>
-                <p style={styles.text}>We may update this Privacy Policy from time to time. Continued use of the application after changes constitutes your acceptance of the revised policy.</p>
-            </div>
-
-            <div style={styles.card}>
-                <h2 style={styles.sectionHeading}>9. Contact Us</h2>
-                <p style={styles.text}>If you have any questions or requests, please reach out to us through:</p>
-                <ul style={styles.list}>
-                    <li style={styles.listItem}><strong>In-App:</strong> Navigate to the &apos;Contact Us&apos; section.</li>
-                    <li style={styles.listItem}><strong>Email:</strong> Available in the app&apos;s Help &amp; Support section.</li>
-                </ul>
-            </div>
-
-            <div style={styles.footer}>
-                <p style={styles.commitment}>&quot;Our Commitment: We are committed to handling your data responsibly, transparently, and in accordance with applicable data protection regulations. Your trust is the foundation of our service.&quot;</p>
-                <p style={{ fontSize: '0.8rem', color: '#999', marginTop: '15px' }}>&copy; {new Date().getFullYear()} Food Delivery Application. Kurnool, Andhra Pradesh.</p>
-            </div>
+            {/* Footer Section */}
+            <footer style={styles.footer}>
+                <p style={styles.commitment}>&quot;Our core commitment: Your data is never a product. We utilize the minimum information necessary to provide the maximum service quality.&quot;</p>
+                <div style={{ fontSize: '0.9rem', color: '#9CA3AF', marginTop: '24px' }}>
+                    <p>&copy; {new Date().getFullYear()} Food Delivery Application. Kurnool, Andhra Pradesh.</p>
+                    <p style={{ marginTop: '8px', fontSize: '0.8rem' }}>Operation Area: Kurnool Municipal Corporation</p>
+                </div>
+            </footer>
         </div>
     );
 }

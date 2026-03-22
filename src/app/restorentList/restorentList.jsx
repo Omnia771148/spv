@@ -540,7 +540,7 @@ export default function RestorentList() {
                         <input
                             type="text"
                             className="custom-search-input"
-                            placeholder="Search"
+                            placeholder="Search for item or restaurant"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />

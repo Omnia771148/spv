@@ -58,6 +58,36 @@ export default function Profile() {
         }, 800);
     };
 
+    const handleDeleteAccount = async () => {
+        const userId = localStorage.getItem("userId");
+        if (!userId) return;
+
+        const confirmDelete = window.confirm(
+            "⚠️ PERMANENT ACTION\n\nAre you sure you want to delete your account? This will permanently erase your order history and profile. This cannot be undone."
+        );
+
+        if (confirmDelete) {
+            setLoading(true);
+            try {
+                const res = await fetch(`/api/users/${userId}`, {
+                    method: 'DELETE',
+                });
+
+                if (res.ok) {
+                    alert("Account Deleted Successfully. We're sorry to see you go.");
+                    handleLogout();
+                } else {
+                    alert("Error deleting account. Please contact support.");
+                    setLoading(false);
+                }
+            } catch (err) {
+                console.error("Delete account error", err);
+                alert("Server error. Please try again later.");
+                setLoading(false);
+            }
+        }
+    };
+
     if (loading) return <Loading />;
 
     return (
@@ -162,6 +192,29 @@ export default function Profile() {
                     </div>
                     <i className="fas fa-caret-right btn-arrow text-danger"></i>
                 </button>
+
+                {/* Account Deletion - Google Play Requirement */}
+                <div style={{ marginTop: '20px', padding: '10px' }}>
+                    <p style={{ fontSize: '12px', color: '#999', textAlign: 'center', marginBottom: '10px' }}>
+                        Need to close your account?
+                    </p>
+                    <button 
+                        onClick={handleDeleteAccount}
+                        style={{
+                            width: '100%',
+                            padding: '12px',
+                            backgroundColor: '#fee2e2',
+                            color: '#dc2626',
+                            border: '1px solid #fecaca',
+                            borderRadius: '12px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Permanently Delete Account
+                    </button>
+                </div>
 
             </div>
         </div>

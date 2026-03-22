@@ -43,3 +43,21 @@ export async function GET(req, { params }) {
     return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
+
+export async function DELETE(req, { params }) {
+  try {
+    await connectionToDatabase();
+    const { id } = await params;
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "User deleted successfully" }, { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
+  }
+}
