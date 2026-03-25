@@ -233,29 +233,29 @@ export default function UpdateEmail({ handleBacktoLogin }) {
                 <div className="input-group-styled">
                   <input type="text" placeholder="Enter OTP" value={otp} onChange={e => setOtp(e.target.value)} className="styled-input" />
                 </div>
-                <div className="resend-otp-container" style={{ 
-                  margin: '15px 0', 
-                  padding: '10px', 
-                  backgroundColor: 'rgba(255, 75, 43, 0.05)', 
-                  borderRadius: '10px',
-                  textAlign: 'center' 
-                }}>
+                <div className="resend-otp-container" style={{ textAlign: 'right', width: '100%', marginTop: '-10px', marginBottom: '10px' }}>
                   {canResend ? (
                     <button
                       type="button"
                       onClick={handleResendOtp}
-                      className="resend-btn"
-                      style={{ fontSize: '1rem', fontWeight: '700' }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#000',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: '500',
+                        textDecoration: 'underline',
+                        padding: 0,
+                        fontFamily: 'inherit'
+                      }}
                     >
-                      Resend OTP Now
+                      Resend OTP
                     </button>
                   ) : (
-                    <div className="timer-text" style={{ fontWeight: '600', color: '#ff4b2b', fontSize: '0.9rem' }}>
-                      Didn't receive the code?<br/>
-                      <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>
-                        You can resend in {resendTimer}s
-                      </span>
-                    </div>
+                    <span className="timer-text" style={{ fontSize: '0.9rem', color: '#000', fontWeight: '500' }}>
+                      Resend OTP in {resendTimer}s
+                    </span>
                   )}
                 </div>
                 <div className="create-btn-container">
