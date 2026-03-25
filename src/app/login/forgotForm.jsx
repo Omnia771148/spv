@@ -233,19 +233,29 @@ export default function UpdateEmail({ handleBacktoLogin }) {
                 <div className="input-group-styled">
                   <input type="text" placeholder="Enter OTP" value={otp} onChange={e => setOtp(e.target.value)} className="styled-input" />
                 </div>
-                <div className="resend-otp-container">
+                <div className="resend-otp-container" style={{ 
+                  margin: '15px 0', 
+                  padding: '10px', 
+                  backgroundColor: 'rgba(255, 75, 43, 0.05)', 
+                  borderRadius: '10px',
+                  textAlign: 'center' 
+                }}>
                   {canResend ? (
                     <button
                       type="button"
                       onClick={handleResendOtp}
                       className="resend-btn"
+                      style={{ fontSize: '1rem', fontWeight: '700' }}
                     >
-                      Resend OTP
+                      Resend OTP Now
                     </button>
                   ) : (
-                    <span className="timer-text">
-                      Resend OTP in {resendTimer}s
-                    </span>
+                    <div className="timer-text" style={{ fontWeight: '600', color: '#ff4b2b', fontSize: '0.9rem' }}>
+                      Didn't receive the code?<br/>
+                      <span style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                        You can resend in {resendTimer}s
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div className="create-btn-container">
