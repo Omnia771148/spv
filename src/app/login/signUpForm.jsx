@@ -25,6 +25,8 @@ export default function Home({ handleBacktoLogin }) {
   const [validationErrors, setValidationErrors] = useState({});
   const [configError, setConfigError] = useState(null);
   const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false, onConfirm: null });
+  const [resendTimer, setResendTimer] = useState(30);
+  const [canResend, setCanResend] = useState(false);
 
   const recaptchaVerifierRef = useRef(null);
 
@@ -90,6 +92,28 @@ export default function Home({ handleBacktoLogin }) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    let interval;
+    if (otpSent && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0) {
+      setCanResend(true);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [otpSent, resendTimer]);
+
+  const handleResendOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!canResend) return;
+
+    setResendTimer(30);
+    setCanResend(false);
+    await sendOtp(e);
+  };
 
   const sendOtp = async (e) => {
     e.preventDefault();
@@ -441,6 +465,22 @@ export default function Home({ handleBacktoLogin }) {
                     onChange={(e) => setOtp(e.target.value)}
                     className="styled-input"
                   />
+                </div>
+
+                <div className="resend-otp-container">
+                  {canResend ? (
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      className="resend-btn"
+                    >
+                      Resend OTP
+                    </button>
+                  ) : (
+                    <span className="timer-text">
+                      Resend OTP in {resendTimer}s
+                    </span>
+                  )}
                 </div>
 
                 <div className="terms-section mt-2">
