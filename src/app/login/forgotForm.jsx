@@ -18,6 +18,8 @@ export default function UpdateEmail({ handleBacktoLogin }) {
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
   const [popup, setPopup] = useState({ show: false, message: '', isSuccess: false });
+  const [resendTimer, setResendTimer] = useState(30);
+  const [canResend, setCanResend] = useState(false);
 
   const recaptchaVerifierRef = useRef(null);
 
@@ -61,6 +63,28 @@ export default function UpdateEmail({ handleBacktoLogin }) {
       document.querySelectorAll('.grecaptcha-badge').forEach(el => el.remove());
     };
   }, []);
+
+  useEffect(() => {
+    let interval;
+    if (otpSent && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0) {
+      setCanResend(true);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [otpSent, resendTimer]);
+
+  const handleResendOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!canResend) return;
+
+    setResendTimer(30);
+    setCanResend(false);
+    await sendOtp(e);
+  };
 
   const sendOtp = async (e) => {
     e.preventDefault();
@@ -208,6 +232,21 @@ export default function UpdateEmail({ handleBacktoLogin }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 <div className="input-group-styled">
                   <input type="text" placeholder="Enter OTP" value={otp} onChange={e => setOtp(e.target.value)} className="styled-input" />
+                </div>
+                <div className="resend-otp-container">
+                  {canResend ? (
+                    <button
+                      type="button"
+                      onClick={handleResendOtp}
+                      className="resend-btn"
+                    >
+                      Resend OTP
+                    </button>
+                  ) : (
+                    <span className="timer-text">
+                      Resend OTP in {resendTimer}s
+                    </span>
+                  )}
                 </div>
                 <div className="create-btn-container">
                   <button onClick={verifyOtp} disabled={loading} className="create-btn">Verify OTP</button>
