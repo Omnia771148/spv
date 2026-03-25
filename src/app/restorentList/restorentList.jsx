@@ -13,6 +13,7 @@ import { isPointInPolygon, getDistance } from "geolib";
 import { getExactDistance } from '../actions/delivery';
 import Loading from "../loading/page";
 import { showToast } from '../../toaster/page';
+import CategoryButtons from '../mainRestorentList/CategoryButtons';
 
 // Kurnool polygon boundary
 const kurnoolPolygon = [
@@ -38,9 +39,28 @@ const kurnoolPolygon = [
     { latitude: 15.847026, longitude: 78.005964 }
 ];
 
-export default function RestorentList() {
+export default function RestorentList({ externalSearch, onSearchChange }) {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
+
+    // Synchronize external search from category buttons
+    useEffect(() => {
+        if (externalSearch !== undefined && externalSearch !== categoryFilter) {
+            setCategoryFilter(externalSearch);
+        }
+    }, [externalSearch]);
+
+    const handleSearchChange = (value) => {
+        setSearch(value);
+    };
+
+    const handleCategorySelect = (value) => {
+        setCategoryFilter(value);
+        if (onSearchChange) {
+            onSearchChange(value);
+        }
+    };
     const [isListening, setIsListening] = useState(false);
     const [typeFilter, setTypeFilter] = useState('');
     const [mounted, setMounted] = useState(false);
@@ -542,7 +562,7 @@ export default function RestorentList() {
                             className="custom-search-input"
                             placeholder="Search for item or restaurant"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                         />
                         <i
                             className={`fa-solid fa-microphone search-icon ${isListening ? 'text-danger' : ''}`}
@@ -556,15 +576,15 @@ export default function RestorentList() {
                                         recognition.maxAlternatives = 1;
 
                                         recognition.onstart = () => {
-                                            setIsListening(true);
-                                            setSearch('');
-                                        };
+                                             setIsListening(true);
+                                             handleSearchChange('');
+                                         };
 
-                                        recognition.onresult = (event) => {
-                                            const transcript = event.results[0][0].transcript;
-                                            setSearch(transcript);
-                                            setIsListening(false);
-                                        };
+                                         recognition.onresult = (event) => {
+                                             const transcript = event.results[0][0].transcript;
+                                             handleSearchChange(transcript);
+                                             setIsListening(false);
+                                         };
 
                                         recognition.onerror = (event) => {
                                             console.error("Speech recognition error", event.error);
@@ -632,27 +652,54 @@ export default function RestorentList() {
                     </div>
                 </div>
 
+                {/* Category Filter Buttons - Positioned under search input */}
+                <CategoryButtons activeCategory={categoryFilter} onSelect={handleCategorySelect} />
+
                 <div className="mt-4">
                     {restList
                         .filter(restaurant => {
-                            // 1. Type Filter
-                            if (typeFilter && restaurant.type !== typeFilter) return false;
-
-                            // 2. Search Filter
-                            if (!search) return true;
-
                             const lowerSearch = search.toLowerCase();
+                            const lowerCategory = categoryFilter.toLowerCase();
+                            const activeType = typeFilter; // 'veg' or 'non-veg'
 
-                            // Check Restaurant Name
-                            if (restaurant.name.toLowerCase().includes(lowerSearch)) return true;
+                            // 1. Initial Match (No filters)
+                            if (!search && !categoryFilter && !activeType) return true;
 
-                            // Check Items in Restaurant
-                            const hasMatchingItem = Data.some(item =>
-                                item.restid === Number(restaurant.id) &&
-                                item.name.toLowerCase().includes(lowerSearch)
-                            );
+                            // 2. Check if the Restaurant itself matches criteria
+                            const restaurantMatchesType = !activeType || restaurant.type === activeType;
+                            const restaurantMatchesSearch = !search || restaurant.name.toLowerCase().includes(lowerSearch);
+                            const restaurantMatchesCategory = !categoryFilter || restaurant.name.toLowerCase().includes(lowerCategory);
 
-                            return hasMatchingItem;
+                            // 3. Check if any ITEMS in the restaurant match criteria
+                            const hasMatchingItem = Data.some(item => {
+                                if (item.restid !== Number(restaurant.id)) return false;
+
+                                const itemMatchesSearch = !search || item.name.toLowerCase().includes(lowerSearch);
+                                const itemMatchesCategory = !categoryFilter || item.name.toLowerCase().includes(lowerCategory);
+                                const itemMatchesType = !activeType || item.type === activeType;
+
+                                // Item must match all active item-level filters
+                                return itemMatchesSearch && itemMatchesCategory && itemMatchesType;
+                            });
+
+                            // FINAL LOGIC: 
+                            // A restaurant should be shown if:
+                            // (The restaurant itself matches the Type AND Search AND Category)
+                            // OR (There is at least one ITEM that satisfies all active filters)
+
+                            // Note: If Type Filter is "Veg", we generally want to see restaurants that have Veg items,
+                            // even if the restaurant is labeled as "Non-Veg" overall. 
+                            
+                            const fullRestaurantMatch = restaurantMatchesType && restaurantMatchesSearch && restaurantMatchesCategory;
+                            
+                            // If user is searching specifically for a Category OR Search text, 
+                            // we prioritize the Item match.
+                            if (search || categoryFilter) {
+                                return hasMatchingItem || (restaurantMatchesSearch && restaurantMatchesCategory && restaurantMatchesType);
+                            }
+
+                            // If no text search, fallback to standard type filter
+                            return restaurantMatchesType;
                         })
                         .map(item => (
                             <div key={item.name} className="mb-3">
