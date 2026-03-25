@@ -42,12 +42,11 @@
     transition: transform 0.4s ease;
 }
 
-.category-card:hover {
-    transform: translateY(-5px);
-}
+/* Hover state handled below */
 
 .category-card:hover .card-image-wrapper {
-    border: 2px solid #000; /* Black hover as requested */
+    border: 2px solid #000;
+    /* Black hover as requested */
 }
 
 .category-card:hover .cat-img {
@@ -76,18 +75,25 @@
 }
 
 /* Active State Design */
+.category-card.active {
+    transform: translateY(-5px); /* Only stay 'up' when active */
+}
+
 .category-card.active .card-image-wrapper {
-    border: 3px solid #2E7D32; /* Thinner green border as requested */
+    border: 3px solid #2E7D32;
+    /* Thinner green border as requested */
     transform: scale(1.05);
     /* Slight lift for active */
 }
 
 .category-card.active .cat-img {
-    filter: brightness(0.5); /* Stronger black shade for better clarity */
+    filter: brightness(0.5);
+    /* Stronger black shade for better clarity */
 }
 
 .category-card.active .text-overlay {
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9)); /* Black shade on text area */
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+    /* Black shade on text area */
 }
 
 .category-card.active .cat-name-box {
@@ -109,7 +115,7 @@
     align-items: center;
     font-size: 10px;
     z-index: 5;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .unselect-icon i {
