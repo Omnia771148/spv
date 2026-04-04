@@ -64,3 +64,70 @@ html, body {
         opacity: 0;
     }
 }
+
+/* Sort Text Button Styles */
+.sort-text-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 0 5px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sort-text-container::-webkit-scrollbar {
+    display: none;
+}
+
+.sort-text-btn {
+    background-color: #EBE5D5;
+    color: #444;
+    border: 1px solid #D0C9B4;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sort-text-btn:hover {
+    background-color: #E0DAC8;
+    transform: translateY(-1px);
+}
+
+.sort-text-btn.active-sort {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Sidebar Toggle with Label */
+.sidebar-toggle-btn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    padding: 15px 4px !important;
+    width: auto !important;
+    min-width: 32px !important;
+    height: auto !important;
+    min-height: 120px !important;
+    background: linear-gradient(135deg, #222, #444) !important;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.4) !important;
+}
+
+.sidebar-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #fff;
+    text-transform: uppercase;
+    opacity: 0.9;
+}

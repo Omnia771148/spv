@@ -27,6 +27,7 @@ export default function TajdaarbarMenuList() {
   const [cart, setCart] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [sortOrder, setSortOrder] = useState('default'); // 'default', 'low-to-high', 'high-to-low'
 
   const categories = ['All', ...new Set(Data.map(item => item.category).filter(Boolean))];
 
@@ -125,8 +126,8 @@ export default function TajdaarbarMenuList() {
     <div className="restaurant-page-bg container mt-4">
 
       {/* Sidebar Toggle Button */}
-      <button className="sidebar-toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-        <i className={`fa-solid ${isSidebarOpen ? 'fa-angle-left' : 'fa-angle-right'}`}></i>
+      <button className="sidebar-toggle-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}><i className={`fa-solid ${isSidebarOpen ? 'fa-angle-left' : 'fa-angle-right'}`}></i>
+        <div className="sidebar-label">CATEGORIES</div>
       </button>
 
       {/* Sidebar Overlay */}
@@ -236,6 +237,10 @@ export default function TajdaarbarMenuList() {
           ></i>
         </div>
 
+      
+
+      
+
         <div className="toggle-group d-flex align-items-center">
           {/* All Button */}
           <button
@@ -264,8 +269,33 @@ export default function TajdaarbarMenuList() {
             <i className="fa-solid fa-drumstick-bite"></i>
           </button>
         </div>
+
+        
       </div>
 
+      
+      
+      
+      <div className="sort-text-container">
+        <button 
+          className={`sort-text-btn ${sortOrder === 'default' ? 'active-sort' : ''}`}
+          onClick={() => setSortOrder('default')}
+        >
+          All
+        </button>
+        <button 
+          className={`sort-text-btn ${sortOrder === 'low-to-high' ? 'active-sort' : ''}`}
+          onClick={() => setSortOrder('low-to-high')}
+        >
+          Low Price to High Price
+        </button>
+        <button 
+          className={`sort-text-btn ${sortOrder === 'high-to-low' ? 'active-sort' : ''}`}
+          onClick={() => setSortOrder('high-to-low')}
+        >
+          High Price to Low Price
+        </button>
+      </div>
       <div className="row">
         {Data.filter(item => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
@@ -275,7 +305,13 @@ export default function TajdaarbarMenuList() {
 
           return matchesSearch && matchesType && isActive && matchesCategory;
 
-        }).map(item => (
+        })
+        .sort((a, b) => {
+          if (sortOrder === 'low-to-high') return a.price - b.price;
+          if (sortOrder === 'high-to-low') return b.price - a.price;
+          return 0;
+        })
+        .map(item => (
           <ProductCard
             key={item.id}
             item={item}

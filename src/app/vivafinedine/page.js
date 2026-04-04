@@ -21,6 +21,7 @@ export default function VivaMenuList() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState('default'); // 'default', 'low-to-high', 'high-to-low'
   const [search, setSearch] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
@@ -202,6 +203,10 @@ export default function VivaMenuList() {
           ></i>
         </div>
 
+      
+
+      
+
         <div className="toggle-group d-flex align-items-center">
           {/* All Button */}
           <button
@@ -230,8 +235,33 @@ export default function VivaMenuList() {
             <i className="fa-solid fa-drumstick-bite"></i>
           </button>
         </div>
+
+        
       </div>
 
+      
+      
+      
+      <div className="sort-text-container">
+        <button 
+          className={`sort-text-btn ${sortOrder === 'default' ? 'active-sort' : ''}`}
+          onClick={() => setSortOrder('default')}
+        >
+          All
+        </button>
+        <button 
+          className={`sort-text-btn ${sortOrder === 'low-to-high' ? 'active-sort' : ''}`}
+          onClick={() => setSortOrder('low-to-high')}
+        >
+          Low Price to High Price
+        </button>
+        <button 
+          className={`sort-text-btn ${sortOrder === 'high-to-low' ? 'active-sort' : ''}`}
+          onClick={() => setSortOrder('high-to-low')}
+        >
+          High Price to Low Price
+        </button>
+      </div>
       <div className="row">
         {Data.filter((item) => {
           const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
@@ -239,7 +269,15 @@ export default function VivaMenuList() {
           const isActive = buttonStatuses[item.id] === true;
 
           return matchesSearch && matchesType && isActive;
-        }).map((item) => (
+        })
+        .sort((a, b) => {
+          const priceA = typeof a.price === 'string' ? parseFloat(a.price.replace(/[^0-9.]/g, '')) : a.price;
+          const priceB = typeof b.price === 'string' ? parseFloat(b.price.replace(/[^0-9.]/g, '')) : b.price;
+          if (sortOrder === 'low-to-high') return priceA - priceB;
+          if (sortOrder === 'high-to-low') return priceB - priceA;
+          return 0;
+        })
+        .map((item) => (
           <ProductCard
             key={item.id}
             item={item}
