@@ -6,7 +6,15 @@ import crypto from "crypto";
 export async function POST(request) {
   try {
     await connectionToDatabase();
-    const { name, email, phone, password, dateOfBirth, blickstatus } = await request.json();
+    const { name, email, phone, password, dateOfBirth, referralCode, blickstatus } = await request.json();
+
+    if (referralCode) {
+      const CouponCode = (await import("../../../../models/CouponCode")).default;
+      const isValidCoupon = await CouponCode.findOne({ couponCode: referralCode });
+      if (!isValidCoupon) {
+         return NextResponse.json({ error: "Invalid Coupon Code" }, { status: 400 });
+      }
+    }
 
     // Hash password using SHA-256
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
@@ -15,6 +23,7 @@ export async function POST(request) {
       name, 
       email, 
       phone, 
+      referralCode,
       password: hashedPassword, 
       dateOfBirth,
       blickstatus: blickstatus ?? true 

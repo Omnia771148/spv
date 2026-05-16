@@ -25,7 +25,20 @@ export async function POST(request) {
             if (user.blickstatus === false) {
                 return NextResponse.json({ error: "Your ID was blocked" }, { status: 403 });
             }
-            return NextResponse.json(user, { status: 200 });
+
+            let showWalletPopup = false;
+            // Check if they signed up with a referral code and haven't claimed the bonus yet
+            if (user.referralCode && !user.signupBonusClaimed) {
+                user.coins = (user.coins || 0) + 50;
+                user.signupBonusClaimed = true;
+                await user.save();
+                showWalletPopup = true;
+            }
+
+            const responseUser = user.toObject();
+            responseUser.showWalletPopup = showWalletPopup;
+
+            return NextResponse.json(responseUser, { status: 200 });
         }
 
         return NextResponse.json({ error: "Invalid Mobile Number or Password" }, { status: 401 });

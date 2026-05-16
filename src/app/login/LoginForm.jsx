@@ -106,8 +106,18 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
                 // Reset location prompt so it asks again on fresh login
                 sessionStorage.removeItem("isAppLoaded");
 
-                // Directly go to restaurant list
-                window.location.href = "/mainRestorentList";
+                // Show popup if they got the signup bonus
+                if (matchedUser.showWalletPopup) {
+                    setPopup({
+                        show: true,
+                        message: "Congratulations! 50 coins have been added to your wallet for using a valid coupon code.",
+                        isSuccess: true,
+                        redirectAfter: true
+                    });
+                } else {
+                    // Directly go to restaurant list
+                    window.location.href = "/mainRestorentList";
+                }
             }
         } catch (err) {
             // Only log unexpected errors, not standard login failures (401)
@@ -146,11 +156,14 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
                 <ErrorPopup
                     message={popup.message}
                     isSuccess={popup.isSuccess}
-                    buttonText={popup.redirectToSignup ? "Create New Account" : null}
+                    buttonText={popup.redirectToSignup ? "Create New Account" : (popup.redirectAfter ? "Continue" : null)}
                     onClose={() => {
                         setPopup({ ...popup, show: false });
                         if (popup.redirectToSignup) {
                             handleSignUp();
+                        }
+                        if (popup.redirectAfter) {
+                            window.location.href = "/mainRestorentList";
                         }
                     }}
                 />

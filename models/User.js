@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String },
+  referralCode: { type: String },
   password: { type: String, required: true },
   dateOfBirth: { type: Date, required: true },
   savedAddresses: [
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema({
     url: { type: String }
   },
   coins: { type: Number, default: 0 },
+  signupBonusClaimed: { type: Boolean, default: false },
   blickstatus: { type: Boolean, default: true }
 });
 

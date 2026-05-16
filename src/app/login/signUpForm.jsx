@@ -21,6 +21,7 @@ export default function Home({ handleBacktoLogin }) {
   const [otpVerified, setOtpVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
   const [errors, setErrors] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [configError, setConfigError] = useState(null);
@@ -145,13 +146,8 @@ export default function Home({ handleBacktoLogin }) {
       return;
     }
 
-    // 3. Password Validation (8 chars, 1 capital, 1 special)
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      setValidationErrors(prev => ({ ...prev, password: "Must have 8+ chars, 1 uppercase, 1 special char." }));
-      setErrors(prev => ({ ...prev, password: true }));
-      return;
-    }
+    // 3. Password Validation (8 chars, 1 capital, 1 special) - Removed to allow any password
+    // (Password is still checked for non-empty above)
 
     // 4. Age Validation (18+)
     const today = new Date();
@@ -248,7 +244,7 @@ export default function Home({ handleBacktoLogin }) {
 
       // 2. Save to DB
       const cleanPhone = phone; // Already just numbers
-      await axios.post('/api/users', { name, email, password, phone: cleanPhone, dateOfBirth, blickstatus: true });
+      await axios.post('/api/users', { name, email, password, phone: cleanPhone, dateOfBirth, referralCode, blickstatus: true });
 
       setPopup({
         show: true,
@@ -449,6 +445,23 @@ export default function Home({ handleBacktoLogin }) {
               />
             </div>
             {validationErrors.dateOfBirth && <p className="validation-message">{validationErrors.dateOfBirth}</p>}
+
+            {/* Referral Code (Optional) */}
+            <div className="input-group-styled">
+              <div className="input-icon-wrapper">
+                <svg viewBox="0 0 24 24">
+                  <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.41l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.36-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.41zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                placeholder="Referral Code (Optional)"
+                onChange={(e) => setReferralCode(e.target.value)}
+                value={referralCode}
+                className="styled-input"
+                disabled={otpVerified}
+              />
+            </div>
 
             {/* OTP Section - Appears after sending OTP, includes Terms */}
             {otpSent && (
