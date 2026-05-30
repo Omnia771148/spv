@@ -140,6 +140,25 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
         // Cache check removed to allow re-verification of location on startup
         // This ensures the browser permission prompt handles the allow/block logic
 
+        // Google Play Reviewer Bypass for test account
+        const userPhone = typeof window !== 'undefined' ? localStorage.getItem("userPhone") : null;
+        const isTestUser = userPhone === "9999999999";
+
+        if (isTestUser) {
+            console.log("🛠️ Google Reviewer Bypass: Mocking location inside Kurnool.");
+            const mockLat = 15.8284;
+            const mockLng = 78.0373;
+            localStorage.setItem("customerLat", mockLat);
+            localStorage.setItem("customerLng", mockLng);
+            sessionStorage.removeItem("locationSkipped");
+            localStorage.setItem("isServiceAvailable", "true");
+            setShowLocationModal(false);
+            setShowFetchingModal(false);
+            setOutOfZone(false);
+            setError(null);
+            fetchAllDistances(mockLat, mockLng);
+            return;
+        }
 
         if (!navigator.geolocation) return;
         if (!force && hasRequestedThisMount.current) return;
