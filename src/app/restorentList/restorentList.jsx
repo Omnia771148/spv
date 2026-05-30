@@ -153,10 +153,17 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
             sessionStorage.removeItem("locationSkipped");
             localStorage.setItem("isServiceAvailable", "true");
             setShowLocationModal(false);
-            setShowFetchingModal(false);
+            
+            // Show fetching modal to match normal flow
+            setShowFetchingModal(true);
             setOutOfZone(false);
             setError(null);
-            fetchAllDistances(mockLat, mockLng);
+            
+            // Wait 1.5 seconds, then calculate distances and hide the fetching modal
+            setTimeout(async () => {
+                await fetchAllDistances(mockLat, mockLng);
+                setShowFetchingModal(false);
+            }, 1500);
             return;
         }
 

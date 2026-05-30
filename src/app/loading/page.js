@@ -17,8 +17,8 @@ export default function Loading() {
             {/* Charcoal circular background with logo */}
             <div className="logo-circle">
               <img
-                src="/spv-logo.png"
-                alt="SPV Logo"
+                src="/Leevon logo.png"
+                alt="Leevon Logo"
                 className="brand-logo"
               />
             </div>
