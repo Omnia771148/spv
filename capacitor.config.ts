@@ -7,6 +7,7 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     url: 'https://spv-seven.vercel.app/',
+    allowNavigation: ['spv-seven.vercel.app'],
     cleartext: true
   }
 };
