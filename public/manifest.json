@@ -2,7 +2,7 @@
   "name": "Leevon Delivery",
   "short_name": "Leevon",
   "description": "Food Delivery Application",
-  "display": "standalone",
+  "display": "browser",
   "start_url": "/",
   "scope": "/",
   "orientation": "any",
