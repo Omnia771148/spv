@@ -589,7 +589,7 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
                         <input
                             type="text"
                             className="custom-search-input"
-                            placeholder="Search for item or restaurant"
+                            placeholder="Search for restaurants and items"
                             value={search}
                             onChange={(e) => handleSearchChange(e.target.value)}
                         />

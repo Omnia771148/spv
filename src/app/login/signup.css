@@ -177,26 +177,28 @@ input[type="date"]::-webkit-inner-spin-button {
     text-decoration: underline;
 }
 
-/* Back icon button specialized for top left position */
-.back-arrow-btn {
+/* Back button styled like profile page */
+.back-button-svg-profile {
     position: absolute;
-    top: 30px;
     left: 20px;
+    top: 30px;
     cursor: pointer;
-    padding: 8px;
+    background-color: white;
+    border: none;
+    padding: 10px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.8);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    z-index: 10;
+    color: #1a1a1a;
 }
 
-.back-arrow-btn:hover {
-    background: #fff;
-    transform: translateX(-3px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.back-button-svg-profile:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 /* Mobile Responsiveness */

@@ -233,7 +233,7 @@ export default function LoginForm({ handleFPClick, handleSignUp }) {
             </div>
 
             <div className="create-account-text">
-                New To The Place
+                Create New Account
                 <span
                     className="create-link"
                     onClick={handleSignUp}

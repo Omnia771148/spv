@@ -140,21 +140,27 @@ export default function UsersPage() {
           )}
         </div>
         {/* Phone Row (Read-only always, consistent look) */}
-        <div className="data-row">
+        <div className="data-row" style={isEditing ? { backgroundColor: "#f9f8f6" } : {}}>
           <div className="data-icon">
-            <i className="fas fa-phone" style={{ transform: "rotate(90deg)" }}></i>
+            <i className="fas fa-phone" style={{ transform: "rotate(90deg)", color: isEditing ? "#999" : "#333" }}></i>
           </div>
           {isEditing ? (
             <input
               type="text"
               className="input-field"
               value={formData.phone}
+              style={{ color: "#777" }}
               readOnly
             />
           ) : (
             <div className="data-text">{user.phone || "No phone number"}</div>
           )}
         </div>
+        {isEditing && (
+          <div style={{ fontSize: '11px', color: '#8c7853', paddingLeft: '20px', marginTop: '-6px', marginBottom: '4px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <i className="fas fa-info-circle"></i> Phone number cannot be changed
+          </div>
+        )}
 
         {/* Email Row */}
         <div className="data-row">

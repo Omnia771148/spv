@@ -20,7 +20,7 @@ export const restList = [
         lat: 15.7796123,
         lng: 78.0566811,
         rating: "4.1",
-        image: "/2.jpg",
+        image: "/pv.jpg",
     },
     {
         id: "3",
