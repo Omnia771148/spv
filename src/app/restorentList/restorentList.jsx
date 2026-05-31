@@ -142,7 +142,7 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
 
         // Google Play Reviewer Bypass for test account
         const userPhone = typeof window !== 'undefined' ? localStorage.getItem("userPhone") : null;
-        const isTestUser = userPhone === "9999999999";
+        const isTestUser = userPhone === "9999999999" || (userPhone && userPhone.replace(/\D/g, '').endsWith("9999999999"));
 
         if (isTestUser) {
             console.log("🛠️ Google Reviewer Bypass: Mocking location inside Kurnool.");
@@ -508,8 +508,7 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
                     <div className="location-loader">
                         <Spinner animation="border" />
                     </div>
-                    <div className="location-modal-title mt-3">Fetching Location...</div>
-                    <div className="location-modal-text">Checking if you are in Kurnool</div>
+                    <div className="location-modal-title mt-3">Fetching your location...</div>
                 </Modal.Body>
             </Modal>
 

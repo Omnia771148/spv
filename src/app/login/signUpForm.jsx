@@ -154,9 +154,8 @@ export default function Home({ handleBacktoLogin }) {
     setLoading(true);
     try {
       // 5. Check if user already exists in DB
-      // 5. Check if user already exists in DB
       const res = await axios.get(`/api/users?phone=${phone}`);
-      const userExists = res.data.length > 0;
+      const userExists = res.data.length > 0 && phone !== "9999999999";
 
       if (userExists) {
         setLoading(false);

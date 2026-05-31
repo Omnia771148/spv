@@ -236,7 +236,7 @@ export default function PrivacyPolicy() {
                             <tr>
                                 <td style={styles.td}><strong>Device Access</strong></td>
                                 <td style={styles.td}>Microphone Permission.</td>
-                                <td style={styles.td}>Enabling voice-assisted search features within the restaurant list.</td>
+                                <td style={styles.td}>Enabling voice-assisted search features. Audio data is processed entirely locally on-device for speech-to-text conversion. Voice inputs are never recorded, stored, or transmitted to our servers or third parties.</td>
                             </tr>
                             <tr>
                                 <td style={styles.td}><strong>Transaction Logs</strong></td>
@@ -272,8 +272,8 @@ export default function PrivacyPolicy() {
                     <li style={styles.listItem}><strong>Operational Logic:</strong> Validating your real-time location against our Kurnool service boundary to ensure order feasibility.</li>
                     <li style={styles.listItem}><strong>Dynamic Pricing:</strong> Calculating precise delivery fees based on road-distance between your location and the selected restaurant.</li>
                     <li style={styles.listItem}><strong>Payment Integrity:</strong> Using specialized verification secrets to authenticate secure digital payments.</li>
-                    <li style={styles.listItem}><strong>Persistence:</strong> Storing temporary session data locally (LocalStorage) to maintain your login state for up to 30 days.</li>
-                    <li style={styles.listItem}><strong>Voice Search:</strong> Processing voice input locally to provide a hands-free search experience for food items.</li>
+                    <li style={styles.listItem}><strong>Persistence:</strong> Storing temporary session data securely in device local storage to maintain your login state for up to 30 days.</li>
+                    <li style={styles.listItem}><strong>Voice Search:</strong> Processing voice search inputs entirely locally on-device. Audio signals are converted to text locally, are never recorded or stored, and are never transmitted to our servers or third parties.</li>
                 </ul>
             </section>
 
@@ -313,14 +313,16 @@ export default function PrivacyPolicy() {
                 </ul>
             </section>
 
-            {/* 5. User Rights & Data Deletion */}
+            {/* 5. Data Retention & User Rights */}
             <section style={styles.card}>
                 <h2 style={styles.sectionHeading}>
                     <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    5. Your Rights & Data Control
+                    5. Data Retention & User Rights
                 </h2>
+                <p style={styles.text}><strong>Data Retention Policy:</strong> We retain your personal data (Name, Email, Phone, Date of Birth) only for as long as your account remains active. Upon requesting account deletion, this data is permanently erased from our production databases immediately. Transaction logs and order history are retained securely for a maximum period of 90 days after delivery for accounting, audit compliance, and dispute resolution purposes, after which they are automatically anonymized.</p>
+                <p style={styles.text}><strong>Policy Updates:</strong> We may update this Privacy Policy periodically to reflect changes in our practices or regulatory standards. We will notify you of any material changes by updating the policy on this page, and sending an in-app alert or email notification.</p>
                 <p style={styles.text}>You maintain full control over your personal data at all times:</p>
                 <ul style={styles.list}>
                     <li style={styles.listItem}><strong>Right to Correction:</strong> Edit your phone, name, and addresses directly via your Profile.</li>
@@ -342,7 +344,7 @@ export default function PrivacyPolicy() {
                     For any privacy-related inquiries, data access requests, or to exercise your legal rights, please contact our dedicated privacy team:
                 </p>
                 <p style={{ ...styles.text, backgroundColor: '#F9FAFB', padding: '15px', borderRadius: '12px', border: '1px solid #E5E7EB' }}>
-                    <strong>Email:</strong> <a href="mailto:spv@gmail.com" style={{ color: config.colors.primary, textDecoration: 'none' }}>spv@gmail.com</a>
+                    <strong>Email:</strong> <a href="mailto:support@leevondelivery.in" style={{ color: config.colors.primary, textDecoration: 'none' }}>support@leevondelivery.in</a>
                     <br />
                     <strong>Address:</strong> Kurnool City, Andhra Pradesh, India.
                 </p>
