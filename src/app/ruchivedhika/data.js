@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
 
 //veg starters
 { "id": 1377, "name": "Corn Cheese Cookets", "price": 320, "restid": 12, "button": "Add", "type": "veg", "symbol": "🟩", "category": "veg-starters", "image": "/fooditems/1 (200).webp" },
@@ -87,4 +89,6 @@ export const Data = [
 { "id": 1451, "name": "Egg Fried Rice", "price": 220, "restid": 12, "button": "Add", "type": "non-veg", "symbol": "🟥", "category": "fried-rice", "image": "/fooditems/1 (200).webp" },
 { "id": 1452, "name": "Chicken Fried Rice", "price": 325, "restid": 12, "button": "Add", "type": "non-veg", "symbol": "🟥", "category": "fried-rice", "image": "/fooditems/1 (200).webp" },
 
+
+*/
 ]

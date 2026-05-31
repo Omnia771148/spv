@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
     
 //non-veg starter
 
@@ -171,4 +173,6 @@ export const Data = [
 { id: 441, name: "Curd Rice", price: 100, restid: 4, button: "Add", type: "veg", symbol: "🟩", category: "rice items", image: "/fooditems/1 (200).webp" },
 { id: 442, name: "Curd Cup", price: 15, restid: 4, button: "Add", type: "veg", symbol: "🟩", category: "rice items", image: "/fooditems/1 (200).webp" }
 
+
+*/
 ];

@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
 //Waffles
 { id: 208, name: "Milk Chocolate Waffle", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "Waffles", image: "/fooditems/1 (200).webp" },
 { id: 209, name: "Dark Chocolate Waffle", price: 129, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "Waffles", image: "/fooditems/1 (200).webp" },
@@ -128,4 +130,6 @@ export const Data = [
 { id: 300, name: "Steamed Chicken Momos", price: 139, restid: 1, button: "Add", type: "non-veg", symbol: "🔺", category: "momos", image: "/fooditems/1 (200).webp" },
 { id: 301, name: "Fried Chicken Momos", price: 149, restid: 1, button: "Add", type: "non-veg", symbol: "🔺", category: "momos", image: "/fooditems/1 (200).webp" }
 
+
+*/
 ]

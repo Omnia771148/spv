@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
  
 
 // veg-starter
@@ -45,4 +47,6 @@ export const Data = [
 { id: 724, name: "Prawns Manchurian", price: 340, restid: 7, button: "Add", type: "non-veg", symbol: "🔺", category: "sea food", image: "/fooditems/1 (200).webp" }
 
 
+
+*/
 ]

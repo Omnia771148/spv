@@ -149,20 +149,7 @@ export default function Home({ handleBacktoLogin }) {
     // 3. Password Validation (8 chars, 1 capital, 1 special) - Removed to allow any password
     // (Password is still checked for non-empty above)
 
-    // 4. Age Validation (18+)
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
 
-    if (age < 18) {
-      setValidationErrors(prev => ({ ...prev, dateOfBirth: "You Are Under 18 Years Age" }));
-      setErrors(prev => ({ ...prev, dateOfBirth: true }));
-      return;
-    }
 
     setLoading(true);
     try {
@@ -220,7 +207,7 @@ export default function Home({ handleBacktoLogin }) {
     try {
       const result = await window.confirmationResult.confirm(otp);
       setOtpVerified(true);
-      setPopup({ show: true, message: "OTP Verified! Please accept terms to complete registration. ✅", isSuccess: true });
+      setPopup({ show: true, message: "OTP Verified! Please accept terms & privacy policy to complete registration. ✅", isSuccess: true });
     } catch (error) {
       console.error("Verification/DB Error:", error);
       setPopup({ show: true, message: "Invalid OTP. Please try again. ❌", isSuccess: false });
@@ -233,7 +220,7 @@ export default function Home({ handleBacktoLogin }) {
   const handleCreateAndRegister = async (e) => {
     e.preventDefault();
     if (!termsAccepted) {
-      setPopup({ show: true, message: "You must accept the Terms & Conditions to proceed.", isSuccess: false });
+      setPopup({ show: true, message: "You must accept the Terms & Conditions and Privacy Policy to proceed.", isSuccess: false });
       return;
     }
 
@@ -499,7 +486,7 @@ export default function Home({ handleBacktoLogin }) {
                 <div className="terms-section mt-2">
                   <div style={{ maxHeight: '100px', overflowY: 'auto', marginBottom: '5px' }}>
                     <p style={{ fontSize: '11px', color: '#666' }}>
-                      By creating an account, you agree to our Terms & Conditions.
+                      By creating an account, you agree to our Terms & Conditions and Privacy Policy.
                     </p>
                   </div>
                   <div className="form-check">
@@ -511,7 +498,7 @@ export default function Home({ handleBacktoLogin }) {
                       onChange={(e) => setTermsAccepted(e.target.checked)}
                     />
                     <label className="form-check-label fw-bold small" htmlFor="termsCheck">
-                      I agree to the <a href="https://tandccustomer.vercel.app/" target="_blank" rel="noopener noreferrer">Terms</a>
+                      I agree to the <a href="https://tandccustomer.vercel.app/" target="_blank" rel="noopener noreferrer">Terms & Conditions</a> and <a href="https://spv-seven.vercel.app/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
                     </label>
                   </div>
                 </div>

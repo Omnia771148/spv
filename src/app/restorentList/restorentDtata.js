@@ -33,6 +33,7 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
+    /*
     {
         id: "4",
         name: "Reddy Family Restuarent",
@@ -166,5 +167,5 @@ export const restList = [
         rating: "4.5",
         image: "/snow.jpg",
     },
-
+    */
 ]

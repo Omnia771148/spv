@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
  * Privacy Policy Component
  * 
  * This component displays the official Privacy Policy for the application.
- * Updated: 22nd March 2026
+ * Updated: 31st May 2026
  * Compliant with modern data protection standards and Google Play Store requirements.
  */
 export default function PrivacyPolicy() {
@@ -189,7 +189,7 @@ export default function PrivacyPolicy() {
                 </button>
                 <div style={styles.titleContainer}>
                     <h1 style={styles.title}>Privacy Policy</h1>
-                    <span style={styles.subtitle}>Last Updated: 22nd March 2026</span>
+                    <span style={styles.subtitle}>Last Updated: 31st May 2026</span>
                 </div>
             </header>
 
@@ -226,7 +226,7 @@ export default function PrivacyPolicy() {
                             <tr>
                                 <td style={styles.td}><strong>Identity Profile</strong></td>
                                 <td style={styles.td}>Full Name, Email Address, Contact Number, Date of Birth.</td>
-                                <td style={styles.td}>Account verification, personalization, and 18+ age validation.</td>
+                                <td style={styles.td}>Account verification, profile personalization, and security validation.</td>
                             </tr>
                             <tr>
                                 <td style={styles.td}><strong>Precise Location</strong></td>
@@ -253,8 +253,8 @@ export default function PrivacyPolicy() {
                 </div>
 
                 <div style={styles.highlightBox}>
-                    <strong>Age Requirement Policy (18+)</strong><br/>
-                    This application is strictly intended for users aged 18 and above. Your Date of Birth is used exclusively to verify eligibility and will never be shared with restaurant partners or third parties.
+                    <strong>Child Safety and Family Protection Policy</strong><br/>
+                    This application does not intentionally collect or target services at children under the age of 13. Your Date of Birth is used exclusively for account security validation, personalization, and birthday loyalty benefits, and is never shared with third parties.
                 </div>
             </section>
 
@@ -302,14 +302,14 @@ export default function PrivacyPolicy() {
                     <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                         <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
-                    4. Trusted Partners
+                    4. Trusted Service Providers
                 </h2>
-                <p style={styles.text}>We collaborate with the following industry-standard providers to ensure app reliability:</p>
+                <p style={styles.text}>We collaborate with industry-standard third-party infrastructure providers to ensure app safety, security, and operational reliability:</p>
                 <ul style={styles.list}>
-                    <li style={styles.listItem}><strong>Authentication Services (Google Firebase):</strong> Secure SMS delivery and Phone-number verification.</li>
-                    <li style={styles.listItem}><strong>Financial Infrastructure (Razorpay):</strong> Industry-standard payment processing and settlement services.</li>
-                    <li style={styles.listItem}><strong>Geospatial Intelligence (Google Maps):</strong> Accurate address suggestions and optimized route calculation.</li>
-                    <li style={styles.listItem}><strong>Cloud Infrastructure:</strong> Professional hosting environments that provide global security and data availability.</li>
+                    <li style={styles.listItem}><strong>Authentication & Security Services:</strong> To facilitate secure SMS delivery, account registration, and OTP verification.</li>
+                    <li style={styles.listItem}><strong>Payment Processing Gateways:</strong> To process digital payments securely without storing sensitive financial data on our servers.</li>
+                    <li style={styles.listItem}><strong>Geospatial & Mapping Services:</strong> To verify service availability boundaries and calculate delivery routes.</li>
+                    <li style={styles.listItem}><strong>Cloud Infrastructure & Database Providers:</strong> To host the application database and user profile data securely with standard data encryption.</li>
                 </ul>
             </section>
 

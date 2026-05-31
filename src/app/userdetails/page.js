@@ -61,21 +61,7 @@ export default function UsersPage() {
   };
 
   const handleSave = async () => {
-    // Age Validation (18+)
-    if (formData.dateOfBirth) {
-      const today = new Date();
-      const birthDate = new Date(formData.dateOfBirth);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
 
-      if (age < 18) {
-        alert("You must be at least 18 years old.");
-        return;
-      }
-    }
 
     try {
       setLoading(true); // Show brand loader during save

@@ -38,6 +38,7 @@ export const Data = [
 { id: 319, name: "French Fries Regular (150gm)", price: 50, restid: 3, button: "Add", type: "veg", symbol: "🟩", category: "fried items", image: "/fooditems/1 (200).webp" },
 { id: 320, name: "French Fries Large (250gm)", price: 70, restid: 3, button: "Add", type: "veg", symbol: "🟩", category: "fried items", image: "/fooditems/1 (200).webp" },
 { id: 321, name: "Peri Peri Fries Regular (150gm)", price: 60, restid: 3, button: "Add", type: "veg", symbol: "🟩", category: "fried items", image: "/fooditems/1 (200).webp" },
+/*
 { id: 322, name: "Peri Peri Fries Large (250gm)", price: 80, restid: 3, button: "Add", type: "veg", symbol: "🟩", category: "fried items", image: "/fooditems/1 (200).webp" },
 { id: 323, name: "Chicken Nuggets (7 pieces)", price: 80, restid: 3, button: "Add", type: "non-veg", symbol: "🔺", category: "fried items", image: "/fooditems/1 (200).webp" },
 { id: 324, name: "Potato Cheese Shorts (8 pieces)", price: 70, restid: 3, button: "Add", type: "veg", symbol: "🟩", category: "fried items", image: "/fooditems/1 (200).webp" },
@@ -48,4 +49,5 @@ export const Data = [
 //deserts
 { id: 328, name: "Chocolate Brownie Cake", price: 100, restid: 3, button: "Add", type: "veg", symbol: "🟩", category: "deserts", image: "/fooditems/1 (200).webp" }
 
+*/
 ];

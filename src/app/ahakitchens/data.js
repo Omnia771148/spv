@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
     
 
 
@@ -213,4 +215,6 @@ export const Data = [
 { id: 634, name: "Egg Noodles", price: 190, restid: 5, button: "Add", type: "non-veg", symbol: "🔴", category: "Noodles", image: "/fooditems/1 (200).webp" },
 { id: 635, name: "Chicken Noodles", price: 220, restid: 5, button: "Add", type: "non-veg", symbol: "🔴", category: "Noodles", image: "/fooditems/1 (200).webp" }
 
+
+*/
 ];

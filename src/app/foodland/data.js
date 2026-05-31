@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
 
 
   //food land
@@ -158,4 +160,6 @@ export const Data = [
 { id: 1194, name: "Kaju Biryani", price: 900, restid: 9, button: "Add", type: "veg", symbol: "🟩", image: "/fooditems/biryani5.webp", category: "veg Biryani" },
 { id: 1195, name: "Paneer Biryani", price: 760, restid: 9, button: "Add", type: "veg", symbol: "🟩", image: "/fooditems/biryani5.webp", category: "veg Biryani" },
 
+
+*/
 ]

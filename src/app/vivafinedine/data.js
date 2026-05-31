@@ -24,6 +24,7 @@ export const Data = [
 { id: 18, name: "Arrabiata Pasta (Fusilli)", price: 275, restid: 2, button: "Add", type: "veg", symbol: "🟩", image: "/fooditems/1 (200).webp" },
 { id: 19, name: "Pesto Pasta (Penne)", price: 275, restid: 2, button: "Add", type: "veg", symbol: "🟩", image: "/fooditems/1 (200).webp" },
 { id: 20, name: "Pesto Pasta (Macaroni)", price: 275, restid: 2, button: "Add", type: "veg", symbol: "🟩", image: "/fooditems/1 (200).webp" },
+/*
 { id: 21, name: "Pesto Pasta (Spaghetti)", price: 275, restid: 2, button: "Add", type: "veg", symbol: "🟩", image: "/fooditems/1 (200).webp" },
 { id: 22, name: "Pesto Pasta (Fusilli)", price: 275, restid: 2, button: "Add", type: "veg", symbol: "🟩", image: "/fooditems/1 (200).webp" },
 
@@ -248,4 +249,5 @@ export const Data = [
 { id: 206, name: "Mirapakaya Kodi", price: 350, restid: 2, button: "Add", type: "non-veg", symbol: "🔺", image: "/fooditems/1 (200).webp" },
 { id: 207, name: "Mirapakaya Mamsam", price: 425, restid: 2, button: "Add", type: "non-veg", symbol: "🔺", image: "/fooditems/1 (200).webp" }
 
+*/
 ];

@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
  
 
 
@@ -88,4 +90,6 @@ export const Data = [
 { id: 700, name: "Black Current", price: 90, restid: 6, button: "Add", type: "veg", symbol: "🟩", category: "mojitos", image: "/fooditems/1 (200).webp" }
 
 
+
+*/
 ]

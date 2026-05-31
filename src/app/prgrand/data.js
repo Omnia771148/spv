@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
 //////////    PR GRAND 
 
   { id: 725, name: "Gobi Manchuria", price: 180, restid: 8, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/1 (200).webp", category: "veg starters" },
@@ -282,4 +284,6 @@ export const Data = [
 
 
 
+
+*/
 ]

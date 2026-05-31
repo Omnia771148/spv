@@ -484,15 +484,19 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
                     <div className="location-modal-icon-container">
                         <i className="fas fa-map-marker-alt location-modal-icon"></i>
                     </div>
-                    <h5 className="location-modal-title">Enable Location Access</h5>
-                    <p className="location-modal-text">
-                        Turn on your location to enter the app. We only serve in Kurnool.
+                    <h5 className="location-modal-title">Location Permission Disclosure</h5>
+                    <p className="location-modal-text" style={{ fontSize: '0.85rem', textAlign: 'left', lineHeight: '1.5', margin: '15px 0', padding: '0 5px' }}>
+                        This application requires access to your device's precise location (GPS coordinates) to:
+                        <br />• <strong>Verify Service Area:</strong> Confirm if you are located within our active Kurnool City delivery boundary.
+                        <br />• <strong>Calculate Delivery Fees:</strong> Compute accurate road distance and delivery fees from the restaurant to your doorstep.
+                        <br /><br />
+                        This location data is accessed only in the foreground while you are using the app. We do not store your coordinates permanently, use them for marketing, or share them with third-party advertisers.
                     </p>
                     <button
                         className="location-modal-btn primary-btn"
                         onClick={handleEnableLocation}
                     >
-                        🔐 Turn On Location
+                        🔐 Agree & Enable Location
                     </button>
                     {/* Skip button removed - Location is mandatory */}
                 </Modal.Body>

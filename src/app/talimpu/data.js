@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
  
 /////TALIMPU RESTAURENT
 
@@ -177,4 +179,6 @@ export const Data = [
 
 
 
+
+*/
 ]
