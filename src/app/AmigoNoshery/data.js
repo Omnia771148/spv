@@ -31,7 +31,7 @@ export const Data = [
 
 
 //milk shakes
-{ id: 228, name: "Butterscotch Milkshake", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "milk shakes", image: "/fooditems/1 (200).webp" },
+{ id: 228, name: "Lanjala Milkshake", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "milk shakes", image: "/fooditems/1 (200).webp" },
 { id: 229, name: "Oreo Milkshake", price: 139, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "milk shakes", image: "/fooditems/1 (200).webp" },
 { id: 230, name: "KitKat Milkshake", price: 139, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "milk shakes", image: "/fooditems/1 (200).webp" },
 { id: 231, name: "Belgium Chocolate Milkshake", price: 149, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "milk shakes", image: "/fooditems/1 (200).webp" },
