@@ -30,7 +30,7 @@ export const Data = [
     { id: 227, name: "Classic Lemonade", price: 49, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (213).webp" },
 
     /*
-    //milk shakes
+    //milk shake
     
     { id: 228, name: "Lanjala Milkshake", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "milk shakes", image: "/fooditems/1 (200).webp" },
     { id: 229, name: "Oreo Milkshake", price: 139, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "milk shakes", image: "/fooditems/1 (200).webp" },
