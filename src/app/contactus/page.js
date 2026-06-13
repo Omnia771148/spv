@@ -44,21 +44,21 @@ export default function Contactus() {
                             I will include these as well using the same style.
                          */}
 
-                    <button className="contact-item-btn" onClick={() => window.location.href = "tel:+91100"}>
+                    <button className="contact-item-btn" onClick={() => window.location.href = "tel:+917207610235"}>
                         <div className="contact-icon-box">
                             <i className="fa-solid fa-phone"></i>
                         </div>
-                        <span>+91 100</span>
+                        <span>+91 7207610235</span>
                     </button>
 
-                    <button className="contact-item-btn" onClick={() => window.location.href = "mailto:spv@gmail.com"}>
+                    <button className="contact-item-btn" onClick={() => window.location.href = "mailto:support@leevondelivery.in"}>
                         <div className="contact-icon-box">
                             <i className="fa-solid fa-envelope"></i>
                         </div>
-                        <span>spv@gmail.com</span>
+                        <span>support@leevondelivery.in</span>
                     </button>
 
-                    {/* Socials */}
+                    {/* Socials
                     <button className="contact-item-btn" onClick={() => window.location.href = "/Profile"}>
                         <div className="contact-icon-box">
                             <i className="fa-brands fa-instagram"></i>
@@ -79,6 +79,7 @@ export default function Contactus() {
                         </div>
                         <span>Twitter</span>
                     </button>
+                    */}
 
                 </div>
             </div>

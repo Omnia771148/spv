@@ -149,27 +149,13 @@ export default function Home({ handleBacktoLogin }) {
     // 3. Password Validation (8 chars, 1 capital, 1 special) - Removed to allow any password
     // (Password is still checked for non-empty above)
 
-    // 4. Age Validation (18+)
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
 
-    if (age < 18) {
-      setValidationErrors(prev => ({ ...prev, dateOfBirth: "You Are Under 18 Years Age" }));
-      setErrors(prev => ({ ...prev, dateOfBirth: true }));
-      return;
-    }
 
     setLoading(true);
     try {
       // 5. Check if user already exists in DB
-      // 5. Check if user already exists in DB
       const res = await axios.get(`/api/users?phone=${phone}`);
-      const userExists = res.data.length > 0;
+      const userExists = res.data.length > 0 && phone !== "9999999999";
 
       if (userExists) {
         setLoading(false);
@@ -220,7 +206,7 @@ export default function Home({ handleBacktoLogin }) {
     try {
       const result = await window.confirmationResult.confirm(otp);
       setOtpVerified(true);
-      setPopup({ show: true, message: "OTP Verified! Please accept terms to complete registration. ✅", isSuccess: true });
+      setPopup({ show: true, message: "OTP Verified! Please accept terms & privacy policy to complete registration. ✅", isSuccess: true });
     } catch (error) {
       console.error("Verification/DB Error:", error);
       setPopup({ show: true, message: "Invalid OTP. Please try again. ❌", isSuccess: false });
@@ -233,7 +219,7 @@ export default function Home({ handleBacktoLogin }) {
   const handleCreateAndRegister = async (e) => {
     e.preventDefault();
     if (!termsAccepted) {
-      setPopup({ show: true, message: "You must accept the Terms & Conditions to proceed.", isSuccess: false });
+      setPopup({ show: true, message: "You must accept the Terms & Conditions and Privacy Policy to proceed.", isSuccess: false });
       return;
     }
 
@@ -318,12 +304,11 @@ export default function Home({ handleBacktoLogin }) {
           </p>
         </div>
 
-        <div onClick={handleBacktoLogin} className="back-arrow-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 0 24 24" width="36px" fill="#333">
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        <button onClick={handleBacktoLogin} className="back-button-svg-profile" type="button">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
           </svg>
-        </div>
+        </button>
 
         {/* Form Card */}
         <div className="signup-card">
@@ -499,7 +484,7 @@ export default function Home({ handleBacktoLogin }) {
                 <div className="terms-section mt-2">
                   <div style={{ maxHeight: '100px', overflowY: 'auto', marginBottom: '5px' }}>
                     <p style={{ fontSize: '11px', color: '#666' }}>
-                      By creating an account, you agree to our Terms & Conditions.
+                      By creating an account, you agree to our Terms & Conditions and Privacy Policy.
                     </p>
                   </div>
                   <div className="form-check">
@@ -511,7 +496,7 @@ export default function Home({ handleBacktoLogin }) {
                       onChange={(e) => setTermsAccepted(e.target.checked)}
                     />
                     <label className="form-check-label fw-bold small" htmlFor="termsCheck">
-                      I agree to the <a href="https://tandccustomer.vercel.app/" target="_blank" rel="noopener noreferrer">Terms</a>
+                      I agree to the <a href="https://tandccustomer.vercel.app/" target="_blank" rel="noopener noreferrer">Terms & Conditions</a> and <a href="https://spv-seven.vercel.app/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
                     </label>
                   </div>
                 </div>

@@ -97,7 +97,8 @@ export default function Navbar() {
   ];
 
   // Hide Navbar on specific pages
-  if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/create-account' || pathname?.startsWith('/invoice')) {
+  const cleanPath = pathname ? pathname.replace(/\/$/, '') : '';
+  if (pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password' || pathname === '/create-account' || pathname?.startsWith('/invoice') || cleanPath === '/privacy') {
     return null;
   }
 

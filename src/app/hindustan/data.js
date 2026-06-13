@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
 
 //// HOTEL HINDUSTAN////
 // veg starters
@@ -216,4 +218,6 @@ export const Data = [
 { id: 1649, name: "Anjeer Badam Ice Cream (Single Scoop)", price: 80, restid: 13, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "ice creams" },
 { id: 1650, name: "Caramel Nuts Ice Cream (Single Scoop)", price: 100, restid: 13, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "ice creams" },
 { id: 1651, name: "Belgian Dark Chocolate Ice Cream (Single Scoop)", price: 100, restid: 13, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "ice creams" },
+
+*/
 ]

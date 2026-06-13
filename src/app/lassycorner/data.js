@@ -1,4 +1,6 @@
 export const Data = [
+/*
+
 //lassi corrner
 //lassi corner
 // Lassi
@@ -216,4 +218,6 @@ export const Data = [
 { id: 1849, name: "Cheese Shortzz", price: 90, restid: 14, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "Veg Fries" },
 { id: 1850, name: "Momos", price: 90, restid: 14, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "Veg Fries" },
 { id: 1851, name: "Potato Widshes", price: 100, restid: 14, button: "Add", type: "veg", symbol: "🟢", image: "/fooditems/placeholder.webp", category: "Veg Fries" },
+
+*/
 ]

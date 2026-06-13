@@ -140,6 +140,32 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
         // Cache check removed to allow re-verification of location on startup
         // This ensures the browser permission prompt handles the allow/block logic
 
+        // Google Play Reviewer Bypass for test account
+        const userPhone = typeof window !== 'undefined' ? localStorage.getItem("userPhone") : null;
+        const isTestUser = userPhone === "9999999999" || (userPhone && userPhone.replace(/\D/g, '').endsWith("9999999999"));
+
+        if (isTestUser) {
+            console.log("🛠️ Google Reviewer Bypass: Mocking location inside Kurnool.");
+            const mockLat = 15.8284;
+            const mockLng = 78.0373;
+            localStorage.setItem("customerLat", mockLat);
+            localStorage.setItem("customerLng", mockLng);
+            sessionStorage.removeItem("locationSkipped");
+            localStorage.setItem("isServiceAvailable", "true");
+            setShowLocationModal(false);
+            
+            // Show fetching modal to match normal flow
+            setShowFetchingModal(true);
+            setOutOfZone(false);
+            setError(null);
+            
+            // Wait 1.5 seconds, then calculate distances and hide the fetching modal
+            setTimeout(async () => {
+                await fetchAllDistances(mockLat, mockLng);
+                setShowFetchingModal(false);
+            }, 1500);
+            return;
+        }
 
         if (!navigator.geolocation) return;
         if (!force && hasRequestedThisMount.current) return;
@@ -458,15 +484,19 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
                     <div className="location-modal-icon-container">
                         <i className="fas fa-map-marker-alt location-modal-icon"></i>
                     </div>
-                    <h5 className="location-modal-title">Enable Location Access</h5>
-                    <p className="location-modal-text">
-                        Turn on your location to enter the app. We only serve in Kurnool.
+                    <h5 className="location-modal-title">Location Permission Disclosure</h5>
+                    <p className="location-modal-text" style={{ fontSize: '0.85rem', textAlign: 'left', lineHeight: '1.5', margin: '15px 0', padding: '0 5px' }}>
+                        This application requires access to your device's precise location (GPS coordinates) to:
+                        <br />• <strong>Verify Service Area:</strong> Confirm if you are located within our active Kurnool City delivery boundary.
+                        <br />• <strong>Calculate Delivery Fees:</strong> Compute accurate road distance and delivery fees from the restaurant to your doorstep.
+                        <br /><br />
+                        This location data is accessed only in the foreground while you are using the app. We do not store your coordinates permanently, use them for marketing, or share them with third-party advertisers.
                     </p>
                     <button
                         className="location-modal-btn primary-btn"
                         onClick={handleEnableLocation}
                     >
-                        🔐 Turn On Location
+                        🔐 Agree & Enable Location
                     </button>
                     {/* Skip button removed - Location is mandatory */}
                 </Modal.Body>
@@ -478,8 +508,7 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
                     <div className="location-loader">
                         <Spinner animation="border" />
                     </div>
-                    <div className="location-modal-title mt-3">Fetching Location...</div>
-                    <div className="location-modal-text">Checking if you are in Kurnool</div>
+                    <div className="location-modal-title mt-3">Fetching your location...</div>
                 </Modal.Body>
             </Modal>
 
@@ -560,7 +589,7 @@ export default function RestorentList({ externalSearch, onSearchChange }) {
                         <input
                             type="text"
                             className="custom-search-input"
-                            placeholder="Search for item or restaurant"
+                            placeholder="Search for restaurants and items"
                             value={search}
                             onChange={(e) => handleSearchChange(e.target.value)}
                         />

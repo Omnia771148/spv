@@ -1,4 +1,4 @@
-package com.delivery.app;
+package com.leevon.delivery;
 
 import com.getcapacitor.BridgeActivity;
 

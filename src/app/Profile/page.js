@@ -184,6 +184,15 @@ export default function Profile() {
                     <i className="fas fa-caret-right btn-arrow"></i>
                 </button>
 
+                {/* Terms and Conditions */}
+                <button className="custom-nav-btn" onClick={() => window.open("https://tandccustomer.vercel.app/", "_blank")}>
+                    <div className="d-flex align-items-center">
+                        <i className="fas fa-file-contract btn-icon-left"></i>
+                        <span className="btn-text">Terms & Conditions</span>
+                    </div>
+                    <i className="fas fa-caret-right btn-arrow"></i>
+                </button>
+
                 {/* Logout - Added to maintain functionality */}
                 <button className="custom-nav-btn" onClick={handleLogout}>
                     <div className="d-flex align-items-center">
