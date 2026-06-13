@@ -23,7 +23,7 @@ export const Data = [
     //moctails
     { id: 221, name: "Virgin Pina Colada", price: 79, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (207).webp" },
     { id: 222, name: "Blue Curacao", price: 99, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (208).webp" },
-    { id: 223, name: "period  Blood Orange", price: 109, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (209).webp" },
+    { id: 223, name: "period Blood Orange", price: 109, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (209).webp" },
     { id: 224, name: "Cranberry Mojito", price: 109, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (210).webp" },
     { id: 225, name: "Ginger Mojito", price: 99, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (211).webp" },
     { id: 226, name: "Portuguese Lemonade (Spicy)", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (212).webp" },
