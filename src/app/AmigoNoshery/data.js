@@ -1,5 +1,5 @@
 export const Data = [
-    //Waffles
+    
     { id: 208, name: "Milk Chocolate Waffle", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "Waffles", image: "/fooditems/1 (194).webp" },
     { id: 209, name: "Dark Chocolate Waffle", price: 129, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "Waffles", image: "/fooditems/1 (195).webp" },
     { id: 210, name: "Belgium Chocolate Waffle", price: 139, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "Waffles", image: "/fooditems/1 (196).webp" },
@@ -9,7 +9,7 @@ export const Data = [
     { id: 214, name: "Nutella Waffle", price: 149, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "Waffles", image: "/fooditems/1 (200).webp" },
 
 
-    //jellies
+    //jelly
     { id: 215, name: "Japanese Jelly Coffee", price: 99, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "jellies", image: "/fooditems/1 (201).webp" },
     { id: 216, name: "Mango Jelly", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "jellies", image: "/fooditems/1 (202).webp" },
     { id: 217, name: "Strawberry Jelly", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "jellies", image: "/fooditems/1 (203).webp" },
@@ -23,7 +23,7 @@ export const Data = [
     //moctails
     { id: 221, name: "Virgin Pina Colada", price: 79, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (207).webp" },
     { id: 222, name: "Blue Curacao", price: 99, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (208).webp" },
-    { id: 223, name: "periods Blood Orange", price: 109, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (209).webp" },
+    { id: 223, name: "period  Blood Orange", price: 109, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (209).webp" },
     { id: 224, name: "Cranberry Mojito", price: 109, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (210).webp" },
     { id: 225, name: "Ginger Mojito", price: 99, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (211).webp" },
     { id: 226, name: "Portuguese Lemonade (Spicy)", price: 119, restid: 1, button: "Add", type: "veg", symbol: "🟩", category: "moctails", image: "/fooditems/1 (212).webp" },
